@@ -1,6 +1,7 @@
 import { Roboto } from "next/font/google";
 import Sidebar from "./_components/Sidebar";
 import Header from "./_components/Header";
+import { AuthProvider } from "@/providers/AuthProvier";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -15,9 +16,10 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div
-      className={`${roboto.variable} antialiased flex bg-stone-100 min-h-screen w-full`}
+    <AuthProvider
+      
     >
+      <div className={`${roboto.variable} antialiased flex bg-stone-100 min-h-screen w-full`}>
       <div className="max-md:hidden">
         <Sidebar />
       </div>
@@ -25,6 +27,7 @@ export default function AdminLayout({ children }) {
         <Header />
         {children}
       </div>
-    </div>
+      </div>
+    </AuthProvider>
   );
 }

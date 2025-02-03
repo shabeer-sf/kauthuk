@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  catName   String   @unique @db.VarChar(100)
+  showHome  Statuses @default(active)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SubCategory SubCategory[]
+}
+
+model SubCategory {
+  id          Int      @id @default(autoincrement())
+  cat_id      Int
+  subcategory String   @unique @db.VarChar(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Category Category  @relation(fields: [cat_id], references: [id])
+  Product  Product[]
+}
+
+enum Statuses {
+  active
+  inactive
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  image       String?  @db.VarChar(255)
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  cat_id           Int
+  title            String   @db.VarChar(255)
+  description      String   @db.Text
+  stock            YesNo    @default(yes)
+  stock_count      Int
+  base_price       Decimal  @db.Decimal(10, 2)
+  price_rupees     Decimal  @db.Decimal(10, 2)
+  price_dollars    Decimal  @db.Decimal(10, 2)
+  status           Statuses @default(active)
+  image            String   @db.VarChar(255)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  quantity_limit   Int
+  subcat_id        Int
+  terms_condition  String?  @db.Text
+  highlights       String?  @db.Text
+  meta_title       String?  @db.VarChar(255)
+  meta_keywords    String?  @db.Text
+  meta_description String?  @db.Text
+  hsn_code         String?  @db.VarChar(255)
+  tax              Float?
+  weight           Float?
+  free_shipping    YesNo    @default(no)
+  cod              YesNo    @default(yes)
+  variation        YesNo    @default(no)
+
+  SubCategory     SubCategory      @relation(fields: [subcat_id], references: [id])
+  ProductVariants ProductVariant[]
+}
+
+model ProductVariant {
+  id               Int      @id @default(autoincrement())
+  product_id       Int
+  sku              String   @db.VarChar(255)
+  price_rupees     Decimal  @db.Decimal(10, 2)
+  price_dollars    Decimal  @db.Decimal(10, 2)
+  stock            Int
+  available_sizes  String?  @db.VarChar(255) // Size-related stock availability
+  available_colors String?  @db.VarChar(255) // Color-related stock availability
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  Product       Product        @relation(fields: [product_id], references: [id])
+  VariantValues VariantValue[]
+}
+
+model VariantValue {
+  id           Int    @id @default(autoincrement())
+  variant_id   Int
+  attribute_id Int
+  value        String @db.VarChar(255)
+
+  ProductVariant ProductVariant @relation(fields: [variant_id], references: [id])
+  Attribute      Attribute      @relation(fields: [attribute_id], references: [id])
+}
+
+model Attribute {
+  id        Int           @id @default(autoincrement())
+  name      String        @db.VarChar(255)
+  type      AttributeType @default(text)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  VariantValues   VariantValue[]
+  AttributeValues AttributeValue[]
+}
+
+model AttributeValue {
+  id           Int       @id @default(autoincrement())
+  attribute    Attribute @relation(fields: [attribute_id], references: [id])
+  attribute_id Int
+  value        String    @db.VarChar(255) // Example values like 'Red', 'Blue', 'Small', 'Medium', etc.
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Admin {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique @db.VarChar(191) // Reduced to fit MySQL's 1000-byte index limit
+  password  String     @db.VarChar(255)
+  user_type AdminEnum  @default(admin)
+  status    StatusEnum @default(active)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+enum AdminEnum {
+  admin
+  staff
+}
+
+enum YesNo {
+  yes
+  no
+}
+
+enum StatusEnum {
+  active
+  inactive
+}
+
+enum AttributeType {
+  text
+  number
+  enum
+}
+
+
+model Slider {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  image       String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

@@ -19,7 +19,10 @@ import {
   Table,
   Star,
   Sliders,
+  ChartBarStacked,
+  Newspaper,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const menuData = [
   {
@@ -36,39 +39,50 @@ const menuData = [
   {
     section: "Pages",
     items: [
-      //   { label: "Example", icon: <File size={18} />, href: "/admin/example" },
-      //   { label: "Widgets", icon: <Grid size={18} />, href: "/admin/widgets" },
-      //   { label: "Maps", icon: <MapPin size={18} />, href: "/admin/maps" },
-      //   {
-      //     label: "Authentication",
-      //     icon: <Lock size={18} />,
-      //     subMenu: [
-      //       { label: "Login", href: "/admin/login" },
-      //       { label: "Register", href: "/admin/register" },
-      //     ],
-      //   },
-      //   {
-      //     label: "Users",
-      //     icon: <Users size={18} />,
-      //     href: "/admin/users",
-      //     active: false,
-      //   },
       {
-        label: "List Sliders",
+        label: "Manage Sliders",
         icon: <Sliders size={18} />,
-        href: "/admin/list-sliders",
+        subMenu: [
+          { label: "List Sliders", href: "/admin/slider/list-sliders" },
+          { label: "Add Slider", href: "/admin/slider/add-slider" },
+        ],
+      },
+      {
+        label: "Category",
+        icon: <ChartBarStacked size={18} />,
+        href: "/admin/category",
+      },
+      {
+        label: "Subcategory",
+        icon: <ChartBarStacked size={18} />,
+        href: "/admin/subcategory",
+      },
+      {
+        label: "Attributes",
+        icon: <Newspaper size={18} />,
+        subMenu: [
+          { label: "List Atrribute", href: "/admin/attributes/list-attribute" },
+          {
+            label: "Add Atrribute Values",
+            href: "/admin/attributes/list-attribute-value",
+          },
+        ],
+      },
+      {
+        label: "Manage Blogs",
+        icon: <Newspaper size={18} />,
+        subMenu: [
+          { label: "List Blogs", href: "/admin/blog/list-blogs" },
+          { label: "Add Blog", href: "/admin/blog/add-blog" },
+        ],
+      },
+      {
+        label: "Manage Admin",
+        icon: <Sliders size={18} />,
+        href: "/admin/list-admin",
       },
     ],
   },
-  //   {
-  //     section: "Elements",
-  //     items: [
-  //       { label: "Components", icon: <Clipboard size={18} />, href: "/admin/components" },
-  //       { label: "Form", icon: <Clipboard size={18} />, href: "/admin/form" },
-  //       { label: "Table", icon: <Table size={18} />, href: "/admin/table" },
-  //       { label: "Icons", icon: <Star size={18} />, href: "/admin/icons" },
-  //     ],
-  //   },
 ];
 
 const Sidebar = () => {
@@ -110,15 +124,38 @@ const Sidebar = () => {
                     } cursor-pointer`}
                     onClick={() => hasSubMenu && toggleMenu(menu.label)}
                   >
-                    <Link
-                      href={menu.href || "#"}
-                      className="flex items-center gap-2 flex-grow"
-                    >
-                      <div className="p-1.5 bg-gray-200 rounded-md">
-                        {menu.icon}
-                      </div>
-                      <span className="text-sm font-medium">{menu.label}</span>
-                    </Link>
+                    {hasSubMenu ? (
+                      <button className="flex items-center gap-2 flex-grow">
+                        <div
+                          className={cn(
+                            "p-1.5 bg-gray-200 rounded-md ",
+                            isActive ? "text-blue-600" : "text-black"
+                          )}
+                        >
+                          {menu.icon}
+                        </div>
+                        <span className="text-sm font-medium">
+                          {menu.label}
+                        </span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={menu.href || "#"}
+                        className="flex items-center gap-2 flex-grow"
+                      >
+                        <div
+                          className={cn(
+                            "p-1.5 bg-gray-200 rounded-md ",
+                            isActive ? "text-blue-600" : "text-black"
+                          )}
+                        >
+                          {menu.icon}
+                        </div>
+                        <span className="text-sm font-medium">
+                          {menu.label}
+                        </span>
+                      </Link>
+                    )}
                     {hasSubMenu && (
                       <div>
                         {openMenus[menu.label] ? (

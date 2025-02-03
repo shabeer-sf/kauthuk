@@ -11,8 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/providers/AuthProvier";
 
 const Header = () => {
+  const {logout,admin} = useAuth() 
   return (
     <div className="w-full p-3 border-b-[1px] flex justify-between items-center h-16">
       <div className="md:hidden">
@@ -36,14 +38,18 @@ const Header = () => {
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <h6 className="font-semibold">
-                Admin
+                {admin?.username || "Admin"}
               </h6>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>
+                <button onClick={logout}>
+                  Logout
+                </button>
+              </DropdownMenuItem>
               <DropdownMenuItem>Billing</DropdownMenuItem>
               <DropdownMenuItem>Team</DropdownMenuItem>
               <DropdownMenuItem>Subscription</DropdownMenuItem>
