@@ -54,7 +54,8 @@ const TestimonialCard = ({ name, role, location, image, rating, quote }) => (
           src={`/assets/images/${image}`}
           alt={name}
           fill
-          className="object-cover"
+          objectFit='cover'
+          className="object-cover w-16 h-16"
         />
       </div>
       
@@ -64,14 +65,14 @@ const TestimonialCard = ({ name, role, location, image, rating, quote }) => (
         <p className="text-gray-500 text-sm">{location}</p>
       </div>
       
-      <div className="flex gap-1">
+      {/* <div className="flex gap-1">
         {[...Array(rating)].map((_, index) => (
           <Star 
             key={index} 
             className="w-5 h-5 fill-yellow-400 text-yellow-400" 
           />
         ))}
-      </div>
+      </div> */}
     </div>
   </div>
 );
@@ -93,7 +94,7 @@ const TestimonialSlider = () => {
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={24}
           slidesPerView={1}
-          navigation
+        //   navigation
           pagination={{ clickable: true }}
           autoplay={{
             delay: 5000,
