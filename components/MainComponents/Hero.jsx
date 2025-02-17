@@ -6,7 +6,11 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import "swiper/css";
 
+import "swiper/css/autoplay";
+
+import "swiper/css/navigation";
 const heroSlides = [
   {
     id: 1,

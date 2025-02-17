@@ -6,7 +6,11 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { ChevronRight } from "lucide-react";
+import "swiper/css";
 
+import "swiper/css/autoplay";
+
+import "swiper/css/navigation";
 const furnitureData = [
   {
     id: 1,

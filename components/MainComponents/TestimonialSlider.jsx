@@ -4,7 +4,11 @@ import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Star, Quote } from 'lucide-react';
+import "swiper/css";
 
+import "swiper/css/autoplay";
+
+import "swiper/css/navigation";
 const testimonials = [
   {
     id: 1,
