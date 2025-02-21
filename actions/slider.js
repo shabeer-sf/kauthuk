@@ -19,6 +19,11 @@ export async function createSlider(data) {
     const slider = await db.slider.create({
       data: {
         title: data.title,
+        subtitle: data.subtitle,
+        href: data.href,
+        link: data.link,
+        linkTitle: data.linkTitle,
+        description:data.description
       },
     });
 

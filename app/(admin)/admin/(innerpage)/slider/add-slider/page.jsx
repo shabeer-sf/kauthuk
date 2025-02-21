@@ -2,12 +2,12 @@
 
 import { createSlider } from "@/actions/slider";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,20 +41,18 @@ const AddSliderPage = () => {
     error,
     fn: createSliderFN,
   } = useFetch(createSlider);
+
   useEffect(() => {
     if (slider) {
       toast.success("Slider created successfully.");
       router.refresh();
     }
-    // if (updatedcategory) {
-    //   toast.success("Category updated successfully.");
-    //   router.refresh();
-    // }
   }, [slider]);
 
   const onSubmit = async (data) => {
     await createSliderFN(data);
   };
+
   return (
     <div className="w-full p-2 space-y-2">
       <Breadcrumb>
@@ -62,7 +60,9 @@ const AddSliderPage = () => {
           <BreadcrumbItem>Admin</BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/slider/list-sliders">Slider</BreadcrumbLink>
+            <BreadcrumbLink href="/admin/slider/list-sliders">
+              Slider
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -90,6 +90,19 @@ const AddSliderPage = () => {
               <p className="text-sm text-red-500">{errors.title?.message}</p>
             )}
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="subtitle">Subtitle</Label>
+            <Input
+              id="subtitle"
+              {...register("subtitle")}
+              className={errors.subtitle ? "border-red-500" : ""}
+            />
+            {errors.subtitle && (
+              <p className="text-sm text-red-500">{errors.subtitle?.message}</p>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="image">Image</Label>
             <Input
@@ -103,7 +116,54 @@ const AddSliderPage = () => {
               <p className="text-sm text-red-500">{errors.image?.message}</p>
             )}
           </div>
-          
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              {...register("description")}
+              className={errors.description ? "border-red-500" : ""}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description?.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="href">Href (Image)</Label>
+            <Input
+              id="href"
+              {...register("href")}
+              className={errors.href ? "border-red-500" : ""}
+            />
+            {errors.href && (
+              <p className="text-sm text-red-500">{errors.href?.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="link">Link</Label>
+            <Input
+              id="link"
+              {...register("link")}
+              className={errors.link ? "border-red-500" : ""}
+            />
+            {errors.link && (
+              <p className="text-sm text-red-500">{errors.link?.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkTitle">Link Title</Label>
+            <Input
+              id="linkTitle"
+              {...register("linkTitle")}
+              className={errors.linkTitle ? "border-red-500" : ""}
+            />
+            {errors.linkTitle && (
+              <p className="text-sm text-red-500">{errors.linkTitle?.message}</p>
+            )}
+          </div>
+
           <Button
             disabled={isLoading}
             className={`text-white ${
@@ -116,9 +176,7 @@ const AddSliderPage = () => {
           </Button>
 
           {/* Error Message */}
-          {error && (
-            <p className="text-red-500 text-sm mt-1">{error.message}</p>
-          )}
+          {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
         </form>
       </Card>
     </div>

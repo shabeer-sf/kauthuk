@@ -122,6 +122,18 @@ const EditSliderPage = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="subtitle">Subtitle</Label>
+            <Input
+              id="subtitle"
+              {...register("subtitle")}
+              className={errors.subtitle ? "border-red-500" : ""}
+            />
+            {errors.subtitle && (
+              <p className="text-sm text-red-500">{errors.subtitle?.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="image">Image</Label>
             <Input
               id="image"
@@ -135,7 +147,52 @@ const EditSliderPage = () => {
             )}
           </div>
 
-          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              {...register("description")}
+              className={errors.description ? "border-red-500" : ""}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description?.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="href">Href (Image)</Label>
+            <Input
+              id="href"
+              {...register("href")}
+              className={errors.href ? "border-red-500" : ""}
+            />
+            {errors.href && (
+              <p className="text-sm text-red-500">{errors.href?.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="link">Link</Label>
+            <Input
+              id="link"
+              {...register("link")}
+              className={errors.link ? "border-red-500" : ""}
+            />
+            {errors.link && (
+              <p className="text-sm text-red-500">{errors.link?.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkTitle">Link Title</Label>
+            <Input
+              id="linkTitle"
+              {...register("linkTitle")}
+              className={errors.linkTitle ? "border-red-500" : ""}
+            />
+            {errors.linkTitle && (
+              <p className="text-sm text-red-500">{errors.linkTitle?.message}</p>
+            )}
+          </div>
 
           <Button
             disabled={isLoading}
@@ -145,8 +202,11 @@ const EditSliderPage = () => {
             type="submit"
             size="lg"
           >
-            {isLoading ? "Updating..." : "Update Slider"}
+            {isLoading ? "Creating..." : "Update Slider"}
           </Button>
+
+          {/* Error Message */}
+          {errors && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
         </form>
       </Card>
     </div>
