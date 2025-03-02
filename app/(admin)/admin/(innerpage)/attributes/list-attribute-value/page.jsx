@@ -225,7 +225,7 @@ const AttributeValuePage = () => {
 
   useEffect(() => {
     if (updatedAttributeValue) {
-      toast.success("Attribute value updated successfully");
+      toast.success("Attribute value updated successfully.");
       setShowEditModal(false);
       fetchAttributeValues();
     }
