@@ -7,26 +7,26 @@ const ThemeProviderContext = createContext({
   setTheme: () => null,
 });
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "light",
-  storageKey = "ui-theme",
-}) {
+export function ThemeProvider({ children, defaultTheme = "light", storageKey = "ui-theme" }) {
   const [theme, setTheme] = useState(defaultTheme);
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // Prevent execution on the server
+
     const savedTheme = localStorage.getItem(storageKey);
     
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
       // Check for system preference
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
       setTheme(prefersDark ? "dark" : "light");
     }
   }, [storageKey]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // Prevent execution on the server
+
     const root = window.document.documentElement;
     
     // Remove the old theme class

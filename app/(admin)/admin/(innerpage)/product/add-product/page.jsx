@@ -69,6 +69,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { createProductSchema } from '@/lib/validators'
+import { useRouter } from 'next/navigation'
 
 export default function AddProductPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -94,6 +95,8 @@ export default function AddProductPage() {
       imagePreviews: []
     }
   ])
+
+  const router = useRouter()
   
   // Initialize form with react-hook-form and zod validation
   const form = useForm({
@@ -457,7 +460,7 @@ export default function AddProductPage() {
           <h1 className="text-3xl font-bold tracking-tight">Add New Product</h1>
           <p className="text-muted-foreground mt-1">Create a new product with all details</p>
         </div>
-        <Button variant="outline" onClick={() => window.history.back()}>
+        <Button variant="outline" onClick={() => router.back()}>
           Back
         </Button>
       </div>
@@ -792,7 +795,7 @@ export default function AddProductPage() {
                   />
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={() => window.history.back()}>
+                  <Button variant="outline" onClick={() => router.back()}>
                     Cancel
                   </Button>
                   <Button type="button" onClick={() => setActiveTab('images')}>

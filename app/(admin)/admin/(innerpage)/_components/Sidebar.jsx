@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -43,6 +43,8 @@ import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/providers/AuthProvier";
+
+
 
 const menuData = [
   {
@@ -174,7 +176,7 @@ const MenuItem = ({
                   href={sub.href}
                   className={cn(
                     "block py-1.5 px-2 rounded-md text-sm transition-colors",
-                    isActive && sub.href === window.location.pathname
+                    isActive && sub.href === pathname
                       ? "text-primary font-medium"
                       : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                   )}
@@ -214,6 +216,8 @@ const Sidebar = ({ className }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { logout, admin } = useAuth();
+
+  const router = useRouter()
 
   useEffect(() => {
     // Close mobile sidebar when navigating
@@ -383,7 +387,7 @@ const Sidebar = ({ className }) => {
                   variant="outline"
                   size="sm"
                   className="w-full justify-start"
-                  onClick={() => (window.location.href = "/admin/settings")}
+                  onClick={() => router.push("/admin/settings")}
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
@@ -427,7 +431,7 @@ const Sidebar = ({ className }) => {
                         size="icon"
                         className="h-9 w-9"
                         onClick={() =>
-                          (window.location.href = "/admin/settings")
+                          router.push("/admin/settings")
                         }
                       >
                         <Settings size={16} />

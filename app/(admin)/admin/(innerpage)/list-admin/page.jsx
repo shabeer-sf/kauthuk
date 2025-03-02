@@ -156,22 +156,26 @@ const AdminPage = () => {
   };
 
   const deletDataById = async (id) => {
-    // console.log("",id)
-
-    const isConfirmed = window.confirm(
-      "Are you sure you want to delete this Admin?"
-    );
-
-    if (!isConfirmed) {
-      return; // Exit the function if the user cancels
-    }
-
-    const deleteData = await deleteAdminById(id);
-    if (deleteData.success) {
-      toast.success("Admin deleted successfully");
-      fetchAdmins();
+    if (typeof window === "undefined") return; // Prevent execution on the server
+  
+    const isConfirmed = window.confirm("Are you sure you want to delete this Admin?");
+    if (!isConfirmed) return; // Exit if the user cancels
+  
+    try {
+      const deleteData = await deleteAdminById(id);
+      if (deleteData.success) {
+        toast.success("Admin deleted successfully");
+        fetchAdmins();
+      } else {
+        toast.error("Failed to delete admin.");
+      }
+    } catch (error) {
+      console.error("Error deleting admin:", error);
+      toast.error("An error occurred while deleting the admin.");
     }
   };
+  
+  
   return (
     <div className="w-full p-2 space-y-2">
       <Breadcrumb>

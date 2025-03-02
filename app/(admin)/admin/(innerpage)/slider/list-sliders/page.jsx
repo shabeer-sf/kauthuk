@@ -111,12 +111,11 @@ const ListSlidersPage = () => {
   };
 
   const deleteSlider = async (id) => {
-    const isConfirmed = window.confirm(
-      "Are you sure you want to delete this slider?"
-    );
-
-    if (!isConfirmed) return;
-
+    if (typeof window === "undefined") return; // Prevent execution on the server
+  
+    const isConfirmed = window.confirm("Are you sure you want to delete this slider?");
+    if (!isConfirmed) return; // Exit if user cancels
+  
     try {
       const result = await deleteSliderById(id);
       if (result.success) {
@@ -126,9 +125,11 @@ const ListSlidersPage = () => {
         toast.error(result.message || "Failed to delete slider");
       }
     } catch (error) {
+      console.error("Error deleting slider:", error);
       toast.error("An error occurred while deleting");
     }
   };
+  
 
   const renderSkeletons = () => {
     return Array(3).fill(0).map((_, index) => (
