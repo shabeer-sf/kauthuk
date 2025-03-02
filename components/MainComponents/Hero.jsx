@@ -13,6 +13,7 @@ import "swiper/css/autoplay";
 import "swiper/css/navigation";
 import { getSliders } from "@/actions/slider";
 import Skeleton from "./LoadingSkeleton";
+
 const heroSlides = [
   {
     id: 1,

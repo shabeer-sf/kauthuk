@@ -1,23 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useCart } from '@/providers/CartProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
 
 const ProductDetails = () => {
+  const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   // Sample product data
   const product = {
+    id: 1,
     name: "Premium Wireless Headphones",
     price: 299.99,
     rating: 4.5,
     reviews: 128,
-    description: "Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and premium memory foam ear cushions for maximum comfort.",
+    description: "Experience crystal-clear audio with our premium wireless headphones.",
     features: [
       "Active Noise Cancellation",
       "30-hour battery life",
@@ -27,11 +32,9 @@ const ProductDetails = () => {
     images: [
       "https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg",
       "https://images.pexels.com/photos/335257/pexels-photo-335257.jpeg",
-      "https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg",
-      "https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg"
     ],
     colors: ["Black", "Silver", "Blue"],
-    inStock: true
+    stock: 10,
   };
 
   const handleMouseMove = (e) => {
@@ -39,6 +42,18 @@ const ProductDetails = () => {
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
     setZoomPosition({ x, y });
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedColor) {
+      alert("Please select a color");
+      return;
+    }
+    if (quantity > product.stock) {
+      alert("Quantity exceeds available stock");
+      return;
+    }
+    addToCart({ ...product, selectedColor, quantity });
   };
 
   return (
@@ -54,66 +69,24 @@ const ProductDetails = () => {
           >
             <img
               src={product.images[selectedImage]}
-              alt={`Product view ${selectedImage + 1}`}
-              className={`w-full h-full object-cover transition-transform duration-300 ${
-                isZoomed ? 'scale-150' : 'scale-100'
-              }`}
-              style={{
-                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
-              }}
+              className={`w-full h-full object-cover transition-transform ${isZoomed ? 'scale-150' : 'scale-100'}`}
+              style={{ transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
             />
-          </div>
-          
-          {/* Thumbnail Grid */}
-          <div className="grid grid-cols-4 gap-2">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`aspect-square rounded-md overflow-hidden border-2 ${
-                  selectedImage === index ? 'border-blue-500' : 'border-transparent'
-                }`}
-              >
-                <img
-                  src={image}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
           </div>
         </div>
 
         {/* Product Info Section */}
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < Math.floor(product.rating)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-sm text-gray-600">
-                ({product.reviews} reviews)
-              </span>
-            </div>
+          <h1 className="text-3xl font-bold">{product.name}</h1>
+          <div className="flex items-center space-x-4">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
+            ))}
+            <span className="text-sm text-gray-600">({product.reviews} reviews)</span>
           </div>
-
           <div className="flex items-center space-x-2">
             <span className="text-3xl font-bold">${product.price}</span>
-            {product.inStock ? (
-              <Badge className="bg-green-500">In Stock</Badge>
-            ) : (
-              <Badge variant="destructive">Out of Stock</Badge>
-            )}
+            <Badge className={product.stock > 0 ? "bg-green-500" : "bg-red-500"}>{product.stock > 0 ? "In Stock" : "Out of Stock"}</Badge>
           </div>
 
           <Card>
@@ -123,7 +96,8 @@ const ProductDetails = () => {
                 {product.colors.map((color) => (
                   <Button
                     key={color}
-                    variant="outline"
+                    variant={selectedColor === color ? "default" : "outline"}
+                    onClick={() => setSelectedColor(color)}
                     className="rounded-full px-4"
                   >
                     {color}
@@ -132,7 +106,6 @@ const ProductDetails = () => {
               </div>
             </CardContent>
           </Card>
-
           <div>
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-600">{product.description}</p>
@@ -146,9 +119,17 @@ const ProductDetails = () => {
               ))}
             </ul>
           </div>
+          <div>
+            <h3 className="font-semibold mb-2">Quantity</h3>
+            <div className="flex items-center space-x-2">
+              <Button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</Button>
+              <span className="text-lg font-semibold">{quantity}</span>
+              <Button onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}>+</Button>
+            </div>
+          </div>
 
           <div className="flex space-x-4">
-            <Button className="flex-1 h-12">
+            <Button onClick={handleAddToCart} className="flex-1 h-12">
               <ShoppingCart className="mr-2 h-5 w-5" />
               Add to Cart
             </Button>

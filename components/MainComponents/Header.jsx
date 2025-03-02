@@ -8,10 +8,12 @@ import Marquee from "react-fast-marquee";
 import { FaRegUser } from "react-icons/fa";
 import CategoryList from "./CategoryList";
 import { motion } from "framer-motion";
+import { useCart } from '@/providers/CartProvider';
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
+  const  {cart} = useCart();
+console.log(cart)
   return (
     <div className="w-full bg-white">
       {/* Marquee Section */}
@@ -42,16 +44,21 @@ const Header = () => {
 
         {/* Right Section (Icons) */}
         <div className="flex justify-end">
-          <div className="flex gap-4">
+          <div className="flex gap-4 relative">
             <div>
               <FaRegUser size={20} color="#000000" />
             </div>
             <div>
               <Heart size={20} className="text-black" />
             </div>
-            <div>
+            <Link href={"/cart"} className="relative">
               <ShoppingCart size={20} className="text-black" />
-            </div>
+              {cart?.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {cart?.length}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>

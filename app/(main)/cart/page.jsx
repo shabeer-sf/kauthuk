@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 const ProductCart = () => {
   const [products, setProducts] = useState([
@@ -180,7 +181,9 @@ const ProductCart = () => {
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
                 <Button className="w-full h-12 text-lg font-medium bg-black hover:bg-gray-800">
-                  Checkout Now
+                 <Link href="/payment">
+                 Checkout Now
+                 </Link> 
                 </Button>
                 <p className="text-xs text-center text-gray-500">
                   Secure checkout powered by RazorPay

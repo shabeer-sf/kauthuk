@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Category {
@@ -49,22 +49,22 @@ model Blog {
   updatedAt   DateTime @updatedAt
 }
 
+// Product-related models
+
 model Product {
   id               Int      @id @default(autoincrement())
   cat_id           Int
+  subcat_id        Int
   title            String   @db.VarChar(255)
   description      String   @db.Text
-  stock            YesNo    @default(yes)
-  stock_count      Int
+  status           Statuses @default(active)
+  hasVariants      Boolean  @default(false)
   base_price       Decimal  @db.Decimal(10, 2)
   price_rupees     Decimal  @db.Decimal(10, 2)
   price_dollars    Decimal  @db.Decimal(10, 2)
-  status           Statuses @default(active)
-  image            String   @db.VarChar(255)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  quantity_limit   Int
-  subcat_id        Int
+  stock_count      Int      @default(0)
+  stock_status     YesNo    @default(yes)
+  quantity_limit   Int      @default(10)
   terms_condition  String?  @db.Text
   highlights       String?  @db.Text
   meta_title       String?  @db.VarChar(255)
@@ -75,71 +75,133 @@ model Product {
   weight           Float?
   free_shipping    YesNo    @default(no)
   cod              YesNo    @default(yes)
-  variation        YesNo    @default(no)
-
-  SubCategory     SubCategory      @relation(fields: [subcat_id], references: [id])
-  ProductVariants ProductVariant[]
-}
-
-model ProductVariant {
-  id               Int      @id @default(autoincrement())
-  product_id       Int
-  sku              String   @db.VarChar(255)
-  price_rupees     Decimal  @db.Decimal(10, 2)
-  price_dollars    Decimal  @db.Decimal(10, 2)
-  stock            Int
-  available_sizes  String?  @db.VarChar(255) // Size-related stock availability
-  available_colors String?  @db.VarChar(255) // Color-related stock availability
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  Product       Product        @relation(fields: [product_id], references: [id])
-  VariantValues VariantValue[]
+  SubCategory       SubCategory        @relation(fields: [subcat_id], references: [id])
+  ProductVariants   ProductVariant[]
+  ProductImages     ProductImage[]
+  ProductAttributes ProductAttribute[]
 }
 
-model VariantValue {
-  id           Int    @id @default(autoincrement())
-  variant_id   Int
-  attribute_id Int
-  value        String @db.VarChar(255)
+model ProductImage {
+  id                 Int       @id @default(autoincrement())
+  product_id         Int
+  product_variant_id Int?
+  image_path         String    @db.VarChar(255)
+  image_type         ImageType @default(main)
+  display_order      Int       @default(0)
+  is_thumbnail       Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  ProductVariant ProductVariant @relation(fields: [variant_id], references: [id])
-  Attribute      Attribute      @relation(fields: [attribute_id], references: [id])
+  Product        Product         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  ProductVariant ProductVariant? @relation(fields: [product_variant_id], references: [id], onDelete: SetNull)
+}
+
+enum ImageType {
+  main
+  thumbnail
+  gallery
+  banner
 }
 
 model Attribute {
-  id        Int           @id @default(autoincrement())
-  name      String        @db.VarChar(255)
-  type      AttributeType @default(text)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  display_name  String        @db.VarChar(255)
+  type          AttributeType @default(text)
+  is_variant    Boolean       @default(false) // Whether this attribute can be used for variants
+  affects_price Boolean       @default(false) // Whether this attribute affects product price
+  display_order Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  VariantValues   VariantValue[]
-  AttributeValues AttributeValue[]
+  AttributeValues   AttributeValue[]
+  ProductAttributes ProductAttribute[]
 }
 
 model AttributeValue {
-  id           Int       @id @default(autoincrement())
-  attribute    Attribute @relation(fields: [attribute_id], references: [id])
+  id            Int      @id @default(autoincrement())
+  attribute_id  Int
+  value         String   @db.VarChar(255)
+  display_value String   @db.VarChar(255)
+  color_code    String?  @db.VarChar(50) // For color attributes
+  image_path    String?  @db.VarChar(255) // For displaying swatches
+  display_order Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  Attribute              Attribute               @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  VariantAttributeValues VariantAttributeValue[]
+  ProductAttributeValues ProductAttributeValue[]
+}
+
+model ProductAttribute {
+  id           Int      @id @default(autoincrement())
+  product_id   Int
   attribute_id Int
-  value        String    @db.VarChar(255) // Example values like 'Red', 'Blue', 'Small', 'Medium', etc.
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  is_required  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  Product                Product                 @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  Attribute              Attribute               @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  ProductAttributeValues ProductAttributeValue[]
 }
 
-model Admin {
-  id        Int        @id @default(autoincrement())
-  username  String     @unique @db.VarChar(191) // Reduced to fit MySQL's 1000-byte index limit
-  password  String     @db.VarChar(255)
-  user_type AdminEnum  @default(admin)
-  status    StatusEnum @default(active)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+model ProductAttributeValue {
+  id                       Int      @id @default(autoincrement())
+  product_attribute_id     Int
+  attribute_value_id       Int
+  price_adjustment_rupees  Decimal? @db.Decimal(10, 2)
+  price_adjustment_dollars Decimal? @db.Decimal(10, 2)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  ProductAttribute ProductAttribute @relation(fields: [product_attribute_id], references: [id], onDelete: Cascade)
+  AttributeValue   AttributeValue   @relation(fields: [attribute_value_id], references: [id], onDelete: Cascade)
 }
 
-enum AdminEnum {
-  admin
-  staff
+model ProductVariant {
+  id            Int      @id @default(autoincrement())
+  product_id    Int
+  sku           String   @db.VarChar(255)
+  price_rupees  Decimal  @db.Decimal(10, 2)
+  price_dollars Decimal  @db.Decimal(10, 2)
+  stock_count   Int      @default(0)
+  stock_status  YesNo    @default(yes)
+  weight        Float?
+  is_default    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  Product                Product                 @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  VariantAttributeValues VariantAttributeValue[]
+  ProductImages          ProductImage[]
+}
+
+model VariantAttributeValue {
+  id                 Int      @id @default(autoincrement())
+  variant_id         Int
+  attribute_value_id Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  ProductVariant ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  AttributeValue AttributeValue @relation(fields: [attribute_value_id], references: [id], onDelete: Cascade)
+
+  @@unique([variant_id, attribute_value_id])
+}
+
+enum AttributeType {
+  text
+  number
+  color
+  size
+  material
+  boolean
+  select
 }
 
 enum YesNo {
@@ -147,27 +209,20 @@ enum YesNo {
   no
 }
 
-enum StatusEnum {
-  active
-  inactive
-}
-
-enum AttributeType {
-  text
-  number
-  enum
-}
-
-
 model Slider {
-  id         Int      @id @default(autoincrement())
-  title      String   @db.VarChar(255)
-  subtitle   String?  @db.VarChar(255)
-  image      String?  @db.VarChar(255)
-  href       String?  @db.VarChar(255)
-  link       String?  @db.VarChar(255)
-  linkTitle  String?  @db.VarChar(255)
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  subtitle    String?  @db.VarChar(255)
+  image       String?  @db.VarChar(255)
+  href        String?  @db.VarChar(255)
+  link        String?  @db.VarChar(255)
+  linkTitle   String?  @db.VarChar(255)
   description String   @db.Text
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum AdminEnum {
+  admin
+  staff
 }
