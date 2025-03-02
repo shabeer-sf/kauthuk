@@ -134,6 +134,7 @@ const MenuItem = ({
 }) => {
   const hasSubMenu = item.subMenu?.length > 0;
   const isOpen = openMenus[item.label];
+  const pathname = usePathname();
 
   if (hasSubMenu) {
     return (
