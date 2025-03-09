@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("adminToken");
     setAdmin(null);
-    // router.replace("/admin/login");
+    router.replace("/admin/login");
   };
 
   if (loading) {
