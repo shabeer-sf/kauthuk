@@ -98,6 +98,14 @@ const menuData = [
         ],
       },
       {
+        label: "Products",
+        icon: <Newspaper size={18} />,
+        subMenu: [
+          { label: "All Products", href: "/admin/product/list-products" },
+          { label: "Create Products", href: "/admin/product/add-product" },
+        ],
+      },
+      {
         label: "Administrators",
         icon: <Users size={18} />,
         href: "/admin/list-admin",

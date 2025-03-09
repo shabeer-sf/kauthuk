@@ -29,14 +29,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!loading && !admin) {
       // Only redirect when loading is complete and admin is not set
-      router.replace("/admin/login");
+      // router.replace("/admin/login");
     }
   }, [admin, loading, router]);
 
   const logout = () => {
     localStorage.removeItem("adminToken");
     setAdmin(null);
-    router.replace("/admin/login");
+    // router.replace("/admin/login");
   };
 
   if (loading) {

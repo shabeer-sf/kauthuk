@@ -1,5 +1,6 @@
 import Header from "@/components/MainComponents/Header";
 import { CartProvider } from "@/providers/CartProvider";
+import { UserAuthProvider } from "@/providers/UserProvider";
 import { Lexend } from "next/font/google";
 
 const lexend = Lexend({
@@ -10,6 +11,7 @@ const lexend = Lexend({
 
 export default function MainLayout({ children }) {
   return (
+    <UserAuthProvider>
     <CartProvider>
     <main className={`w-full ${lexend.variable}`}>
       <Header />
@@ -18,5 +20,6 @@ export default function MainLayout({ children }) {
       </div>
     </main>
     </CartProvider>
+    </UserAuthProvider>
   );
 }

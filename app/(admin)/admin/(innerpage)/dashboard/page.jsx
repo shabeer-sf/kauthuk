@@ -1,3 +1,4 @@
+"use client"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Users,
   DollarSign,
@@ -16,6 +17,7 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { migrateAllUserPasswords } from "@/actions/user";
 const Dashboard = () => {
   const StatCard = ({
     title,
@@ -27,6 +29,18 @@ const Dashboard = () => {
   }) => {
     const isPositive = trend > 0;
 
+//       const miGrate = async () => {
+//         try {
+//           const response = await migrateAllUserPasswords()
+//           console.log(response.blogs);
+        
+//         } catch (error) {
+//           console.error("Failed to fetch blogs:", error);
+//         } 
+//       };
+// useEffect(()=>{
+// miGrate()
+// },[])
     return (
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between pb-2">

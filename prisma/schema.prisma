@@ -222,7 +222,223 @@ model Slider {
   updatedAt   DateTime @updatedAt
 }
 
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username    String @db.VarChar(255)
+  password String @db.VarChar(255)
+  user_type AdminEnum @default(admin)
+  status Statuses @default(active)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 enum AdminEnum {
   admin
   staff
+}
+
+// Newsletter model
+model Newsletter {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique(map: "newsletter_email") @db.VarChar(191)
+  status    Statuses @default(active)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// User model
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  email          String   @unique(map: "user_email") @db.VarChar(191)
+  password       String   @db.VarChar(255)
+  mobile         String?  @db.VarChar(20)
+  mobile_verified YesNo   @default(no)
+  status         Statuses @default(active)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  DeliveryAddresses DeliveryAddress[]
+  BillingAddresses  BillingAddress[]
+  Orders            Order[]
+}
+
+// Country model (for addresses)
+model Country {
+  id             Int      @id @default(autoincrement())
+  sortname       String   @unique @db.VarChar(3)
+  country_enName String   @unique(map: "country_enName") @db.VarChar(100)
+  country_arName String?  @db.VarChar(100)
+  dial_code      String?  @db.VarChar(20)
+  currency_name  String?  @db.VarChar(50)
+  currency_code  String?  @db.VarChar(3)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  States           States[]
+  DeliveryAddresses DeliveryAddress[]
+  BillingAddresses  BillingAddress[]
+}
+
+// States model (for addresses)
+// States model (for addresses)
+model States {
+  id         Int      @id @default(autoincrement())
+  country_id Int
+  state_en   String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Country           Country           @relation(fields: [country_id], references: [id])
+  DeliveryAddresses DeliveryAddress[]
+  BillingAddresses  BillingAddress[]
+
+  @@index([country_id])
+  @@unique([country_id, state_en(length: 80)], map: "country_state")
+}
+
+// Delivery Address model
+model DeliveryAddress {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  name       String   @db.VarChar(255)
+  address    String   @db.Text
+  city       String   @db.VarChar(100)
+  country_id Int
+  state_id   Int
+  pin        String   @db.VarChar(20)
+  phone      String   @db.VarChar(20)
+  is_default Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  User    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Country Country @relation(fields: [country_id], references: [id])
+  States   States   @relation(fields: [state_id], references: [id], map: "DeliveryAddress_state_id_fkey")
+}
+
+// Billing Address model
+model BillingAddress {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  name       String   @db.VarChar(255)
+  address    String   @db.Text
+  city       String   @db.VarChar(100)
+  country_id Int
+  state_id   Int
+  pin        String   @db.VarChar(20)
+  phone      String   @db.VarChar(20)
+  is_default Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  User    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Country Country @relation(fields: [country_id], references: [id])
+  States   States   @relation(fields: [state_id], references: [id], map: "BillingAddress_state_id_fkey")
+}
+
+// Testimonial model
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  location    String   @db.VarChar(255)
+  description String   @db.Text
+  image       String?  @db.VarChar(255)
+  rating      Int?     @default(5)
+  status      Statuses @default(active)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Order model
+model Order {
+  id               Int           @id @default(autoincrement())
+  user_id          Int
+  total            Decimal       @db.Decimal(10, 2)
+  payment_method   PaymentMethod
+  payment_status   PaymentStatus @default(pending)
+  order_status     OrderStatus   @default(placed)
+  order_date       DateTime      @default(now())
+  currency         Currency      @default(INR)
+  delivery_charge  Decimal       @db.Decimal(10, 2)
+  tax_amount       Decimal?      @db.Decimal(10, 2)
+  discount_amount  Decimal?      @db.Decimal(10, 2)
+  coupon_code      String?       @db.VarChar(50)
+  order_notes      String?       @db.Text
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  User           User            @relation(fields: [user_id], references: [id])
+  OrderProducts  OrderProduct[]
+  ShippingDetail ShippingDetail?
+}
+
+// Order Product model (individual products in an order)
+model OrderProduct {
+  id          Int      @id @default(autoincrement())
+  order_id    Int
+  product_id  Int
+  price       Decimal  @db.Decimal(10, 2)
+  quantity    Int
+  currency    Currency @default(INR)
+  variation   String?  @db.Text   // JSON string containing variation details
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Order   Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+// Shipping Details model
+model ShippingDetail {
+  id            Int       @id @default(autoincrement())
+  order_id      Int       @unique
+  courier_name  String    @db.VarChar(255)
+  tracking_id   String    @db.VarChar(255)
+  tracking_url  String?   @db.VarChar(255)
+  shipping_date DateTime?
+  status        ShippingStatus @default(processing)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  Order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+// Additional enums
+enum Currency {
+  INR
+  USD
+}
+
+enum PaymentMethod {
+  cod
+  online
+  paypal
+  stripe
+  razorpay
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+}
+
+enum OrderStatus {
+  placed
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  returned
+}
+
+enum ShippingStatus {
+  processing
+  shipped
+  in_transit
+  delivered
+  returned
+  failed
 }

@@ -131,39 +131,7 @@ export async function updateSubcategory(data) {
   }
 }
 
-// export async function toggleSubcategory(id) {
-//   try {
-//     console.log(id)
-//     const subcategory = await db.SubCategory.findUnique({
-//       where: {
-//         id: id, // Find the subcategory by its unique ID
-//       },
-//     });
 
-//     // Update the subcategory
-//     const toggleData = await db.SubCategory.update({
-//       where: { id },
-//       data: {
-//         showHome: subcategory.showHome == "active" ? "inactive" : "active",
-//       },
-//     });
-
-//     return toggleData;
-//   } catch (error) {
-//     // Handle unique constraint error
-//     if (error.code === "P2002" && error.meta?.target?.includes("subcategory")) {
-//       throw new Error("Subcategory with this name already exists.");
-//     }
-
-//     // Handle record not found error
-//     if (error.code === "P2025") {
-//       throw new Error("Subcategory not found.");
-//     }
-
-//     console.error("Error updating subcategory:", error);
-//     throw new Error("Failed to update the subcategory. Please try again.");
-//   }
-// }
 
 export async function deleteSubcategoryById(id) {
   console.log("id", id);

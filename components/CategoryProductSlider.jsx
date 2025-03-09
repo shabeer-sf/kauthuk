@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination, EffectCards, EffectCoverflow } from "swiper/modules";
-import { ChevronRight, ShoppingCart,  Star, Eye, Loader2, ArrowLeft, ArrowRight, TrendingUp, Clock, Award, Flame } from "lucide-react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { ChevronRight, ShoppingCart, Heart, Star, Eye, Loader2, ArrowLeft, ArrowRight, TrendingUp, Clock, Award } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,11 @@ import "swiper/css";
 import "swiper/css/autoplay";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "swiper/css/effect-cards";
-import "swiper/css/effect-coverflow";
 
-// Import the getProducts server action
+// Import the getProducts and getCategory server actions (you'll need to create these)
 import { getProducts } from "@/actions/product";
+import { getCategory } from "@/actions/category";
+import { useCart } from '@/providers/CartProvider';
 
 const shimmer = (w, h) => `
 <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -41,13 +41,43 @@ const toBase64 = (str) =>
     ? Buffer.from(str).toString('base64')
     : window.btoa(str);
 
-const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
+const ProductCard = ({ product, index }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [rating] = useState(Math.floor(Math.random() * 2) + 4); // Random 4-5 star rating
+  const { addToCart } = useCart();
+
+const handleAddToCart = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  addToCart({
+    id: product.id,
+    title: product.title,
+    price: parseFloat(product.price_rupees),
+    priceDollars: parseFloat(product.price_dollars || product.price_rupees / 80), // Assuming a conversion rate
+    quantity: 1,
+    image: ProductImages && ProductImages.length > 0 
+      ? `https://greenglow.in/kauthuk_test/${ProductImages[0].image_path}`
+      : '/assets/images/placeholder.jpg',
+    maxStock: product.stock_count || 10
+  });
+};
+  if (!product) return null;
+
+  // Safely extract product properties with fallbacks
+  const {
+    id = 0,
+    title = "Product",
+    price_rupees = 0,
+    weight = null,
+    ProductImages = [],
+    hasVariants = false,
+    description = ""
+  } = product;
   
   // Choose the first image or use a fallback
-  const imageUrl = images && images.length > 0 
-    ? `https://greenglow.in/kauthuk_test/${images[0].image_path}`
+  const imageUrl = ProductImages && ProductImages.length > 0 
+    ? `https://greenglow.in/kauthuk_test/${ProductImages[0].image_path}`
     : '/assets/images/placeholder.jpg';
     
   // Create color variants for the backgrounds when no images are available
@@ -63,12 +93,19 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
   // Select a color variant based on the index
   const colorVariant = colorVariants[index % colorVariants.length];
   
-  // Random discount for visual appeal
-  const [discount] = useState(Math.floor(Math.random() * 20) + 5);
+  // Random discount for visual appeal - adjust this if you have actual discount data
+  const discount = Math.floor(Math.random() * 20) + 5;
   const originalPrice = parseFloat(price_rupees) * (100 / (100 - discount));
   
   // Random tag for visual appeal
-  
+  const tags = [
+    { label: 'New Arrival', icon: <Clock className="w-3 h-3 mr-1" /> },
+    { label: 'Bestseller', icon: <Star className="w-3 h-3 mr-1" fill="currentColor" /> },
+    { label: 'Top Rated', icon: <Star className="w-3 h-3 mr-1" fill="currentColor" /> },
+    { label: 'Trending', icon: <TrendingUp className="w-3 h-3 mr-1" /> },
+    { label: 'Premium', icon: <Award className="w-3 h-3 mr-1" /> },
+  ];
+  const tag = tags[index % tags.length];
 
   return (
     <motion.div 
@@ -83,10 +120,10 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative aspect-square overflow-hidden">
-          {images && images.length > 0 ? (
+          {ProductImages && ProductImages.length > 0 ? (
             <Image
               src={imageUrl}
-              alt={title}
+              alt={title || "Product"}
               fill
               placeholder="blur"
               blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
@@ -97,11 +134,17 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${colorVariant} flex items-center justify-center p-6 text-white`}>
-              <h3 className="text-xl font-bold text-center">{title}</h3>
+              <h3 className="text-xl font-bold text-center">{title || "Product"}</h3>
             </div>
           )}
           
-         
+          {/* Floating tag */}
+          <div className="absolute top-3 left-3 z-10">
+            <Badge className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-800 font-medium shadow-sm flex items-center">
+              {tag.icon}
+              {tag.label}
+            </Badge>
+          </div>
           
           {/* Discount tag if available */}
           {discount > 0 && (
@@ -133,6 +176,8 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
               className="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors shadow-md"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleAddToCart}
+
             >
               <ShoppingCart className="w-5 h-5" />
             </motion.button>
@@ -148,7 +193,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           </div>
           
           <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
-            {title}
+            {title || "Product"}
           </h3>
           
           <p className="text-sm text-gray-500 mb-3">
@@ -157,7 +202,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           
           <div className="flex items-baseline gap-2">
             <p className="text-xl font-bold text-indigo-600">
-              ₹{parseFloat(price_rupees).toLocaleString()}
+              ₹{parseFloat(price_rupees).toLocaleString() || "0"}
             </p>
             {discount > 0 && (
               <p className="text-sm text-gray-500 line-through">
@@ -182,7 +227,16 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
   );
 };
 
-const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLink = "/products", displayType = "grid" }) => {
+const CategoryProductSlider = ({ 
+  categoryId, 
+  limit = 6, 
+  title = null, // Will be overridden by category name if not provided
+  description = null, // Will be overridden by category description if not provided
+  viewAllLink = null, // Will be set to category page if not provided
+  showFilters = true,
+  swiperEffect = "default" // Options: "default", "cards", "coverflow"
+}) => {
+  const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -192,61 +246,93 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
   // Animation states
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
   
+  // Fetch category and its products
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchCategoryAndProducts = async () => {
       try {
         setLoading(true);
-        const response = await getProducts({
+        
+        // Fetch category data
+        if (categoryId) {
+          const categoryResponse = await getCategory(categoryId);
+          if (categoryResponse && categoryResponse.success) {
+            setCategory(categoryResponse.category);
+            
+            // If viewAllLink is not set, create it based on category
+            if (!viewAllLink && categoryResponse.category) {
+              // This assumes you have a URL structure like /category/[slug] or /category/[id]
+              // Adjust based on your actual URL structure
+              const slug = categoryResponse.category.catName.toLowerCase().replace(/\s+/g, '-');
+              viewAllLink = `/category/${slug}`;
+            }
+          }
+        }
+        
+        // Fetch products for this category
+        const productsResponse = await getProducts({
           limit,
-          category: category || '',
+          category: categoryId || '',
           sort: 'latest'
         });
         
-        if (response && response.products) {
-          setProducts(response.products);
+        if (productsResponse && productsResponse.products) {
+          setProducts(productsResponse.products);
+        } else {
+          setProducts([]);
         }
       } catch (err) {
-        console.error('Error fetching products:', err);
+        console.error('Error fetching category or products:', err);
         setError('Failed to load products');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchCategoryAndProducts();
     
     // Activate header animation after component mounts
     const timer = setTimeout(() => setIsHeaderVisible(true), 100);
     return () => clearTimeout(timer);
-  }, [category, limit]);
+  }, [categoryId, limit, viewAllLink]);
 
-  // Choose Swiper effect based on displayType
-  let swiperEffect = {};
+  // Get title from category if not provided
+  const displayTitle = title || (category ? category.catName : 'Featured Products');
+  const displayDescription = description || (category ? (category.description || 'Discover our curated selection of high-quality products.') : 'Discover our curated selection of high-quality products.');
+  const displayViewAllLink = viewAllLink || (category ? `/category/${category.id}` : '/products');
+
+  // Choose Swiper effect based on prop
+  let swiperProps = {};
   let swiperSlideClass = "";
   
-  switch(displayType) {
+  switch(swiperEffect) {
     case "cards":
-      swiperEffect = { effect: "cards" };
+      swiperProps = { 
+        effect: "cards",
+        // Additional cards effect props can be added here
+      };
       swiperSlideClass = "!w-72";
       break;
     case "coverflow":
-      swiperEffect = { effect: "coverflow", coverflowEffect: {
-        rotate: 50,
-        stretch: 0,
-        depth: 100,
-        modifier: 1,
-        slideShadows: true,
-      }};
+      swiperProps = { 
+        effect: "coverflow", 
+        coverflowEffect: {
+          rotate: 50,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: true,
+        }
+      };
       break;
     default:
-      swiperEffect = {}; // Standard grid/slider
+      swiperProps = {}; // Standard grid/slider
   }
 
   if (loading) {
     return (
       <div className="w-full min-h-[400px] flex flex-col justify-center items-center gap-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
         <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-        <p className="text-gray-500 animate-pulse">Loading amazing products...</p>
+        <p className="text-gray-500 animate-pulse">Loading {category ? category.catName : 'products'}...</p>
       </div>
     );
   }
@@ -283,35 +369,55 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-3 relative inline-block">
-            {title}
+            {displayTitle}
             <span className="absolute bottom-1 left-0 w-full h-3 bg-indigo-100 -z-10 transform -rotate-1"></span>
           </h2>
           <p className="text-gray-600 max-w-2xl">
-            Discover our curated selection of high-quality products, designed for comfort and style.
+            {displayDescription}
           </p>
         </motion.div>
 
         <div className="flex justify-between items-center mb-8">
-         
+          {showFilters && (
+            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+              {["All", "New Arrivals", "Bestsellers", "Featured"].map((filter, index) => (
+                <motion.button
+                  key={filter}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                    index === 0 
+                      ? "bg-indigo-100 text-indigo-700" 
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {filter}
+                </motion.button>
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center gap-4">
             <div className="hidden md:flex gap-2">
               <button 
                 ref={prevRef}
                 className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors"
+                aria-label="Previous slide"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <button 
                 ref={nextRef}
                 className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors"
+                aria-label="Next slide"
               >
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
             
             <Link 
-              href={viewAllLink}
+              href={displayViewAllLink}
               className="inline-flex items-center px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-full font-medium transition-colors"
             >
               View All
@@ -321,7 +427,7 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
         </div>
 
         <Swiper
-          modules={[Navigation, Autoplay, Pagination, EffectCards, EffectCoverflow]}
+          modules={[Navigation, Autoplay, Pagination]}
           spaceBetween={24}
           slidesPerView={1}
           navigation={{
@@ -336,8 +442,8 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
             delay: 4000,
             disableOnInteraction: false,
           }}
-          loop={true}
-          {...swiperEffect}
+          loop={products.length > 1}
+          {...swiperProps}
           breakpoints={{
             640: {
               slidesPerView: 2,
@@ -359,13 +465,9 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
           }}
         >
           {products.map((product, index) => (
-            <SwiperSlide key={product.id} className={swiperSlideClass}>
+            <SwiperSlide key={product?.id || index} className={swiperSlideClass}>
               <ProductCard 
-                id={product.id}
-                title={product.title}
-                price_rupees={product.price_rupees}
-                weight={product.weight}
-                images={product.ProductImages}
+                product={product}
                 index={index}
               />
             </SwiperSlide>
@@ -376,4 +478,4 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
   );
 };
 
-export default ProductSlider;
+export default CategoryProductSlider;

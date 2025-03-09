@@ -1,40 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
+
+// UI Components
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  File,
-  FileType,
-  Pencil,
-  RotateCcw,
-  Search,
-  Trash2,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import useFetch from "@/hooks/use-fetch";
-import { AdminSchema } from "@/lib/validators";
-import {
-  createAdmin,
-  deleteAdminById,
-  getAdmins,
-  toggleAdmin,
-  updateAdmin,
-} from "@/actions/admin";
-import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -44,41 +33,120 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useRouter } from "next/navigation";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Icons
+import {
+  Plus,
+  Search,
+  RotateCcw,
+  Pencil,
+  Trash2,
+  Filter,
+  ListFilter,
+  LayoutGrid,
+  User,
+  UserCog,
+  Shield,
+  ShieldCheck,
+  ShieldX,
+} from "lucide-react";
+
+// Hooks and Utilities
+import useFetch from "@/hooks/use-fetch";
+import { AdminSchema } from "@/lib/validators";
 import { cn } from "@/lib/utils";
 
+// Actions
+import {
+  createAdmin,
+  deleteAdminById,
+  getAdmins,
+  toggleAdmin,
+  updateAdmin,
+} from "@/actions/admin";
+import { toast } from "sonner";
+
 const AdminPage = () => {
-  const [boxMenu, setBoxMenu] = useState("no");
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-    reset,
-  } = useForm({
-    resolver: zodResolver(AdminSchema),
-  });
+  const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [admins, setAdmins] = useState([]);
+  const [viewMode, setViewMode] = useState("table");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
-    title: "",
+    username: "",
+    user_type: "admin",
   });
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const itemsPerPage = 15;
-
   const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+    setValue,
+  } = useForm({
+    resolver: zodResolver(AdminSchema),
+  });
+
+  const {
+    data: admin,
+    loading: isCreating,
+    error: createError,
+    fn: createAdminFN,
+  } = useFetch(createAdmin);
+
+  const {
+    data: updatedAdmin,
+    loading: isUpdating,
+    error: updateError,
+    fn: updateAdminFN,
+  } = useFetch(updateAdmin);
 
   const fetchAdmins = async () => {
     setLoading(true);
@@ -89,425 +157,633 @@ const AdminPage = () => {
         limit: itemsPerPage,
         sort: sortBy,
       });
-      //   console.log(response, response.admins);
       setAdmins(response.admins);
       setTotalPages(response.totalPages);
     } catch (error) {
       console.error("Failed to fetch admins:", error);
+      toast.error("Failed to load admins");
     } finally {
       setLoading(false);
     }
   };
 
-  const {
-    data: admin,
-    loading: isLoading,
-    error,
-    fn: createAdminFN,
-  } = useFetch(createAdmin);
-  const {
-    data: updatedadmin,
-    loading: isLoading2,
-    error: errorUpdate,
-    fn: updateAdminFN,
-  } = useFetch(updateAdmin);
-
   useEffect(() => {
     fetchAdmins();
-  }, [searchQuery, currentPage, sortBy, admin, updatedadmin]);
+  }, [searchQuery, currentPage, sortBy]);
 
   useEffect(() => {
     if (admin) {
-      toast.success("Admin created successfully.");
-      router.refresh();
+      toast.success("Admin created successfully");
+      setShowCreateModal(false);
+      reset();
+      fetchAdmins();
     }
-    if (updatedadmin) {
-      toast.success("Admin updated successfully.");
-      router.refresh();
-    }
-  }, [admin, updatedadmin]);
+  }, [admin]);
 
-  const onSubmit = async (data) => {
+  useEffect(() => {
+    if (updatedAdmin) {
+      toast.success("Admin updated successfully");
+      setShowEditModal(false);
+      fetchAdmins();
+    }
+  }, [updatedAdmin]);
+
+  const onSubmitCreate = async (data) => {
     await createAdminFN(data);
   };
-  const onSubmit2 = async () => {
+
+  const onSubmitUpdate = async (e) => {
+    e.preventDefault();
     await updateAdminFN(formData);
-  };
-  const toggleUi = (keyword) => {
-    if (boxMenu == keyword) {
-      setBoxMenu("no");
-    } else {
-      setBoxMenu(keyword);
-    }
   };
 
   const handleReset = () => {
-    router.refresh();
-    reset();
-    setBoxMenu("no");
     setSearchQuery("");
+    setSortBy("latest");
+    setCurrentPage(1);
+    setShowFilters(false);
+    router.refresh();
   };
 
   const toggleActive = async (id) => {
-    const toggleData = await toggleAdmin(id);
-    if (toggleData.id) {
-      fetchAdmins();
-    }
-  };
-
-  const deletDataById = async (id) => {
-    if (typeof window === "undefined") return; // Prevent execution on the server
-  
-    const isConfirmed = window.confirm("Are you sure you want to delete this Admin?");
-    if (!isConfirmed) return; // Exit if the user cancels
-  
     try {
-      const deleteData = await deleteAdminById(id);
-      if (deleteData.success) {
-        toast.success("Admin deleted successfully");
+      const result = await toggleAdmin(id);
+      if (result.id) {
         fetchAdmins();
-      } else {
-        toast.error("Failed to delete admin.");
+        toast.success("Admin status updated");
       }
     } catch (error) {
-      console.error("Error deleting admin:", error);
-      toast.error("An error occurred while deleting the admin.");
+      toast.error("Failed to update admin status");
     }
   };
-  
-  
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    
+    try {
+      const result = await deleteAdminById(deleteConfirmId);
+      if (result.success) {
+        toast.success("Admin deleted successfully");
+        fetchAdmins();
+        setDeleteConfirmId(null);
+      } else {
+        toast.error(result.message || "Failed to delete admin");
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting");
+    }
+  };
+
+  const handleEdit = (item) => {
+    setFormData({
+      id: item.id,
+      username: item.username,
+      user_type: item.status === "staff" ? "staff" : "admin",
+    });
+    setShowEditModal(true);
+  };
+
+  const renderSkeletons = () => {
+    return Array(3).fill(0).map((_, index) => (
+      <tr key={`skeleton-${index}`} className="animate-pulse">
+        <td className="p-4 border-b border-gray-100">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+        </td>
+        <td className="p-4 border-b border-gray-100">
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </td>
+        <td className="p-4 border-b border-gray-100">
+          <div className="h-6 w-20 bg-gray-200 rounded mx-auto"></div>
+        </td>
+        <td className="p-4 border-b border-gray-100">
+          <div className="flex justify-center space-x-2">
+            <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+            <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+          </div>
+        </td>
+      </tr>
+    ));
+  };
+
+  const renderGridSkeletons = () => {
+    return Array(6).fill(0).map((_, index) => (
+      <Card key={`grid-skeleton-${index}`} className="animate-pulse">
+        <CardHeader className="p-4">
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+        </CardContent>
+        <CardFooter className="p-4 pt-0 flex justify-end">
+          <div className="h-8 w-8 bg-gray-200 rounded-full mr-2"></div>
+          <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+        </CardFooter>
+      </Card>
+    ));
+  };
+
   return (
-    <div className="w-full p-2 space-y-2">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>Admin</BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              <BreadcrumbLink href="/admin/list-admin">Admin</BreadcrumbLink>
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="w-full pt-5 space-y-3">
-        <div className="flex w-full justify-end gap-2 items-center">
-          <Button
-            onClick={() => toggleUi("create")}
-            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white flex gap-1"
+    <div className="w-full p-4 space-y-6 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Admin Management</h1>
+          <Breadcrumb className="text-sm text-gray-500 mt-1">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/admin/list-admin">
+                  Admin Users
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={() => setViewMode(viewMode === "table" ? "grid" : "table")}
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1"
           >
-            <FileType size={15} />
-            <p className="font-semibold">New</p>
+            {viewMode === "table" ? 
+              <><LayoutGrid size={16} /> Grid View</> : 
+              <><ListFilter size={16} /> Table View</>
+            }
           </Button>
+          
           <Button
-            onClick={() => toggleUi("search")}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white flex gap-1"
+            onClick={() => setShowFilters(!showFilters)}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
           >
-            <Search size={15} />
-            <p className="font-semibold">Search</p>
+            <Filter size={16} />
+            Filters
           </Button>
+          
           <Button
             onClick={handleReset}
-            className="px-3 py-2 bg-yellow-500 hover:bg-yellow-700 text-white flex gap-1"
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
           >
-            <RotateCcw size={15} />
-            <p className="font-semibold">Reset</p>
+            <RotateCcw size={16} />
+            Reset
+          </Button>
+          
+          <Button 
+            onClick={() => setShowCreateModal(true)} 
+            variant="default" 
+            size="sm" 
+            className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700"
+          >
+            <Plus size={16} />
+            New Admin
           </Button>
         </div>
-        {boxMenu == "create" && (
-          <Card className="w-full space-y-3">
-            <div className="w-full bg-[#343a40] px-3 py-2 rounded-t-xl text-white">
-              Admin Informations
-            </div>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="grid lg:grid-cols-3 gap-3 p-3"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  {...register("username")}
-                  className={errors.username ? "border-red-500" : ""}
-                />
-                {errors.username && (
-                  <p className="text-sm text-red-500">
-                    {errors.username?.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                  className={errors.password ? "border-red-500" : ""}
-                />
-                {errors.password && (
-                  <p className="text-sm text-red-500">
-                    {errors.password?.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2 max-md:col-span-1">
-                <label
-                  htmlFor="user_type"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Type
-                </label>
-                <Controller
-                  name="user_type"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={"admin"}
-                      >
-                        {/* {console.log(field.value)} */}
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={"admin"}>Admin</SelectItem>
-                          <SelectItem value={"staff"}>Staff</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    );
-                  }}
-                />
-                {errors.user_type && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors?.user_type.message}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-3" />
-              <Button
-                disabled={isLoading}
-                className={`text-white ${
-                  isLoading ? "bg-gray-500" : "bg-blue-500"
-                }`}
-                type="submit"
-                size="lg"
-              >
-                {isLoading ? "Creating..." : "Create Admin"}
-              </Button>
+      </div>
 
-              {/* Error Message */}
-              {error && (
-                <p className="text-red-500 text-sm mt-1">{error.message}</p>
-              )}
-            </form>
-          </Card>
-        )}
-        {boxMenu == "update" && (
-          <Card className="w-full space-y-3">
-            <div className="w-full bg-[#343a40] px-3 py-2 rounded-t-xl text-white">
-              Update Informations
-            </div>
-            <form onSubmit={handleSubmit(onSubmit2)} className="space-y-6 p-3">
-              <div className="space-y-2">
-                <Label htmlFor="title">Username</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  {...register("title")}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  className={errors.title ? "border-red-500" : ""}
-                />
-                {errors.title && (
-                  <p className="text-sm text-red-500">
-                    {errors.title?.message}
-                  </p>
-                )}
-              </div>
-              <Button
-                disabled={isLoading2}
-                className={`text-white ${
-                  isLoading2 ? "bg-gray-500" : "bg-blue-500"
-                }`}
-                type="submit"
-                size="lg"
-              >
-                {isLoading2 ? "Updating..." : "Update Admin"}
-              </Button>
-
-              {/* Error Message */}
-              {error && (
-                <p className="text-red-500 text-sm mt-1">{error.message}</p>
-              )}
-            </form>
-          </Card>
-        )}
-        {boxMenu == "search" && (
-          <Card className="w-full space-y-3">
-            <div className="w-full bg-[#343a40] px-3 py-2 rounded-t-xl text-white">
-              Search
-            </div>
-            <div className="space-y-6 p-3">
-              <div className="flex gap-4 items-center justify-between">
-                <div className="relative w-full">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      {/* Search and Filters */}
+      {showFilters && (
+        <Card className="shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="w-full md:w-1/2">
+                <label className="text-sm font-medium mb-1 block">Search admin users</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search admins..."
-                    className="pl-8"
+                    placeholder="Search by username..."
+                    className="pl-10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <div className="flex gap-3 ">
-                  <Select defaultValue="latest" onValueChange={setSortBy}>
-                    <SelectTrigger className="w-full ">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="latest">Latest</SelectItem>
-                      <SelectItem value="oldest">Oldest</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              </div>
+              
+              <div className="w-full md:w-1/4">
+                <label className="text-sm font-medium mb-1 block">Sort by</label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="latest">Latest First</SelectItem>
+                    <SelectItem value="oldest">Oldest First</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </Card>
-        )}
+          </CardContent>
+        </Card>
+      )}
 
-        <div className="w-full overflow-x-auto md:max-w-full">
-          <motion.table
-            className="min-w-full border border-gray-300 bg-white shadow-md rounded-md"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <thead className="bg-gray-200 ">
-              <tr>
-                {/* <th className="border p-3 text-left text-sm font-semibold text-gray-700">
-                  ID
-                </th> */}
-                <th className="border p-3 text-left text-sm font-semibold text-gray-700">
-                  Username
-                </th>
-                <th className="border p-3 text-left text-sm font-semibold text-gray-700">
-                  Type
-                </th>
-                <th className="border p-3 text-left text-sm font-semibold text-gray-700">
-                  Status
-                </th>
-
-                <th className="border p-3 text-left text-sm font-semibold text-gray-700">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td colSpan={4}>
-                  {loading && (
-                    <div className="flex items-center w-full h-[50vh] justify-center">
-                      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-                    </div>
-                  )}
-                </td>
-              </tr>
-              {admins.length > 0 &&
-                admins?.map((item) => {
-                  return (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-gray-100 transition-all"
-                    >
-                     
-                      <td className="border p-3 text-sm text-gray-700">
-                        {item.username}
+      {/* Table View */}
+      {viewMode === "table" ? (
+        <Card className="shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-left p-4 font-medium text-gray-600">Username</th>
+                  <th className="text-left p-4 font-medium text-gray-600">Type</th>
+                  <th className="text-center p-4 font-medium text-gray-600">Status</th>
+                  <th className="text-center p-4 font-medium text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  renderSkeletons()
+                ) : admins.length > 0 ? (
+                  admins.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="font-medium flex items-center">
+                          <User size={16} className="mr-2 text-gray-500" />
+                          {item.username}
+                        </div>
                       </td>
-                      <td className="border p-3 text-sm text-gray-700">
-                        {item.status =="staff" ? "Staff" : "Admin"}
+                      
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="flex items-center gap-1">
+                          {item.status === "staff" ? (
+                            <><UserCog size={16} className="text-blue-500" /> Staff</>
+                          ) : (
+                            <><Shield size={16} className="text-indigo-600" /> Admin</>
+                          )}
+                        </div>
                       </td>
-                      <td className="border p-3 text-sm text-gray-700 flex justify-center">
+                      
+                      <td className="p-4 border-b border-gray-100 text-center">
                         <Button
                           onClick={() => toggleActive(item.id)}
-                          variant={"ghost"}
-                          className="p-0"
+                          variant="ghost"
+                          className="p-1 h-auto"
                         >
                           <Badge
                             className={cn(
-                              "",
-                              item.status == "active"
-                                ? "bg-green-500 hover:bg-green-500"
-                                : "bg-red-500 hover:bg-red-500"
+                              "transition-colors",
+                              item.status === "active"
+                                ? "bg-emerald-500 hover:bg-emerald-600"
+                                : "bg-gray-500 hover:bg-gray-600"
                             )}
                           >
-                            {item.status == "active" ? "Active" : "Inactive"}
+                            {item.status === "active" ? "Active" : "Inactive"}
                           </Badge>
                         </Button>
                       </td>
-
-                      <td className="border p-3 text-sm text-gray-700 space-x-3">
-                        <button
-                          onClick={() => {
-                            setBoxMenu("update");
-                            setFormData({
-                              id: item.id,
-                              title: item.username,
-                            });
-                          }}
-                          className="text-blue-500 hover:text-blue-700 transition-all"
-                        >
-                          <Pencil size={20} />
-                        </button>
-                        <button
-                          onClick={() => deletDataById(item.id)}
-                          className="text-red-500 hover:text-red-700 transition-all"
-                        >
-                          <Trash2 size={20} />
-                        </button>
+                      
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="flex justify-center items-center space-x-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  onClick={() => handleEdit(item)}
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50"
+                                >
+                                  <Pencil size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  onClick={() => setDeleteConfirmId(item.id)}
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full text-red-600 hover:text-red-900 hover:bg-red-50"
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </td>
                     </tr>
-                  );
-                })}
-            </tbody>
-          </motion.table>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <UserCog size={48} className="text-gray-300 mb-2" />
+                        <p>No admin users found</p>
+                        <p className="text-sm text-gray-400 mt-1">
+                          Add a new admin or try changing your search filters
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      ) : (
+        // Grid View
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {loading ? (
+            renderGridSkeletons()
+          ) : admins.length > 0 ? (
+            admins.map((item) => (
+              <Card key={item.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <CardHeader className="p-4 pb-2">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold flex items-center">
+                      <User size={18} className="mr-2 text-gray-500" />
+                      {item.username}
+                    </CardTitle>
+                    <Badge
+                      className={cn(
+                        "transition-colors",
+                        item.status === "active"
+                          ? "bg-emerald-500"
+                          : "bg-gray-500"
+                      )}
+                    >
+                      {item.status === "active" ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  <CardDescription className="flex items-center gap-1 pl-6">
+                    {item.status === "staff" ? (
+                      <><UserCog size={14} className="text-blue-500" /> Staff Account</>
+                    ) : (
+                      <><Shield size={14} className="text-indigo-600" /> Admin Account</>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardFooter className="p-4 pt-4 flex justify-between">
+                  <Button
+                    onClick={() => toggleActive(item.id)}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "border-gray-200",
+                      item.status === "active" 
+                        ? "text-red-600 hover:text-red-700 hover:bg-red-50" 
+                        : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    )}
+                  >
+                    {item.status === "active" ? (
+                      <><ShieldX size={14} className="mr-1" /> Deactivate</>
+                    ) : (
+                      <><ShieldCheck size={14} className="mr-1" /> Activate</>
+                    )}
+                  </Button>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleEdit(item)}
+                      variant="outline"
+                      size="sm"
+                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                    >
+                      <Pencil size={14} className="mr-1" />
+                      Edit
+                    </Button>
+                    
+                    <Button
+                      onClick={() => setDeleteConfirmId(item.id)}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      <Trash2 size={14} className="mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white rounded-lg">
+              <UserCog size={48} className="text-gray-300 mb-3" />
+              <h3 className="text-lg font-medium text-gray-700">No admin users found</h3>
+              <p className="text-gray-500 mb-4">Add a new admin or try changing your search filters</p>
+              <Button 
+                onClick={() => setShowCreateModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                Create New Admin
+              </Button>
+            </div>
+          )}
         </div>
+      )}
 
-        <Pagination className="mt-6">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, i) => (
-              <PaginationItem key={i + 1}>
-                <PaginationLink
-                  onClick={() => setCurrentPage(i + 1)}
-                  isActive={currentPage === i + 1}
-                >
-                  {i + 1}
-                </PaginationLink>
+      {/* Pagination */}
+      {!loading && admins.length > 0 && totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
               </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i + 1}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(i + 1)}
+                    isActive={currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
+      {/* Create Admin Modal */}
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Admin</DialogTitle>
+            <DialogDescription>
+              Add a new administrator or staff account
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit(onSubmitCreate)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                placeholder="Enter username"
+                {...register("username")}
+                className={errors.username ? "border-red-500" : ""}
               />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+              {errors.username && (
+                <p className="text-sm text-red-500">
+                  {errors.username?.message}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter password"
+                {...register("password")}
+                className={errors.password ? "border-red-500" : ""}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">
+                  {errors.password?.message}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="user_type">Account Type</Label>
+              <Controller
+                name="user_type"
+                control={control}
+                defaultValue="admin"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <SelectTrigger className={errors.user_type ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select account type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Administrator</SelectItem>
+                      <SelectItem value="staff">Staff</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.user_type && (
+                <p className="text-sm text-red-500">
+                  {errors.user_type?.message}
+                </p>
+              )}
+            </div>
+            
+            <DialogFooter className="mt-4">
+              <DialogClose asChild>
+                <Button variant="outline" type="button">Cancel</Button>
+              </DialogClose>
+              <Button 
+                type="submit" 
+                disabled={isCreating}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isCreating ? "Creating..." : "Create Account"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Admin Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Admin User</DialogTitle>
+            <DialogDescription>
+              Update admin account information
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={onSubmitUpdate} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-username">Username</Label>
+              <Input
+                id="edit-username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                className={errors.username ? "border-red-500" : ""}
+              />
+              {errors.username && (
+                <p className="text-sm text-red-500">
+                  {errors.username?.message}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-user-type">Account Type</Label>
+              <Select
+                value={formData.user_type}
+                onValueChange={(value) => setFormData({ ...formData, user_type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select account type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <DialogFooter className="mt-4">
+              <DialogClose asChild>
+                <Button variant="outline" type="button">Cancel</Button>
+              </DialogClose>
+              <Button 
+                type="submit" 
+                disabled={isUpdating}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isUpdating ? "Updating..." : "Update Account"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the admin account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import CategoryProductSlider from '@/components/CategoryProductSlider'
 import Hero from '@/components/MainComponents/Hero'
 import ProductSlider from '@/components/MainComponents/ProductSlider'
 import TestimonialSlider from '@/components/MainComponents/TestimonialSlider'
@@ -10,6 +11,7 @@ const MainPage = () => {
       <ProductSlider />
       <ProductSlider />
       <ProductSlider />
+      <CategoryProductSlider />
       <TestimonialSlider />
     </div>
   )
