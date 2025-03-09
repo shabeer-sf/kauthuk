@@ -6,9 +6,35 @@ import {
   loginUser, 
   registerUser, 
   logoutUser, 
-  getUserProfile, 
-  checkAuthStatus 
+  getUserProfile 
 } from "@/actions/user";
+
+// Define a mock checkAuthStatus function if it's not available
+const checkAuthStatus = async () => {
+  try {
+    // Try to get the user profile which should contain authentication info
+    const profileResponse = await getUserProfile();
+    
+    if (profileResponse.success && profileResponse.user) {
+      return {
+        authenticated: true,
+        user: profileResponse.user
+      };
+    }
+    
+    return {
+      authenticated: false,
+      user: null
+    };
+  } catch (error) {
+    console.error("Auth check error:", error);
+    return {
+      authenticated: false,
+      user: null,
+      error: error.message
+    };
+  }
+};
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ['/checkout', '/my-account', '/orders', '/wishlist'];
@@ -51,7 +77,9 @@ export const UserAuthProvider = ({ children }) => {
       
       if (isProtectedRoute) {
         // Save the attempted URL to redirect back after login
-        localStorage.setItem("redirectAfterLogin", pathname);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("redirectAfterLogin", pathname);
+        }
         router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       }
     }
@@ -67,14 +95,16 @@ export const UserAuthProvider = ({ children }) => {
         setUser(result.user);
         
         // Check if there's a redirect URL
-        const redirectUrl = localStorage.getItem("redirectAfterLogin");
-        if (redirectUrl) {
-          localStorage.removeItem("redirectAfterLogin");
-          router.push(redirectUrl);
-        } else {
-          router.push("/my-account");
+        let redirectUrl = "/my-account";
+        if (typeof window !== 'undefined') {
+          const storedRedirect = localStorage.getItem("redirectAfterLogin");
+          if (storedRedirect) {
+            redirectUrl = storedRedirect;
+            localStorage.removeItem("redirectAfterLogin");
+          }
         }
         
+        router.push(redirectUrl);
         return { success: true };
       } else {
         return { 
@@ -165,14 +195,14 @@ export const UserAuthProvider = ({ children }) => {
     return !!user;
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="h-screen w-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
-      </div>
-    );
-  }
+  // Content with loading state
+  const content = loading ? (
+    <div className="h-screen w-screen flex justify-center items-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+    </div>
+  ) : (
+    children
+  );
 
   // Provide authentication context to children
   return (
@@ -187,7 +217,7 @@ export const UserAuthProvider = ({ children }) => {
         loading
       }}
     >
-      {children}
+      {content}
     </UserAuthContext.Provider>
   );
 };

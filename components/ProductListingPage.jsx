@@ -74,7 +74,7 @@ const toBase64 = (str) =>
 // Product card component
 const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+  console.log("product?.ProductImages",product?.ProductImages)
   // Safely handle image URLs
   const imageUrl = product?.ProductImages && product.ProductImages.length > 0 
     ? `https://greenglow.in/kauthuk_test/${product.ProductImages[0].image_path}`
@@ -165,12 +165,6 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         </div>
         
         <div className="p-5">
-          <div className="flex items-center mb-2">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`w-4 h-4 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
-            ))}
-            <span className="text-xs text-gray-500 ml-2">(24)</span>
-          </div>
           
           <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
             {product?.title || 'Product Name'}
@@ -226,6 +220,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {console.log("imageUrl",imageUrl)}
         <div className="relative w-full md:w-1/4 aspect-square md:aspect-auto overflow-hidden rounded-lg">
           <Image
             src={imageUrl}
@@ -340,18 +335,9 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
 const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }) => {
   const [priceRange, setPriceRange] = useState(initialFilters?.priceRange || [0, 50000]);
   const [selectedCategories, setSelectedCategories] = useState(initialFilters?.categories || []);
-  const [selectedRating, setSelectedRating] = useState(initialFilters?.rating || "0");
   const [selectedAvailability, setSelectedAvailability] = useState(initialFilters?.availability || "all");
   
-  // Rating options
-  const ratings = [
-    { value: "4", label: "4★ & above" },
-    { value: "3", label: "3★ & above" },
-    { value: "2", label: "2★ & above" },
-    { value: "1", label: "1★ & above" },
-    { value: "0", label: "All Ratings" },
-  ];
-  
+ 
   // Availability options
   const availability = [
     { value: "in-stock", label: "In Stock" },
@@ -364,7 +350,6 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
     if (initialFilters) {
       setPriceRange(initialFilters.priceRange || [0, 50000]);
       setSelectedCategories(initialFilters.categories || []);
-      setSelectedRating(initialFilters.rating || "0");
       setSelectedAvailability(initialFilters.availability || "all");
     }
   }, [initialFilters]);
@@ -381,7 +366,6 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
     onFilter({
       priceRange,
       categories: selectedCategories,
-      rating: selectedRating,
       availability: selectedAvailability,
     });
     
@@ -393,13 +377,11 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
   const resetFilters = () => {
     setPriceRange([0, 50000]);
     setSelectedCategories([]);
-    setSelectedRating("0");
     setSelectedAvailability("all");
     
     onFilter({
       priceRange: [0, 50000],
       categories: [],
-      rating: "0",
       availability: "all",
     });
   };
@@ -458,23 +440,8 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
             
             <hr className="border-gray-200" />
             
-            {/* Ratings */}
-            <div>
-              <h3 className="font-medium text-lg mb-4">Ratings</h3>
-              <RadioGroup value={selectedRating} onValueChange={setSelectedRating}>
-                {ratings.map((rating) => (
-                  <div key={rating.value} className="flex items-center space-x-2">
-                    <RadioGroupItem value={rating.value} id={`rating-${rating.value}`} />
-                    <Label htmlFor={`rating-${rating.value}`} className="flex items-center">
-                      {rating.label}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
             
-            <hr className="border-gray-200" />
-            
+                        
             {/* Availability */}
             <div>
               <h3 className="font-medium text-lg mb-4">Availability</h3>
@@ -513,7 +480,7 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h3 className="font-bold text-xl mb-6">Filters</h3>
           
-          <Accordion type="multiple" defaultValue={["price", "category", "rating", "availability"]} className="space-y-4">
+          <Accordion type="multiple" defaultValue={["price", "category", "availability"]} className="space-y-4">
             {/* Price Range */}
             <AccordionItem value="price" className="border-b-0">
               <AccordionTrigger className="py-2 text-base font-medium hover:no-underline">
@@ -562,24 +529,7 @@ const FilterSidebar = ({ isOpen, onClose, categories, onFilter, initialFilters }
               </AccordionContent>
             </AccordionItem>
             
-            {/* Ratings */}
-            <AccordionItem value="rating" className="border-b-0">
-              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline">
-                Ratings
-              </AccordionTrigger>
-              <AccordionContent>
-                <RadioGroup value={selectedRating} onValueChange={setSelectedRating}>
-                  {ratings.map((rating) => (
-                    <div key={rating.value} className="flex items-center space-x-2">
-                      <RadioGroupItem value={rating.value} id={`desktop-rating-${rating.value}`} />
-                      <Label htmlFor={`desktop-rating-${rating.value}`} className="flex items-center">
-                        {rating.label}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </AccordionContent>
-            </AccordionItem>
+          
             
             {/* Availability */}
             <AccordionItem value="availability" className="border-b-0">
@@ -629,7 +579,6 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
   if (
     (!filters.categories || filters.categories.length === 0) && 
     (filters.priceRange?.[0] === 0 && filters.priceRange?.[1] === 50000) &&
-    filters.rating === "0" &&
     filters.availability === "all"
   ) {
     return null;
@@ -644,13 +593,9 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
     }
   };
   
-  const getRatingLabel = (value) => {
-    if (value === "0") return null;
-    return `${value}★ & above`;
-  };
+ 
   
   const availabilityLabel = getAvailabilityLabel(filters.availability);
-  const ratingLabel = getRatingLabel(filters.rating);
   
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -676,15 +621,7 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
         </Badge>
       )}
       
-      {/* Rating filter */}
-      {ratingLabel && (
-        <Badge variant="outline" className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200">
-          {ratingLabel}
-          <button type="button" onClick={() => onRemove("rating")}>
-            <X className="h-3 w-3" />
-          </button>
-        </Badge>
-      )}
+   
       
       {/* Availability filter */}
       {availabilityLabel && (
@@ -733,7 +670,6 @@ const ProductListingPage = () => {
   const [filters, setFilters] = useState({
     priceRange: [0, 50000],
     categories: categoryParam ? [categoryParam] : [],
-    rating: "0",
     availability: "all",
   });
   
@@ -867,15 +803,7 @@ const ProductListingPage = () => {
         }
       }
       
-      // Rating filter
-      // In a real app, you would use actual product ratings here
-      const productRating = 4; // Placeholder rating
-      if (currentFilters?.rating && currentFilters.rating !== "0") {
-        if (productRating < parseInt(currentFilters.rating, 10)) {
-          return false;
-        }
-      }
-      
+   
       // Availability filter
       if (currentFilters?.availability !== "all") {
         const inStock = product?.stock_status === 'yes' && product?.stock_count > 0;
@@ -922,9 +850,6 @@ const ProductListingPage = () => {
       case "priceRange":
         updatedFilters.priceRange = [0, 50000];
         break;
-      case "rating":
-        updatedFilters.rating = "0";
-        break;
       case "availability":
         updatedFilters.availability = "all";
         break;
@@ -940,7 +865,6 @@ const ProductListingPage = () => {
     const resetFilters = {
       priceRange: [0, 50000],
       categories: [],
-      rating: "0",
       availability: "all",
     };
     setFilters(resetFilters);
@@ -1089,7 +1013,7 @@ const ProductListingPage = () => {
                   </button>
                 </div>
                 
-                <Select value={sortOption} onValueChange={setSortOption}>
+                <Select defaultValue='latest' value={sortOption} onValueChange={setSortOption}>
                   <SelectTrigger className="w-[180px] bg-white">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
@@ -1098,7 +1022,6 @@ const ProductListingPage = () => {
                     <SelectItem value="price_low">Price: Low to High</SelectItem>
                     <SelectItem value="price_high">Price: High to Low</SelectItem>
                     <SelectItem value="popular">Popularity</SelectItem>
-                    <SelectItem value="rating">Rating</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

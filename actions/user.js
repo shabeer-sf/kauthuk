@@ -2,28 +2,32 @@
 
 import { db } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { cookies } from "next/headers";
 
 /**
  * Get users with pagination, filtering and sorting
  */
-export async function getUsers({ search = "", page = 1, limit = 15, sort = "latest", status = "all" }) {
-  const skip = (page - 1) * limit;
-  
+export async function getUsers({ search = "", page = 1, limit = 15, sort = "latest", status = "all" } = {}) {
   try {
+    // Validate and parse input parameters
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = ((isNaN(pageNum) ? 1 : Math.max(1, pageNum)) - 1) * (isNaN(limitNum) ? 15 : Math.max(1, limitNum));
+    
     // Build the where clause for filtering
     const where = {};
     
     // Apply status filter if specified
-    if (status !== "all") {
+    if (status && status !== "all") {
       where.status = status;
     }
     
     // Apply search filter if provided
-    if (search) {
+    if (search && typeof search === 'string' && search.trim() !== '') {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { mobile: { contains: search, mode: "insensitive" } }
+        { name: { contains: search.trim(), mode: "insensitive" } },
+        { email: { contains: search.trim(), mode: "insensitive" } },
+        { mobile: { contains: search.trim(), mode: "insensitive" } }
       ];
     }
     
@@ -68,7 +72,7 @@ export async function getUsers({ search = "", page = 1, limit = 15, sort = "late
       },
       orderBy,
       skip,
-      take: limit
+      take: isNaN(limitNum) ? 15 : Math.max(1, limitNum)
     });
     
     // Count total matching records for pagination
@@ -77,19 +81,19 @@ export async function getUsers({ search = "", page = 1, limit = 15, sort = "late
     // Format the response data to match the component's expected structure
     const formattedUsers = users.map(user => ({
       id: user.id,
-      name: user.name,
-      email: user.email,
-      mobile: user.mobile,
-      mobileVerified: user.mobile_verified,
-      status: user.status,
-      createdAt: user.createdAt,
-      ordersCount: user._count.Orders
+      name: user.name || '',
+      email: user.email || '',
+      mobile: user.mobile || '',
+      mobileVerified: user.mobile_verified || 'no',
+      status: user.status || 'inactive',
+      createdAt: user.createdAt || new Date(),
+      ordersCount: user._count?.Orders || 0
     }));
     
     return {
       users: formattedUsers,
       totalUsers: totalCount,
-      totalPages: Math.ceil(totalCount / limit)
+      totalPages: Math.ceil(totalCount / (isNaN(limitNum) ? 15 : Math.max(1, limitNum)))
     };
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -102,8 +106,24 @@ export async function getUsers({ search = "", page = 1, limit = 15, sort = "late
  */
 export async function getUserById(id) {
   try {
+    if (!id) {
+      return {
+        success: false,
+        error: "User ID is required"
+      };
+    }
+    
+    const userId = parseInt(id);
+    
+    if (isNaN(userId)) {
+      return {
+        success: false,
+        error: "Invalid user ID format"
+      };
+    }
+    
     const user = await db.user.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: userId },
       include: {
         DeliveryAddresses: {
           include: {
@@ -143,7 +163,7 @@ export async function getUserById(id) {
     // Format the response
     const formattedUser = {
       ...user,
-      ordersCount: user._count.Orders
+      ordersCount: user._count?.Orders || 0
     };
     
     delete formattedUser._count;
@@ -167,11 +187,18 @@ export async function getUserById(id) {
  */
 export async function createUser(formData) {
   try {
-    const name = formData.get("name")?.trim();
-    const email = formData.get("email")?.trim();
-    const password = formData.get("password");
-    const confirmPassword = formData.get("confirmPassword");
-    const mobile = formData.get("mobile")?.trim();
+    if (!formData) {
+      return {
+        success: false,
+        error: "No form data provided"
+      };
+    }
+    
+    const name = formData.get("name")?.trim() || '';
+    const email = formData.get("email")?.trim() || '';
+    const password = formData.get("password") || '';
+    const confirmPassword = formData.get("confirmPassword") || '';
+    const mobile = formData.get("mobile")?.trim() || '';
     const mobile_verified = formData.get("mobile_verified") || "no";
     const status = formData.get("status") || "active";
     
@@ -180,6 +207,15 @@ export async function createUser(formData) {
       return {
         success: false,
         error: "Name and email are required"
+      };
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        success: false,
+        error: "Invalid email format"
       };
     }
     
@@ -202,6 +238,13 @@ export async function createUser(formData) {
         return {
           success: false,
           error: "Passwords do not match"
+        };
+      }
+      
+      if (password.length < 6) {
+        return {
+          success: false,
+          error: "Password must be at least 6 characters long"
         };
       }
       
@@ -236,6 +279,12 @@ export async function createUser(formData) {
     };
   } catch (error) {
     console.error("Error creating user:", error);
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      return {
+        success: false,
+        error: "Email is already in use"
+      };
+    }
     return {
       success: false,
       error: "Failed to create user"
@@ -248,12 +297,40 @@ export async function createUser(formData) {
  */
 export async function updateUser(id, formData) {
   try {
+    if (!id || !formData) {
+      return {
+        success: false,
+        error: "User ID and form data are required"
+      };
+    }
+    
     const userId = parseInt(id);
-    const name = formData.get("name")?.trim();
-    const email = formData.get("email")?.trim();
-    const password = formData.get("password");
-    const confirmPassword = formData.get("confirmPassword");
-    const mobile = formData.get("mobile")?.trim();
+    
+    if (isNaN(userId)) {
+      return {
+        success: false,
+        error: "Invalid user ID format"
+      };
+    }
+    
+    // Check if the user exists
+    const userExists = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    });
+    
+    if (!userExists) {
+      return {
+        success: false,
+        error: "User not found"
+      };
+    }
+    
+    const name = formData.get("name")?.trim() || '';
+    const email = formData.get("email")?.trim() || '';
+    const password = formData.get("password") || '';
+    const confirmPassword = formData.get("confirmPassword") || '';
+    const mobile = formData.get("mobile")?.trim() || '';
     const mobile_verified = formData.get("mobile_verified");
     const status = formData.get("status");
     
@@ -262,6 +339,15 @@ export async function updateUser(id, formData) {
       return {
         success: false,
         error: "Name and email are required"
+      };
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        success: false,
+        error: "Invalid email format"
       };
     }
     
@@ -300,13 +386,22 @@ export async function updateUser(id, formData) {
     }
     
     // If password is provided and confirmed, update it
-    if (password && password === confirmPassword) {
+    if (password) {
+      if (password !== confirmPassword) {
+        return {
+          success: false,
+          error: "Passwords do not match"
+        };
+      }
+      
+      if (password.length < 6) {
+        return {
+          success: false,
+          error: "Password must be at least 6 characters long"
+        };
+      }
+      
       updateData.password = await bcrypt.hash(password, 10);
-    } else if (password) {
-      return {
-        success: false,
-        error: "Passwords do not match"
-      };
     }
     
     // Update the user
@@ -327,6 +422,12 @@ export async function updateUser(id, formData) {
     };
   } catch (error) {
     console.error("Error updating user:", error);
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      return {
+        success: false,
+        error: "Email is already in use by another user"
+      };
+    }
     return {
       success: false,
       error: "Failed to update user"
@@ -339,13 +440,40 @@ export async function updateUser(id, formData) {
  */
 export async function updateUserStatus(id, status) {
   try {
+    if (!id) {
+      return {
+        success: false,
+        error: "User ID is required"
+      };
+    }
+    
     const userId = parseInt(id);
+    
+    if (isNaN(userId)) {
+      return {
+        success: false,
+        error: "Invalid user ID format"
+      };
+    }
     
     // Validate status value
     if (status !== "active" && status !== "inactive") {
       return {
         success: false,
         error: "Invalid status value"
+      };
+    }
+    
+    // Check if the user exists
+    const userExists = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    });
+    
+    if (!userExists) {
+      return {
+        success: false,
+        error: "User not found"
       };
     }
     
@@ -377,7 +505,46 @@ export async function updateUserStatus(id, status) {
  */
 export async function deleteUserById(id) {
   try {
+    if (!id) {
+      return {
+        success: false,
+        error: "User ID is required"
+      };
+    }
+    
     const userId = parseInt(id);
+    
+    if (isNaN(userId)) {
+      return {
+        success: false,
+        error: "Invalid user ID format"
+      };
+    }
+    
+    // Check if the user exists
+    const userExists = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    });
+    
+    if (!userExists) {
+      return {
+        success: false,
+        error: "User not found"
+      };
+    }
+    
+    // Check if user has orders
+    const userOrders = await db.order.count({
+      where: { user_id: userId }
+    });
+    
+    if (userOrders > 0) {
+      return {
+        success: false,
+        error: "Cannot delete user with existing orders. Please deactivate the account instead."
+      };
+    }
     
     // Delete the user
     await db.user.delete({
@@ -390,9 +557,15 @@ export async function deleteUserById(id) {
     };
   } catch (error) {
     console.error("Error deleting user:", error);
+    if (error.code === 'P2003') {
+      return {
+        success: false,
+        error: "Cannot delete user with associated data. Please deactivate the account instead."
+      };
+    }
     return {
       success: false,
-      error: "Failed to delete user. The user may have associated data that prevents deletion."
+      error: "Failed to delete user."
     };
   }
 }
@@ -447,7 +620,166 @@ export async function getUserStats() {
     console.error("Error fetching user stats:", error);
     return {
       success: false,
-      error: "Failed to fetch user statistics"
+      error: "Failed to fetch user statistics",
+      stats: {
+        totalUsers: 0,
+        activeUsers: 0,
+        inactiveUsers: 0,
+        newUsers: 0,
+        usersWithOrders: 0,
+        usersWithoutOrders: 0
+      }
+    };
+  }
+}
+
+/**
+ * Check authentication status
+ * For use with UserAuthProvider.js
+ */
+export async function checkAuthStatus() {
+  try {
+    // Get session token from cookies
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('session_token')?.value;
+    
+    if (!sessionToken) {
+      return {
+        authenticated: false,
+        user: null
+      };
+    }
+    
+    // Look up session in database
+    const session = await db.userSession.findUnique({
+      where: {
+        token: sessionToken,
+        expires: {
+          gt: new Date()
+        }
+      },
+      include: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            mobile: true,
+            mobile_verified: true,
+            status: true
+          }
+        }
+      }
+    });
+    
+    // If no session found or it's expired
+    if (!session || !session.User) {
+      // Clear invalid session cookie
+      cookieStore.delete('session_token');
+      return {
+        authenticated: false,
+        user: null
+      };
+    }
+    
+    // If user account is inactive
+    if (session.User.status === 'inactive') {
+      return {
+        authenticated: false,
+        user: null,
+        error: "Account is inactive"
+      };
+    }
+    
+    // User is authenticated
+    return {
+      authenticated: true,
+      user: session.User
+    };
+  } catch (error) {
+    console.error("Auth check error:", error);
+    return {
+      authenticated: false,
+      user: null
+    };
+  }
+}
+
+/**
+ * Get the current user's profile information
+ * @returns {Promise<Object>} User profile data and success status
+ */
+export async function getUserProfile() {
+  try {
+    // Get session token from cookies
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('session_token')?.value;
+    
+    if (!sessionToken) {
+      return {
+        success: false,
+        error: "Not authenticated",
+        user: null
+      };
+    }
+    
+    // Lookup the session and associated user
+    const session = await db.userSession.findUnique({
+      where: {
+        token: sessionToken,
+        expires: {
+          gt: new Date()
+        }
+      },
+      include: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            mobile: true,
+            mobile_verified: true,
+            status: true,
+            DeliveryAddresses: true,
+            BillingAddresses: true,
+            Orders: {
+              take: 5,
+              orderBy: { createdAt: "desc" }
+            }
+          }
+        }
+      }
+    });
+    
+    if (!session || !session.User) {
+      // Clear invalid session cookie
+      cookieStore.delete('session_token');
+      return {
+        success: false,
+        error: "Invalid or expired session",
+        user: null
+      };
+    }
+    
+    // If user account is inactive
+    if (session.User.status === 'inactive') {
+      return {
+        success: false,
+        error: "Account is inactive",
+        user: null
+      };
+    }
+    
+    return {
+      success: true,
+      user: session.User
+    };
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return {
+      success: false,
+      error: "Failed to retrieve user profile",
+      user: null
     };
   }
 }

@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { migrateAllUserPasswords } from "@/actions/user";
+import { Button } from "@/components/ui/button";
+import { repairProductSubcategories } from "@/actions/product";
 const Dashboard = () => {
   const StatCard = ({
     title,
@@ -29,15 +31,15 @@ const Dashboard = () => {
   }) => {
     const isPositive = trend > 0;
 
-//       const miGrate = async () => {
-//         try {
-//           const response = await migrateAllUserPasswords()
-//           console.log(response.blogs);
+      const miGrate = async () => {
+        try {
+          const response = await repairProductSubcategories()
+          console.log(response.blogs);
         
-//         } catch (error) {
-//           console.error("Failed to fetch blogs:", error);
-//         } 
-//       };
+        } catch (error) {
+          console.error("Failed to fetch blogs:", error);
+        } 
+      };
 // useEffect(()=>{
 // miGrate()
 // },[])

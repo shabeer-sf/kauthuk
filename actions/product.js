@@ -348,7 +348,7 @@ export async function getProducts({
   subcategory = "",
   status = "",
   sort = "latest",
-}) {
+} = {}) {
   try {
     const skip = (page - 1) * limit;
 
@@ -381,16 +381,24 @@ export async function getProducts({
         orderBy = { createdAt: "asc" };
         break;
       case "price-high":
+      case "price_high":
         orderBy = { price_rupees: "desc" };
         break;
       case "price-low":
+      case "price_low":
         orderBy = { price_rupees: "asc" };
         break;
       case "name-asc":
+      case "name_asc":
         orderBy = { title: "asc" };
         break;
       case "name-desc":
+      case "name_desc":
         orderBy = { title: "desc" };
+        break;
+      case "rating":
+        // Since you don't have actual rating, default to newest
+        orderBy = { createdAt: "desc" };
         break;
       default:
         orderBy = { createdAt: "desc" };
@@ -404,6 +412,7 @@ export async function getProducts({
       orderBy,
       include: {
         SubCategory: {
+          // Add this 'include' to handle null SubCategory
           include: {
             Category: true
           }
@@ -423,10 +432,13 @@ export async function getProducts({
     // Get total count for pagination calculation
     const totalCount = await db.product.count({ where });
 
+    // Filter out products with invalid SubCategory if needed for the client
+    const validProducts = products.filter(product => product.SubCategory !== null);
+
     return {
-      products: products || [],
+      products: validProducts, // Send only products with valid subcategories
       totalPages: Math.ceil(totalCount / limit),
-      totalCount
+      total: totalCount
     };
   } catch (error) {
     console.error("Error fetching products:", error.message);
@@ -760,5 +772,66 @@ export async function getCategoriesAndSubcategories() {
   } catch (error) {
     console.error("Error fetching categories and subcategories:", error);
     throw new Error("Failed to fetch categories. Please try again later.");
+  }
+}
+
+
+
+export async function repairProductSubcategories() {
+  try {
+    // Find products with missing subcategory references
+    const invalidProducts = await db.product.findMany({
+      where: {
+        OR: [
+          { SubCategory: null },
+          { subcat_id: null }
+        ]
+      },
+      select: {
+        id: true
+      }
+    });
+    
+    console.log(`Found ${invalidProducts.length} products with invalid subcategory references`);
+    
+    // Get a default subcategory to assign to these products
+    const defaultSubcategory = await db.subCategory.findFirst({
+      orderBy: {
+        id: 'asc'
+      }
+    });
+    
+    if (!defaultSubcategory) {
+      return {
+        success: false,
+        error: "No subcategory found to use as default"
+      };
+    }
+    
+    // Update the invalid products with the default subcategory
+    for (const product of invalidProducts) {
+      await db.product.update({
+        where: {
+          id: product.id
+        },
+        data: {
+          subcat_id: defaultSubcategory.id,
+          cat_id: defaultSubcategory.cat_id
+        }
+      });
+    }
+    
+    return {
+      success: true,
+      message: `Repaired ${invalidProducts.length} products with invalid subcategory references`
+    };
+  } catch (error) {
+    // Fix the console.error call
+    console.error("Error repairing products:", error?.message || "Unknown error");
+    
+    return {
+      success: false,
+      error: "Failed to repair product subcategories"
+    };
   }
 }

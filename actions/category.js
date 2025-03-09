@@ -5,16 +5,17 @@ import { cache } from "react";
 
 export async function createCategory(data) {
   try {
-    // console.log("Received data:", data);
+    if (!data || !data.title) {
+      throw new Error("Category title is required");
+    }
 
     // Create the category
     const category = await db.category.create({
       data: {
-        catName: data.title,
+        catName: data.title.trim(),
       },
     });
 
-    // console.log("Category created successfully:", category);
     return category;
   } catch (error) {
     if (error.code === "P2002" && error.meta?.target?.includes("catName")) {
@@ -31,10 +32,11 @@ export async function getCategories({
   limit = 15,
   search = "",
   sort = "latest",
-}) {
-  // console.log("search",search)
+} = {}) {
   try {
-    const skip = (page - 1) * limit;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = ((isNaN(pageNum) ? 1 : pageNum) - 1) * (isNaN(limitNum) ? 15 : limitNum);
 
     const where = search
       ? {
@@ -48,7 +50,7 @@ export async function getCategories({
     const categories = await db.category.findMany({
       where,
       skip,
-      take: limit,
+      take: isNaN(limitNum) ? 15 : limitNum,
       orderBy: {
         id: sort === "latest" ? "desc" : "asc", // Sort by creation date
       },
@@ -59,7 +61,7 @@ export async function getCategories({
 
     return {
       categories: categories || [], // Ensure categories is never null
-      totalPages: Math.ceil(totalCount / limit),
+      totalPages: Math.ceil(totalCount / (isNaN(limitNum) ? 15 : limitNum)),
     };
   } catch (error) {
     console.error("Error fetching categories:", error.message);
@@ -68,12 +70,9 @@ export async function getCategories({
 }
 
 export async function getCategories2() {
-  // console.log("search",search)
   try {
-    // Fetch categories with pagination and search filter
+    // Fetch all categories without pagination or filtering
     const categories = await db.category.findMany();
-
-    // Get total count for pagination calculation
 
     return {
       categories: categories || [], // Ensure categories is never null
@@ -86,17 +85,20 @@ export async function getCategories2() {
 
 export async function updateCategory(data) {
   try {
-    const id = data.id;
-    // Validate input
-    if (!id || !data?.title || typeof data.title !== "string") {
+    if (!data || !data.id || !data.title || typeof data.title !== "string") {
       throw new Error("Invalid input. 'id' and valid 'title' are required.");
+    }
+
+    const id = parseInt(data.id);
+    if (isNaN(id)) {
+      throw new Error("Invalid category ID format.");
     }
 
     // Update the category
     const updatedCategory = await db.category.update({
       where: { id },
       data: {
-        catName: data.title,
+        catName: data.title.trim(),
       },
     });
 
@@ -119,17 +121,30 @@ export async function updateCategory(data) {
 
 export async function toggleCategory(id) {
   try {
+    if (!id) {
+      throw new Error("Category ID is required");
+    }
+
+    const categoryId = parseInt(id);
+    if (isNaN(categoryId)) {
+      throw new Error("Invalid category ID format");
+    }
+
     const category = await db.category.findUnique({
       where: {
-        id: id, // Find the category by its unique ID
+        id: categoryId,
       },
     });
 
-    // Update the category
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    // Update the category status
     const toggleData = await db.category.update({
-      where: { id },
+      where: { id: categoryId },
       data: {
-        showHome: category.showHome == "active" ? "inactive" : "active",
+        showHome: category.showHome === "active" ? "inactive" : "active",
       },
     });
 
@@ -151,25 +166,51 @@ export async function toggleCategory(id) {
 }
 
 export async function deleteCategoryById(id) {
-  console.log("id", id);
-  if (!id) {
-    throw new Error("Category ID is required");
+  try {
+    if (!id) {
+      throw new Error("Category ID is required");
+    }
+
+    const categoryId = parseInt(id);
+    if (isNaN(categoryId)) {
+      throw new Error("Invalid category ID format");
+    }
+
+    // Check if there are any subcategories linked to this category
+    const subcategoryCount = await db.subCategory.count({
+      where: {
+        cat_id: categoryId,
+      },
+    });
+
+    if (subcategoryCount > 0) {
+      throw new Error("Cannot delete category with existing subcategories. Please delete subcategories first.");
+    }
+
+    // Delete the category by its unique ID
+    const deletedCategory = await db.category.delete({
+      where: {
+        id: categoryId,
+      },
+    });
+
+    return {
+      success: true,
+      deletedCategory,
+    };
+  } catch (error) {
+    if (error.code === "P2025") {
+      throw new Error("Category not found.");
+    }
+    
+    if (error.message.includes("Cannot delete category with existing subcategories")) {
+      throw error;
+    }
+    
+    console.error("Error deleting category:", error);
+    throw new Error("Failed to delete the category. Please try again.");
   }
-
-  // Delete the category by its unique ID
-  const deletedCategory = await db.category.delete({
-    where: {
-      id: id, // Specify the recipe ID to delete
-    },
-  });
-
-  return {
-    success: true,
-    deletedCategory,
-  };
 }
-
-
 
 /**
  * Fetch all categories with their subcategories
@@ -189,7 +230,7 @@ export const getCategories3 = cache(async () => {
       }
     });
     
-    return { categories };
+    return { categories: categories || [] };
   } catch (error) {
     console.error("Error fetching categories:", error);
     return { categories: [] };
@@ -212,7 +253,7 @@ export const getFeaturedCategories = cache(async () => {
       }
     });
     
-    return { featuredCategories: categories };
+    return { featuredCategories: categories || [] };
   } catch (error) {
     console.error("Error fetching featured categories:", error);
     return { featuredCategories: [] };
@@ -225,11 +266,14 @@ export const getFeaturedCategories = cache(async () => {
  * @param {number} limit - Number of results to return
  */
 export async function searchProducts(query, limit = 5) {
-  if (!query || query.trim() === '') {
+  if (!query || typeof query !== 'string' || query.trim() === '') {
     return { products: [] };
   }
 
   try {
+    const limitNum = parseInt(limit);
+    const take = isNaN(limitNum) || limitNum <= 0 ? 5 : limitNum;
+    
     const products = await db.product.findMany({
       where: {
         AND: [
@@ -237,17 +281,17 @@ export async function searchProducts(query, limit = 5) {
             OR: [
               {
                 title: {
-                  contains: query,
+                  contains: query.trim(),
                 }
               },
               {
                 description: {
-                  contains: query,
+                  contains: query.trim(),
                 }
               },
               {
                 meta_keywords: {
-                  contains: query,
+                  contains: query.trim(),
                 }
               }
             ]
@@ -271,18 +315,22 @@ export async function searchProducts(query, limit = 5) {
           take: 1
         }
       },
-      take: limit,
+      take: take,
     });
 
     // Transform the data for frontend use
     const formattedProducts = products.map(product => ({
       id: product.id,
-      title: product.title,
-      description: product.description.substring(0, 100) + (product.description.length > 100 ? '...' : ''),
-      price: Number(product.price_rupees),
-      priceDollars: Number(product.price_dollars),
+      title: product.title || 'Untitled Product',
+      description: product.description 
+        ? (product.description.substring(0, 100) + (product.description.length > 100 ? '...' : '')) 
+        : '',
+      price: Number(product.price_rupees || 0),
+      priceDollars: Number(product.price_dollars || 0),
       inStock: product.stock_status === 'yes',
-      thumbnail: product.ProductImages[0]?.image_path || null
+      thumbnail: product.ProductImages && product.ProductImages.length > 0 
+        ? product.ProductImages[0]?.image_path 
+        : null
     }));
 
     return { products: formattedProducts };
@@ -318,8 +366,21 @@ export async function getPopularSearchTerms() {
  */
 export async function getNotificationCount(userId = null) {
   // In a real implementation, you would fetch this from a notifications table
-  // For now, we'll return a mock value
-  return { count: userId ? 3 : 0 };
+  try {
+    if (userId) {
+      const userIdNum = parseInt(userId);
+      if (!isNaN(userIdNum)) {
+        // Here you would check if the user exists and get their notifications
+        // For now, just return a mock value
+        return { count: 3 };
+      }
+    }
+    
+    return { count: 0 };
+  } catch (error) {
+    console.error("Error getting notification count:", error);
+    return { count: 0 };
+  }
 }
 
 /**
@@ -347,7 +408,6 @@ export async function getAnnouncements() {
   return { announcements };
 }
 
-
 export async function getAllCategories() {
   try {
     const categories = await db.category.findMany({
@@ -366,7 +426,7 @@ export async function getAllCategories() {
       }
     });
 
-    return { success: true, categories };
+    return { success: true, categories: categories || [] };
   } catch (error) {
     console.error("Error fetching categories:", error);
     return { success: false, error: "Failed to fetch categories" };
@@ -399,7 +459,7 @@ export async function getHomeCategories() {
       take: 6 // Limit to 6 categories for home page
     });
 
-    return { success: true, categories };
+    return { success: true, categories: categories || [] };
   } catch (error) {
     console.error("Error fetching home categories:", error);
     return { success: false, error: "Failed to fetch home categories" };
@@ -413,9 +473,14 @@ export async function getSubcategories(categoryId) {
       return { success: false, error: "Category ID is required" };
     }
 
+    const catId = parseInt(categoryId);
+    if (isNaN(catId)) {
+      return { success: false, error: "Invalid category ID format" };
+    }
+
     const subcategories = await db.subCategory.findMany({
       where: {
-        cat_id: parseInt(categoryId)
+        cat_id: catId
       },
       select: {
         id: true,
@@ -431,7 +496,7 @@ export async function getSubcategories(categoryId) {
       }
     });
 
-    return { success: true, subcategories };
+    return { success: true, subcategories: subcategories || [] };
   } catch (error) {
     console.error("Error fetching subcategories:", error);
     return { success: false, error: "Failed to fetch subcategories" };
