@@ -53,9 +53,6 @@ DROP INDEX `ProductVariant_product_id_fkey` ON `productvariant`;
 DROP INDEX `SubCategory_cat_id_fkey` ON `subcategory`;
 
 -- DropIndex
-DROP INDEX `SubCategory_subcategory_key` ON `subcategory`;
-
--- DropIndex
 DROP INDEX `VariantAttributeValue_attribute_value_id_fkey` ON `variantattributevalue`;
 
 -- AddForeignKey
