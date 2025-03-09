@@ -1,35 +1,5 @@
-"use server";
 
-import bcrypt from "bcrypt";
 
-// Function to decode Base64 password and encrypt with bcrypt
-export async function migratePassword(encodedPassword) {
-  try {
-    // Decode the Base64 password
-    const decodedPassword = baseDecode(encodedPassword);
-    
-    if (!decodedPassword) {
-      return {
-        success: false,
-        error: "Invalid encoded password"
-      };
-    }
-    
-    // Encrypt with bcrypt
-    const hashedPassword = await bcrypt.hash(decodedPassword, 10);
-    
-    return {
-      success: true,
-      hashedPassword
-    };
-  } catch (error) {
-    console.error("Password migration error:", error);
-    return {
-      success: false,
-      error: "Failed to migrate password"
-    };
-  }
-}
 
 // Function to verify a plain password against a Base64 encoded password
 export async function verifyBase64Password(plainPassword, encodedPassword) {
