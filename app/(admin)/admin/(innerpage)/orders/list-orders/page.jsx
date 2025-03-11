@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -121,9 +121,38 @@ import { toast } from "sonner";
 // Actions
 import { getOrders, getOrderById, updateOrderStatus, updateShippingDetails } from "@/actions/order";
 
+// Create a separate component for the search params functionality
+function OrderSearchParamsHandler({ onParamsChange }) {
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    const userIdParam = searchParams.get('user');
+    if (userIdParam) {
+      onParamsChange(`user:${userIdParam}`);
+    }
+  }, [searchParams, onParamsChange]);
+
+  return null;
+}
+
+// Import useSearchParams inside this component
+function SearchParamsWrapper({ onParamsChange }) {
+  const { useSearchParams } = require("next/navigation");
+  
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    const userIdParam = searchParams.get('user');
+    if (userIdParam) {
+      onParamsChange(`user:${userIdParam}`);
+    }
+  }, [searchParams, onParamsChange]);
+
+  return null;
+}
+
 const ListOrdersPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   // State for filters and pagination
   const [showFilters, setShowFilters] = useState(false);
@@ -157,13 +186,10 @@ const ListOrdersPage = () => {
 
   const itemsPerPage = 15;
 
-  // Check if user ID is provided in URL
-  useEffect(() => {
-    const userIdParam = searchParams.get('user');
-    if (userIdParam) {
-      setSearchQuery(`user:${userIdParam}`);
-    }
-  }, [searchParams]);
+  // Handle params change from the Suspense wrapped component
+  const handleParamsChange = (query) => {
+    setSearchQuery(query);
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -418,9 +444,29 @@ const ListOrdersPage = () => {
       </tr>
     ));
   };
+
+  // Function to generate sample orders for demonstration
+  const generateSampleOrders = () => {
+    return Array(12).fill(0).map((_, index) => ({
+      id: 1000 + index,
+      userName: `User ${index + 1}`,
+      userEmail: `user${index + 1}@example.com`,
+      total: 100 + (index * 10),
+      currency: "INR",
+      orderStatus: ['placed', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'][index % 6],
+      paymentStatus: ['completed', 'pending', 'failed', 'refunded'][index % 4],
+      paymentMethod: ['card', 'upi', 'cod'][index % 3],
+      orderDate: new Date(2023, index % 12, (index % 28) + 1).toISOString()
+    }));
+  };
   
   return (
     <div className="w-full p-4 space-y-6 max-w-7xl mx-auto">
+      {/* Suspense boundary for the search params handling */}
+      <Suspense fallback={null}>
+        <SearchParamsWrapper onParamsChange={handleParamsChange} />
+      </Suspense>
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
