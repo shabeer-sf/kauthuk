@@ -16,9 +16,35 @@ import "swiper/css/pagination";
 
 import { getSliders } from "@/actions/slider";
 
+// Helper function for proper text casing
+const formatText = (text, type) => {
+  if (!text) return "";
+  
+  switch (type) {
+    case "title":
+      // Title case - capitalize first letter of each word
+      return text.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    case "subtitle":
+      // Uppercase for subtitles
+      return text.toUpperCase();
+    case "description":
+      // Sentence case for descriptions - capitalize first letter only
+      return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    case "button":
+      // Title case for buttons
+      return text.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    default:
+      return text;
+  }
+};
+
 const Skeleton = () => (
-  <div className="relative w-full h-[65vh] md:h-[75vh] bg-gray-200 animate-pulse flex items-center justify-center">
-    <div className="text-gray-400">Loading...</div>
+  <div className="relative w-full h-[65vh] md:h-[75vh] bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse flex items-center justify-center">
+    <div className="text-gray-400 font-medium">Loading slider content...</div>
   </div>
 );
 
@@ -28,7 +54,7 @@ const CustomNavButton = ({ direction, onClick }) => (
     className="absolute top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
              bg-white/20 backdrop-blur-sm rounded-full text-white border border-white/30
              hover:bg-white/30 transition-all duration-300 group
-             sm:flex"
+             opacity-0 sm:opacity-80 hover:opacity-100"
     style={{ 
       [direction === "prev" ? "left" : "right"]: "clamp(0.5rem, 5vw, 2rem)"
     }}
@@ -153,7 +179,8 @@ const Hero = () => {
       >
         {sliders.map((slide, index) => (
           <SwiperSlide key={slide.id} className="relative w-full h-full">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-10" />
+            {/* Gradient overlay with better contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20 z-10" />
 
             {slide.image ? (
               <Image
@@ -161,7 +188,7 @@ const Hero = () => {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                className="object-cover transition-transform duration-[2s]"
+                className="object-cover object-center transition-transform duration-[2s]"
                 alt={slide.title || "Slide image"}
                 onError={(e) => {
                   console.error(`Failed to load image: ${slide.image}`);
@@ -174,20 +201,22 @@ const Hero = () => {
 
             <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-16 lg:px-24">
               <div className="max-w-screen-xl mx-auto w-full">
-                <div className="max-w-2xl space-y-4 md:space-y-6 transform transition-all duration-700 translate-y-0">
-                  {slide.subtitle && (
-                    <span className="text-white/80 text-sm md:text-base uppercase tracking-wider font-medium">
-                      {slide.subtitle}
-                    </span>
-                  )}
+                <div className="max-w-2xl space-y-4 md:space-y-6 transform transition-all duration-700">
+                 
 
                   <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white">
-                    {slide.title || "Welcome"}
+                    {formatText(slide.title, "title") || "Welcome"}
                   </h1>
-
-                  <p className="text-white/90 text-base md:text-lg max-w-xl">
-                    {slide.description || ""}
-                  </p>
+                  {slide.subtitle && (
+                    <span className="text-white/90 text-sm md:text-base uppercase tracking-widest font-medium inline-block pb-1">
+                      {formatText(slide.subtitle, "subtitle")}
+                    </span>
+                  )}
+                  {slide.description && (
+                    <p className="text-white/90 text-base md:text-lg max-w-xl leading-relaxed">
+                      {formatText(slide.description, "description")}
+                    </p>
+                  )}
 
                   {slide.link && (
                     <div className="flex flex-col sm:flex-row gap-4 pt-2 md:pt-4">
@@ -196,7 +225,7 @@ const Hero = () => {
                           className="px-6 py-3 md:px-8 md:py-4 bg-white text-black font-medium rounded-full
                                    hover:bg-white/90 transition-all duration-300 group flex items-center gap-2"
                         >
-                          {slide.linkTitle || "Explore"}
+                          {formatText(slide.linkTitle, "button") || "Explore"}
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                       </Link>

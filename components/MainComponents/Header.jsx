@@ -267,31 +267,14 @@ const Header = () => {
                     </Link>
 
                     <Link
-                      href="/products"
-                      className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Package className="h-4 w-4 text-green-600" />
-                      <span
-                        className={
-                          pathname === "/products"
-                            ? "font-medium text-green-600"
-                            : ""
-                        }
-                      >
-                        Products
-                      </span>
-                    </Link>
-
-                    <Link
-                      href="/about"
+                      href="/pages/about"
                       className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Info className="h-4 w-4 text-green-600" />
                       <span
                         className={
-                          pathname === "/about"
+                          pathname === "/pages/about"
                             ? "font-medium text-green-600"
                             : ""
                         }
@@ -438,88 +421,11 @@ const Header = () => {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger
-                  className={cn(
-                    pathname.startsWith("/products") ||
-                      pathname.startsWith("/category")
-                      ? "text-green-600 font-medium"
-                      : "text-gray-700"
-                  )}
-                >
-                  Products
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[400px] lg:w-[600px] p-4 lg:grid lg:grid-cols-2 gap-3">
-                    <div>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/products"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-green-50 hover:text-green-600"
-                        >
-                          <div className="text-sm font-medium leading-none">
-                            All Products
-                          </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                            Browse our complete collection of sustainable
-                            products
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-
-                      <Separator className="my-2" />
-
-                      <div className="grid grid-cols-2 gap-2 py-2">
-                        {featuredCategories.map((category) => (
-                          <Link
-                            key={category.id}
-                            href={`/category/${category.id}`}
-                            className="block select-none space-y-1 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-green-50 hover:text-green-600"
-                          >
-                            <div className="text-sm font-medium">
-                              {category.catName}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="hidden lg:block">
-                      <div className="rounded-md overflow-hidden">
-                        <div className="relative h-40 w-full">
-                          <Image
-                            src="/assets/images/categories/featured.jpg"
-                            fill
-                            alt="Featured products"
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="bg-green-50 p-3">
-                          <h4 className="font-medium text-green-800">
-                            New Arrivals
-                          </h4>
-                          <p className="text-xs text-green-700 mt-1">
-                            Discover our latest eco-friendly products
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-100 p-0 mt-2 h-auto font-medium text-xs"
-                          >
-                            Shop Now →
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link href="/about" legacyBehavior passHref>
+                <Link href="/pages/about" legacyBehavior passHref>
                   <NavigationMenuLink
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      pathname === "/about"
+                      pathname === "/pages/about"
                         ? "text-green-600 font-medium"
                         : "text-gray-700"
                     )}
@@ -970,7 +876,7 @@ const Header = () => {
         <div className="max-w-7xl mx-auto">
           <Suspense
             fallback={
-              <div className="flex items-center justify-between py-2 px-4 overflow-x-auto">
+              <div className="flex items-center justify-center py-2 px-4">
                 {[...Array(6)].map((_, index) => (
                   <div
                     key={index}
@@ -980,7 +886,9 @@ const Header = () => {
               </div>
             }
           >
-            <CategoryList />
+            <div className="overflow-hidden">
+              <CategoryList />
+            </div>
           </Suspense>
         </div>
       </div>

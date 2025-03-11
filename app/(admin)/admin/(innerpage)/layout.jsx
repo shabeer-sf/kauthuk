@@ -33,7 +33,7 @@ export default function AdminLayout({ children }) {
               </footer>
             </div>
           </div>
-          <Toaster />
+          <Toaster richColors />
         </div>
       </ThemeProvider>
     </AuthProvider>

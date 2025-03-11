@@ -41,7 +41,7 @@ const CategoryList = () => {
 
   return (
     <div className="relative">
-      <div className="flex items-center justify-between py-2 overflow-x-auto px-4">
+      <div className="flex items-center gap-4 py-2 overflow-x-auto px-4">
         {categories.map((category) => (
           <div
             key={category.id}

@@ -31,7 +31,7 @@ const checkAuthStatus = async () => {
     return {
       authenticated: false,
       user: null,
-      error: error.message
+      error: error.message || "Authentication check failed"
     };
   }
 };
@@ -45,23 +45,33 @@ const UserAuthContext = createContext();
 export const UserAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Set isClient to true on mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { authenticated, user } = await checkAuthStatus();
+        setError(null);
+        const { authenticated, user, error } = await checkAuthStatus();
         
         if (authenticated && user) {
           setUser(user);
         } else {
           setUser(null);
+          if (error) setError(error);
         }
       } catch (error) {
         console.error("Auth check error:", error);
         setUser(null);
+        setError(error.message || "Authentication check failed");
       } finally {
         setLoading(false);
       }
@@ -89,6 +99,7 @@ export const UserAuthProvider = ({ children }) => {
   const login = async (formData) => {
     try {
       setLoading(true);
+      setError(null);
       const result = await loginUser(formData);
       
       if (result.success) {
@@ -107,6 +118,7 @@ export const UserAuthProvider = ({ children }) => {
         router.push(redirectUrl);
         return { success: true };
       } else {
+        setError(result.error || 'Login failed');
         return { 
           success: false, 
           error: result.error || 'Login failed' 
@@ -114,9 +126,11 @@ export const UserAuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Login error:", error);
+      const errorMessage = error.message || 'An unexpected error occurred';
+      setError(errorMessage);
       return { 
         success: false, 
-        error: 'An unexpected error occurred' 
+        error: errorMessage
       };
     } finally {
       setLoading(false);
@@ -127,6 +141,7 @@ export const UserAuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       setLoading(true);
+      setError(null);
       const result = await registerUser(formData);
       
       if (result.success) {
@@ -134,6 +149,7 @@ export const UserAuthProvider = ({ children }) => {
         router.push("/my-account");
         return { success: true };
       } else {
+        setError(result.error || 'Registration failed');
         return { 
           success: false, 
           error: result.error || 'Registration failed' 
@@ -141,9 +157,11 @@ export const UserAuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Registration error:", error);
+      const errorMessage = error.message || 'An unexpected error occurred';
+      setError(errorMessage);
       return { 
         success: false, 
-        error: 'An unexpected error occurred' 
+        error: errorMessage
       };
     } finally {
       setLoading(false);
@@ -154,11 +172,19 @@ export const UserAuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
+      setError(null);
       await logoutUser();
       setUser(null);
       router.push("/");
+      return { success: true };
     } catch (error) {
       console.error("Logout error:", error);
+      const errorMessage = error.message || 'Logout failed';
+      setError(errorMessage);
+      return { 
+        success: false, 
+        error: errorMessage
+      };
     } finally {
       setLoading(false);
     }
@@ -168,12 +194,14 @@ export const UserAuthProvider = ({ children }) => {
   const getProfile = async () => {
     try {
       setLoading(true);
+      setError(null);
       const result = await getUserProfile();
       
       if (result.success) {
         setUser(result.user);
         return { success: true, data: result.user };
       } else {
+        setError(result.error || 'Failed to fetch profile');
         return { 
           success: false, 
           error: result.error || 'Failed to fetch profile' 
@@ -181,9 +209,11 @@ export const UserAuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Profile fetch error:", error);
+      const errorMessage = error.message || 'An unexpected error occurred';
+      setError(errorMessage);
       return { 
         success: false, 
-        error: 'An unexpected error occurred' 
+        error: errorMessage
       };
     } finally {
       setLoading(false);
@@ -195,16 +225,14 @@ export const UserAuthProvider = ({ children }) => {
     return !!user;
   };
 
-  // Content with loading state
-  const content = loading ? (
-    <div className="h-screen w-screen flex justify-center items-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
-    </div>
-  ) : (
-    children
-  );
+  // Clear any authentication errors
+  const clearError = () => {
+    setError(null);
+  };
 
-  // Provide authentication context to children
+  // Only show loading spinner on client-side to prevent hydration issues
+  const shouldShowLoading = isClient && loading;
+
   return (
     <UserAuthContext.Provider 
       value={{ 
@@ -214,10 +242,18 @@ export const UserAuthProvider = ({ children }) => {
         register, 
         getProfile,
         isAuthenticated,
-        loading
+        loading: shouldShowLoading,
+        error,
+        clearError
       }}
     >
-      {content}
+      {shouldShowLoading ? (
+        <div className="h-screen w-screen flex justify-center items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+        </div>
+      ) : (
+        children
+      )}
     </UserAuthContext.Provider>
   );
 };

@@ -63,11 +63,8 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
   // Select a color variant based on the index
   const colorVariant = colorVariants[index % colorVariants.length];
   
-  // Random discount for visual appeal
-  const [discount] = useState(Math.floor(Math.random() * 20) + 5);
-  const originalPrice = parseFloat(price_rupees) * (100 / (100 - discount));
+
   
-  // Random tag for visual appeal
   
 
   return (
@@ -102,15 +99,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           )}
           
          
-          
-          {/* Discount tag if available */}
-          {discount > 0 && (
-            <div className="absolute top-3 right-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
-                -{discount}%
-              </Badge>
-            </div>
-          )}
+        
           
           {/* Action buttons overlay */}
           <div 
@@ -129,13 +118,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
               </motion.button>
             </Link>
             
-            <motion.button 
-              className="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors shadow-md"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ShoppingCart className="w-5 h-5" />
-            </motion.button>
+            
           </div>
         </div>
         
@@ -159,11 +142,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
             <p className="text-xl font-bold text-indigo-600">
               ₹{parseFloat(price_rupees).toLocaleString()}
             </p>
-            {discount > 0 && (
-              <p className="text-sm text-gray-500 line-through">
-                ₹{Math.round(originalPrice).toLocaleString()}
-              </p>
-            )}
+           
           </div>
           
           <Link href={`/product/${id}`} className="mt-4 block">
@@ -294,7 +273,7 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
         <div className="flex justify-between items-center mb-8">
          
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full justify-between">
             <div className="hidden md:flex gap-2">
               <button 
                 ref={prevRef}

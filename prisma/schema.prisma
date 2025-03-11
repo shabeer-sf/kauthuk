@@ -210,24 +210,23 @@ enum YesNo {
 }
 
 model Slider {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  subtitle    String?  @db.VarChar(255)
-  image       String?  @db.VarChar(255)
-  href        String?  @db.VarChar(255)
-  link        String?  @db.VarChar(255)
-  linkTitle   String?  @db.VarChar(255)
-  description String   @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  title     String   @unique @db.VarChar(255)
+  subtitle  String?  @db.VarChar(255)
+  image     String?  @db.VarChar(255)
+  href      String?  @db.VarChar(255)
+  link      String?  @db.VarChar(255)
+  linkTitle String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Admin {
-  id       Int    @id @default(autoincrement())
-  username    String @db.VarChar(255)
-  password String @db.VarChar(255)
+  id        Int       @id @default(autoincrement())
+  username  String    @db.VarChar(255)
+  password  String    @db.VarChar(255)
   user_type AdminEnum @default(admin)
-  status Statuses @default(active)
+  status    Statuses  @default(active)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -248,19 +247,20 @@ model Newsletter {
 
 // User model
 model User {
-  id             Int      @id @default(autoincrement())
-  name           String   @db.VarChar(255)
-  email          String   @unique(map: "user_email") @db.VarChar(191)
-  password       String   @db.VarChar(255)
-  mobile         String?  @db.VarChar(20)
-  mobile_verified YesNo   @default(no)
-  status         Statuses @default(active)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(255)
+  email           String   @unique(map: "user_email") @db.VarChar(191)
+  password        String   @db.VarChar(255)
+  mobile          String?  @db.VarChar(20)
+  mobile_verified YesNo    @default(no)
+  status          Statuses @default(active)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   DeliveryAddresses DeliveryAddress[]
   BillingAddresses  BillingAddress[]
   Orders            Order[]
+  UserSession       UserSession?
 }
 
 // Country model (for addresses)
@@ -275,7 +275,7 @@ model Country {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  States           States[]
+  States            States[]
   DeliveryAddresses DeliveryAddress[]
   BillingAddresses  BillingAddress[]
 }
@@ -293,8 +293,8 @@ model States {
   DeliveryAddresses DeliveryAddress[]
   BillingAddresses  BillingAddress[]
 
-  @@index([country_id])
   @@unique([country_id, state_en(length: 80)], map: "country_state")
+  @@index([country_id])
 }
 
 // Delivery Address model
@@ -314,7 +314,7 @@ model DeliveryAddress {
 
   User    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Country Country @relation(fields: [country_id], references: [id])
-  States   States   @relation(fields: [state_id], references: [id], map: "DeliveryAddress_state_id_fkey")
+  States  States  @relation(fields: [state_id], references: [id], map: "DeliveryAddress_state_id_fkey")
 }
 
 // Billing Address model
@@ -334,7 +334,7 @@ model BillingAddress {
 
   User    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Country Country @relation(fields: [country_id], references: [id])
-  States   States   @relation(fields: [state_id], references: [id], map: "BillingAddress_state_id_fkey")
+  States  States  @relation(fields: [state_id], references: [id], map: "BillingAddress_state_id_fkey")
 }
 
 // Testimonial model
@@ -352,21 +352,21 @@ model Testimonial {
 
 // Order model
 model Order {
-  id               Int           @id @default(autoincrement())
-  user_id          Int
-  total            Decimal       @db.Decimal(10, 2)
-  payment_method   PaymentMethod
-  payment_status   PaymentStatus @default(pending)
-  order_status     OrderStatus   @default(placed)
-  order_date       DateTime      @default(now())
-  currency         Currency      @default(INR)
-  delivery_charge  Decimal       @db.Decimal(10, 2)
-  tax_amount       Decimal?      @db.Decimal(10, 2)
-  discount_amount  Decimal?      @db.Decimal(10, 2)
-  coupon_code      String?       @db.VarChar(50)
-  order_notes      String?       @db.Text
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  total           Decimal       @db.Decimal(10, 2)
+  payment_method  PaymentMethod
+  payment_status  PaymentStatus @default(pending)
+  order_status    OrderStatus   @default(placed)
+  order_date      DateTime      @default(now())
+  currency        Currency      @default(INR)
+  delivery_charge Decimal       @db.Decimal(10, 2)
+  tax_amount      Decimal?      @db.Decimal(10, 2)
+  discount_amount Decimal?      @db.Decimal(10, 2)
+  coupon_code     String?       @db.VarChar(50)
+  order_notes     String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   User           User            @relation(fields: [user_id], references: [id])
   OrderProducts  OrderProduct[]
@@ -375,30 +375,30 @@ model Order {
 
 // Order Product model (individual products in an order)
 model OrderProduct {
-  id          Int      @id @default(autoincrement())
-  order_id    Int
-  product_id  Int
-  price       Decimal  @db.Decimal(10, 2)
-  quantity    Int
-  currency    Currency @default(INR)
-  variation   String?  @db.Text   // JSON string containing variation details
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  price      Decimal  @db.Decimal(10, 2)
+  quantity   Int
+  currency   Currency @default(INR)
+  variation  String?  @db.Text // JSON string containing variation details
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  Order   Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  Order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }
 
 // Shipping Details model
 model ShippingDetail {
-  id            Int       @id @default(autoincrement())
-  order_id      Int       @unique
-  courier_name  String    @db.VarChar(255)
-  tracking_id   String    @db.VarChar(255)
-  tracking_url  String?   @db.VarChar(255)
+  id            Int            @id @default(autoincrement())
+  order_id      Int            @unique
+  courier_name  String         @db.VarChar(255)
+  tracking_id   String         @db.VarChar(255)
+  tracking_url  String?        @db.VarChar(255)
   shipping_date DateTime?
   status        ShippingStatus @default(processing)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   Order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }
@@ -441,4 +441,56 @@ enum ShippingStatus {
   delivered
   returned
   failed
+}
+
+model SiteContent {
+  id        Int      @id @default(autoincrement())
+  page      String   @unique @db.VarChar(50) // e.g., "about", "terms", "privacy"
+  title     String?  @db.VarChar(255)
+  content   String   @db.LongText
+  link      String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FooterCategory {
+  id          Int          @id @default(autoincrement())
+  title       String       @db.VarChar(100)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  FooterLinks FooterLink[]
+}
+
+model FooterLink {
+  id               Int      @id @default(autoincrement())
+  footerCategoryId Int?
+  title            String   @db.VarChar(100)
+  link             String   @db.VarChar(255)
+  description      String?  @db.LongText
+  showInFooter     Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  FooterCategory FooterCategory? @relation(fields: [footerCategoryId], references: [id], onDelete: SetNull)
+}
+
+model Enquiry {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  phone     String?  @db.VarChar(20) // Optional phone number
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

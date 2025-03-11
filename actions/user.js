@@ -25,9 +25,9 @@ export async function getUsers({ search = "", page = 1, limit = 15, sort = "late
     // Apply search filter if provided
     if (search && typeof search === 'string' && search.trim() !== '') {
       where.OR = [
-        { name: { contains: search.trim(), mode: "insensitive" } },
-        { email: { contains: search.trim(), mode: "insensitive" } },
-        { mobile: { contains: search.trim(), mode: "insensitive" } }
+        { name: { contains: search.trim() } },
+        { email: { contains: search.trim() } },
+        { mobile: { contains: search.trim() } }
       ];
     }
     
@@ -96,8 +96,18 @@ export async function getUsers({ search = "", page = 1, limit = 15, sort = "late
       totalPages: Math.ceil(totalCount / (isNaN(limitNum) ? 15 : Math.max(1, limitNum)))
     };
   } catch (error) {
-    console.error("Error fetching users:", error);
-    throw new Error("Failed to fetch users");
+    // Fix for the null payload error - stringify the error or use specific properties
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Error fetching users: " + errorMessage);
+    
+    // Return an error response instead of throwing
+    return {
+      success: false,
+      error: "Failed to fetch users: " + errorMessage,
+      users: [],
+      totalUsers: 0,
+      totalPages: 0
+    };
   }
 }
 
@@ -129,13 +139,15 @@ export async function getUserById(id) {
           include: {
             Country: true,
             States: true
-          }
+          },
+          orderBy: { is_default: 'desc' } // Show default addresses first
         },
         BillingAddresses: {
           include: {
             Country: true,
             States: true
-          }
+          },
+          orderBy: { is_default: 'desc' } // Show default addresses first
         },
         Orders: {
           take: 5,
@@ -147,7 +159,9 @@ export async function getUserById(id) {
         },
         _count: {
           select: {
-            Orders: true
+            Orders: true,
+            DeliveryAddresses: true,
+            BillingAddresses: true
           }
         }
       }
@@ -160,10 +174,12 @@ export async function getUserById(id) {
       };
     }
     
-    // Format the response
+    // Format the response with additional counts
     const formattedUser = {
       ...user,
-      ordersCount: user._count?.Orders || 0
+      ordersCount: user._count?.Orders || 0,
+      deliveryAddressCount: user._count?.DeliveryAddresses || 0,
+      billingAddressCount: user._count?.BillingAddresses || 0
     };
     
     delete formattedUser._count;
@@ -174,10 +190,13 @@ export async function getUserById(id) {
       user: formattedUser
     };
   } catch (error) {
-    console.error("Error fetching user:", error);
+    // Fix for the null payload error - extract useful information from the error
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Error fetching user: " + errorMessage);
+    
     return {
       success: false,
-      error: "Failed to fetch user details"
+      error: "Failed to fetch user details: " + errorMessage
     };
   }
 }
@@ -278,8 +297,12 @@ export async function createUser(formData) {
       }
     };
   } catch (error) {
-    console.error("Error creating user:", error);
-    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    const errorCode = error.code || '';
+    console.error("Error creating user: " + errorMessage);
+    
+    if (errorCode === 'P2002' && error.meta?.target?.includes('email')) {
       return {
         success: false,
         error: "Email is already in use"
@@ -287,7 +310,7 @@ export async function createUser(formData) {
     }
     return {
       success: false,
-      error: "Failed to create user"
+      error: "Failed to create user: " + errorMessage
     };
   }
 }
@@ -421,8 +444,12 @@ export async function updateUser(id, formData) {
       }
     };
   } catch (error) {
-    console.error("Error updating user:", error);
-    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    const errorCode = error.code || '';
+    console.error("Error updating user: " + errorMessage);
+    
+    if (errorCode === 'P2002' && error.meta?.target?.includes('email')) {
       return {
         success: false,
         error: "Email is already in use by another user"
@@ -430,7 +457,7 @@ export async function updateUser(id, formData) {
     }
     return {
       success: false,
-      error: "Failed to update user"
+      error: "Failed to update user: " + errorMessage
     };
   }
 }
@@ -460,20 +487,33 @@ export async function updateUserStatus(id, status) {
     if (status !== "active" && status !== "inactive") {
       return {
         success: false,
-        error: "Invalid status value"
+        error: "Invalid status value. Status must be 'active' or 'inactive'."
       };
     }
     
     // Check if the user exists
-    const userExists = await db.user.findUnique({
+    const existingUser = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true }
+      select: { id: true, status: true, name: true }
     });
     
-    if (!userExists) {
+    if (!existingUser) {
       return {
         success: false,
         error: "User not found"
+      };
+    }
+    
+    // Skip update if status is already the desired value
+    if (existingUser.status === status) {
+      return {
+        success: true,
+        user: {
+          id: existingUser.id,
+          name: existingUser.name,
+          status: existingUser.status
+        },
+        message: `User is already ${status}`
       };
     }
     
@@ -483,19 +523,25 @@ export async function updateUserStatus(id, status) {
       data: { status }
     });
     
+    console.log(`User ${updatedUser.id} (${updatedUser.name}) status changed from ${existingUser.status} to ${status}`);
+    
     return {
       success: true,
       user: {
         id: updatedUser.id,
         name: updatedUser.name,
         status: updatedUser.status
-      }
+      },
+      message: `User ${status === 'active' ? 'activated' : 'deactivated'} successfully`
     };
   } catch (error) {
-    console.error("Error updating user status:", error);
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    console.error(`Error updating user status (ID: ${id}, Status: ${status}): ${errorMessage}`);
+    
     return {
       success: false,
-      error: "Failed to update user status"
+      error: "Failed to update user status: " + errorMessage
     };
   }
 }
@@ -556,8 +602,12 @@ export async function deleteUserById(id) {
       message: "User deleted successfully"
     };
   } catch (error) {
-    console.error("Error deleting user:", error);
-    if (error.code === 'P2003') {
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    const errorCode = error.code || '';
+    console.error("Error deleting user: " + errorMessage);
+    
+    if (errorCode === 'P2003') {
       return {
         success: false,
         error: "Cannot delete user with associated data. Please deactivate the account instead."
@@ -565,7 +615,7 @@ export async function deleteUserById(id) {
     }
     return {
       success: false,
-      error: "Failed to delete user."
+      error: "Failed to delete user: " + errorMessage
     };
   }
 }
@@ -617,10 +667,13 @@ export async function getUserStats() {
       }
     };
   } catch (error) {
-    console.error("Error fetching user stats:", error);
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Error fetching user stats: " + errorMessage);
+    
     return {
       success: false,
-      error: "Failed to fetch user statistics",
+      error: "Failed to fetch user statistics: " + errorMessage,
       stats: {
         totalUsers: 0,
         activeUsers: 0,
@@ -697,10 +750,14 @@ export async function checkAuthStatus() {
       user: session.User
     };
   } catch (error) {
-    console.error("Auth check error:", error);
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Auth check error: " + errorMessage);
+    
     return {
       authenticated: false,
-      user: null
+      user: null,
+      error: "Authentication check failed: " + errorMessage
     };
   }
 }
@@ -775,11 +832,300 @@ export async function getUserProfile() {
       user: session.User
     };
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    // Fix for the null payload error
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Error fetching user profile: " + errorMessage);
+    
     return {
       success: false,
-      error: "Failed to retrieve user profile",
+      error: "Failed to retrieve user profile: " + errorMessage,
       user: null
     };
   }
+}
+
+/**
+ * Log in a user
+ */
+export async function loginUser(formData) {
+  try {
+    // Extract credentials from form data
+    const email = formData.get("email")?.trim() || '';
+    const password = formData.get("password") || '';
+    
+    // Basic validation
+    if (!email || !password) {
+      return {
+        success: false,
+        error: "Email and password are required"
+      };
+    }
+    
+    // Find the user by email
+    const user = await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        mobile: true,
+        mobile_verified: true,
+        status: true
+      }
+    });
+    
+    // Check if user exists
+    if (!user) {
+      return {
+        success: false,
+        error: "Invalid email or password"
+      };
+    }
+    
+    // Check if user is active
+    if (user.status === 'inactive') {
+      return {
+        success: false,
+        error: "Your account is currently inactive. Please contact support."
+      };
+    }
+    
+    // Verify password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return {
+        success: false,
+        error: "Invalid email or password"
+      };
+    }
+    
+    // Generate a session token
+    const token = generateRandomToken(32); // You can implement this helper function
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
+    
+    // Create or update the user session in database
+    await db.userSession.upsert({
+      where: { userId: user.id },
+      update: {
+        token,
+        expires: expiresAt
+      },
+      create: {
+        userId: user.id,
+        token,
+        expires: expiresAt
+      }
+    });
+    
+    // Set the session token in the cookies
+    cookies().set({
+      name: 'session_token',
+      value: token,
+      httpOnly: true,
+      path: '/',
+      expires: expiresAt,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+    
+    // Return user data without password
+    const { password: _, ...userData } = user;
+    
+    return {
+      success: true,
+      user: userData
+    };
+  } catch (error) {
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Login error: " + errorMessage);
+    
+    return {
+      success: false,
+      error: "Failed to login: " + errorMessage
+    };
+  }
+}
+
+/**
+ * Register a new user
+ */
+export async function registerUser(formData) {
+  try {
+    // Extract data from form
+    const name = formData.get("name")?.trim() || '';
+    const email = formData.get("email")?.trim() || '';
+    const password = formData.get("password") || '';
+    const confirmPassword = formData.get("confirmPassword") || '';
+    const mobile = formData.get("mobile")?.trim() || undefined;
+    
+    // Basic validation
+    if (!name || !email || !password) {
+      return {
+        success: false,
+        error: "Name, email and password are required"
+      };
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        success: false,
+        error: "Invalid email format"
+      };
+    }
+    
+    // Check password confirmation
+    if (password !== confirmPassword) {
+      return {
+        success: false,
+        error: "Passwords do not match"
+      };
+    }
+    
+    // Check password length
+    if (password.length < 6) {
+      return {
+        success: false,
+        error: "Password must be at least 6 characters long"
+      };
+    }
+    
+    // Check if email is already registered
+    const existingUser = await db.user.findUnique({
+      where: { email },
+      select: { id: true }
+    });
+    
+    if (existingUser) {
+      return {
+        success: false,
+        error: "Email is already registered"
+      };
+    }
+    
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create the user
+    const newUser = await db.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        mobile,
+        status: 'active'
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        mobile_verified: true,
+        status: true
+      }
+    });
+    
+    // Generate a session token for automatic login
+    const token = generateRandomToken(32);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
+    
+    // Create a session for the user
+    await db.userSession.create({
+      data: {
+        userId: newUser.id,
+        token,
+        expires: expiresAt
+      }
+    });
+    
+    // Set the session cookie
+    cookies().set({
+      name: 'session_token',
+      value: token,
+      httpOnly: true,
+      path: '/',
+      expires: expiresAt,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+    
+    return {
+      success: true,
+      user: newUser
+    };
+  } catch (error) {
+    const errorMessage = error.message || 'Unknown error';
+    const errorCode = error.code || '';
+    console.error("Registration error: " + errorMessage);
+    
+    if (errorCode === 'P2002' && error.meta?.target?.includes('email')) {
+      return {
+        success: false,
+        error: "Email is already registered"
+      };
+    }
+    
+    return {
+      success: false,
+      error: "Failed to register: " + errorMessage
+    };
+  }
+}
+
+/**
+ * Log out a user
+ */
+export async function logoutUser() {
+  try {
+    // Get session token from cookies
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('session_token')?.value;
+    
+    // Clear the session cookie
+    cookieStore.delete('session_token');
+    
+    // If no session token was found, return success
+    if (!sessionToken) {
+      return {
+        success: true,
+        message: "Already logged out"
+      };
+    }
+    
+    // Delete the session from the database
+    await db.userSession.deleteMany({
+      where: { token: sessionToken }
+    });
+    
+    return {
+      success: true,
+      message: "Successfully logged out"
+    };
+  } catch (error) {
+    const errorMessage = error.message || 'Unknown error';
+    console.error("Logout error: " + errorMessage);
+    
+    return {
+      success: false,
+      error: "Failed to log out: " + errorMessage
+    };
+  }
+}
+
+/**
+ * Helper function to generate a random token
+ */
+function generateRandomToken(length = 32) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  
+  for (let i = 0; i < length; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  
+  return token;
 }

@@ -9,7 +9,7 @@ import { useUserAuth } from "@/providers/UserProvider";
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useUserAuth();
+  const { login, clearError } = useUserAuth();
 
   const searchParams = useSearchParams();
 
@@ -20,21 +20,34 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setError("");
+      clearError?.(); // Clear any previous auth context errors
+
+      const email = formData.get("email");
+      const password = formData.get("password");
+      const remember = formData.get("remember_me") === "on" ? true : false;
+
+      if (!email || !password) {
+        setError("Email and password are required");
+        return;
+      }
 
       const formDataObj = new FormData();
-      formDataObj.append("email", formData.get("email"));
-      formDataObj.append("password", formData.get("password"));
-      formDataObj.append("remember", formData.get("remember_me"));
+      formDataObj.append("email", email);
+      formDataObj.append("password", password);
+      formDataObj.append("remember", remember);
 
       // Call the login function from auth context
+      // The redirect is handled inside the login function using redirectPath
       const result = await login(formDataObj);
 
       if (!result.success) {
-        setError(result.error);
+        setError(result.error || "Failed to sign in. Please check your credentials.");
       }
+      // No need to redirect here as it's handled in the UserAuthProvider
+      
     } catch (err) {
+      console.error("Login error:", err);
       setError("An unexpected error occurred. Please try again.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -148,8 +161,6 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-
-          
         </div>
       </div>
     </div>

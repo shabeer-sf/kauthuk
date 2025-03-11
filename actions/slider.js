@@ -23,7 +23,6 @@ export async function createSlider(data) {
         href: data.href,
         link: data.link,
         linkTitle: data.linkTitle,
-        description:data.description
       },
     });
 
@@ -75,6 +74,9 @@ export async function createSlider(data) {
 
     return slider;
   } catch (error) {
+    if (error.code === "P2002") {
+      return { success: false, error: "This title is already exist." };
+    }
     console.error("Error creating slider:", error);
     throw new Error("Failed to create the slider. Please try again.");
   } finally {
@@ -91,7 +93,7 @@ export async function getOneSlider(id) {
         id: id, // Find the slider by its unique ID
       },
     });
-    console.log("slider:",slider)
+    console.log("slider:", slider);
 
     if (!slider) {
       throw new Error("Failed to fetch the slider. Please try again.");
@@ -226,8 +228,8 @@ export async function updateSlider(id, data) {
     const updateData = {
       title: data.title || existingSlider.title,
     };
-// console.log("data",typeof(data.image))
-    if (data.image && data.image.length > 0 && typeof(data.image)!="string") {
+    // console.log("data",typeof(data.image))
+    if (data.image && data.image.length > 0 && typeof data.image != "string") {
       const image = data.image[0];
 
       // Add current timestamp to the new image filename
@@ -289,6 +291,9 @@ export async function updateSlider(id, data) {
 
     return updatedSlider;
   } catch (error) {
+    if (error.code === "P2002") {
+      return { success: false, error: "This title is already exist." };
+    }
     console.error("Error updating slider:", error);
     throw new Error("Failed to update the slider. Please try again.");
   } finally {

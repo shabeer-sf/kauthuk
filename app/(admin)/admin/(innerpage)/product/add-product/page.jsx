@@ -6,7 +6,29 @@ import {
   getProductAttributes,
 } from "@/actions/product";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2, Upload, X } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Upload,
+  X,
+  Package,
+  HomeIcon,
+  ArrowLeft,
+  Type,
+  Tag,
+  Save,
+  Layers,
+  DollarSign,
+  CheckCircle2,
+  Image as ImageIcon,
+  PenTool,
+  Settings,
+  Truck,
+  ShoppingCart,
+  CircleDollarSign,
+  Clock
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,6 +51,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +80,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -440,6 +471,9 @@ export default function AddProductPage() {
         },
       ]);
       setActiveTab("basic");
+      
+      // Navigate back to product list
+      router.push("/admin/product/list-products");
     } catch (error) {
       console.error("Error creating product:", error);
       toast.error(
@@ -494,52 +528,92 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-7xl">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New Product</h1>
-          <p className="text-muted-foreground mt-1">
-            Create a new product with all details
-          </p>
+    <div className="w-full space-y-6">
+      {/* Header with breadcrumb */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <Package size={18} />
+          </div>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+            Create New Product
+          </h1>
         </div>
-        <Button variant="outline" onClick={() => router.back()}>
-          Back
-        </Button>
+        <Breadcrumb className="text-sm text-slate-500 dark:text-slate-400">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href="/admin"
+                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                <HomeIcon size={14} />
+                Dashboard
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href="/admin/product/list-products"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                Products
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Add Product</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
-      {/* Form completion progress bar */}
-      <div className="mb-8">
-        <div className="flex justify-between mb-2">
-          <span className="text-sm font-medium">Form Completion</span>
-          <span className="text-sm font-medium">
-            {
-              [
-                isBasicInfoComplete(),
-                isImagesComplete(),
-                isAttributesComplete(),
-                hasVariants ? isVariantsComplete() : true,
-              ].filter(Boolean).length
-            }{" "}
-            of {hasVariants ? 4 : 3} sections complete
-          </span>
-        </div>
-        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all"
-            style={{
-              width: `${
-                (((isBasicInfoComplete() ? 1 : 0) +
-                  (isImagesComplete() ? 1 : 0) +
-                  (isAttributesComplete() ? 1 : 0) +
-                  (hasVariants ? (isVariantsComplete() ? 1 : 0) : 0)) /
-                  (hasVariants ? 4 : 3)) *
-                100
-              }%`,
-            }}
-          />
-        </div>
-      </div>
+      {/* Back button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+        onClick={() => router.push("/admin/product/list-products")}
+      >
+        <ArrowLeft size={16} className="mr-1" />
+        Back to Products
+      </Button>
 
+      {/* Form completion progress */}
+      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex justify-between mb-2">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Form Completion</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              {
+                [
+                  isBasicInfoComplete(),
+                  isImagesComplete(),
+                  isAttributesComplete(),
+                  hasVariants ? isVariantsComplete() : true,
+                ].filter(Boolean).length
+              }{" "}
+              of {hasVariants ? 4 : 3} sections complete
+            </span>
+          </div>
+          <div className="h-2 w-full bg-blue-100 dark:bg-blue-900/30 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 dark:bg-blue-500 transition-all"
+              style={{
+                width: `${
+                  (((isBasicInfoComplete() ? 1 : 0) +
+                    (isImagesComplete() ? 1 : 0) +
+                    (isAttributesComplete() ? 1 : 0) +
+                    (hasVariants ? (isVariantsComplete() ? 1 : 0) : 0)) /
+                    (hasVariants ? 4 : 3)) *
+                  100
+                }%`,
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Tabs
@@ -547,36 +621,67 @@ export default function AddProductPage() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-5 mb-8">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="images">Images</TabsTrigger>
-              <TabsTrigger value="attributes">Attributes</TabsTrigger>
-              <TabsTrigger value="variants" disabled={!hasVariants}>
+            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
+              <TabsTrigger 
+                value="basic" 
+                className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+              >
+                Basic Info
+              </TabsTrigger>
+              <TabsTrigger 
+                value="images" 
+                className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+              >
+                Images
+              </TabsTrigger>
+              <TabsTrigger 
+                value="attributes" 
+                className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+              >
+                Attributes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="variants" 
+                disabled={!hasVariants}
+                className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm disabled:opacity-50"
+              >
                 Variants
               </TabsTrigger>
-              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              <TabsTrigger 
+                value="advanced" 
+                className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
+              >
+                Advanced
+              </TabsTrigger>
             </TabsList>
 
             {/* Basic Info Tab */}
             <TabsContent value="basic" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Information</CardTitle>
-                  <CardDescription>
-                    Enter the basic information for your product
+              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Type size={18} />
+                    Basic Product Information
+                  </CardTitle>
+                  <CardDescription className="text-blue-100 dark:text-blue-200">
+                    Enter the essential details about your product
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-6 space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Title*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Type size={14} />
+                            Product Title <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Enter product title"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -590,20 +695,21 @@ export default function AddProductPage() {
                       name="status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Status</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Clock size={14} />
+                            Status
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">
-                                  Inactive
-                                </SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -619,16 +725,19 @@ export default function AddProductPage() {
                       name="cat_id"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Tag size={14} />
+                            Category <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 {categories.map((category) => (
                                   <SelectItem
                                     key={category.id}
@@ -650,7 +759,10 @@ export default function AddProductPage() {
                       name="subcat_id"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Subcategory*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Layers size={14} />
+                            Subcategory <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
@@ -659,10 +771,10 @@ export default function AddProductPage() {
                                 !watchCategoryId || subcategories.length === 0
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select subcategory" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 {subcategories.map((subcategory) => (
                                   <SelectItem
                                     key={subcategory.id}
@@ -680,23 +792,40 @@ export default function AddProductPage() {
                     />
                   </div>
 
-                  <Controller
-                    name="description"
-                    control={form.control}
-                    render={({ field }) => {
-                      return (
-                        <div data-color-mode="light">
+                  <div className="space-y-2">
+                    <Label 
+                      htmlFor="description" 
+                      className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                    >
+                      <PenTool size={14} />
+                      Description <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="border rounded-lg border-blue-200 dark:border-blue-900/50 overflow-hidden">
+                      <Controller
+                        name="description"
+                        control={form.control}
+                        render={({ field }) => (
                           <MDEditor
                             autoCapitalize="none"
                             value={field.value}
                             onChange={field.onChange}
+                            preview="edit"
+                            height={300}
+                            visibleDragbar={false}
+                            className="md-editor-custom"
+                            hideToolbar={false}
                           />
-                        </div>
-                      );
-                    }}
-                  />
+                        )}
+                      />
+                    </div>
+                    {form.formState.errors.description && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.description?.message}
+                      </p>
+                    )}
+                  </div>
 
-                  <Separator />
+                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <FormField
@@ -704,13 +833,17 @@ export default function AddProductPage() {
                       name="base_price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Base Price*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <CircleDollarSign size={14} />
+                            Base Price <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0.00"
                               step="0.01"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -724,13 +857,17 @@ export default function AddProductPage() {
                       name="price_rupees"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price (₹)*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <DollarSign size={14} />
+                            Price (₹) <span className="text-red-500">*</span>
+                            </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0.00"
                               step="0.01"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -744,13 +881,17 @@ export default function AddProductPage() {
                       name="price_dollars"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price ($)*</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <DollarSign size={14} />
+                            Price ($) <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0.00"
                               step="0.01"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -766,12 +907,16 @@ export default function AddProductPage() {
                       name="stock_count"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Stock Count</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Package size={14} />
+                            Stock Count
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -785,16 +930,19 @@ export default function AddProductPage() {
                       name="stock_status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Stock Status</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <CheckCircle2 size={14} />
+                            Stock Status
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 <SelectItem value="yes">In Stock</SelectItem>
                                 <SelectItem value="no">Out of Stock</SelectItem>
                               </SelectContent>
@@ -810,16 +958,20 @@ export default function AddProductPage() {
                       name="quantity_limit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Quantity Limit</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Package size={14} />
+                            Quantity Limit
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="10"
                               min="1"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
-                          <FormDescription>
+                          <FormDescription className="text-slate-500 dark:text-slate-400">
                             Maximum quantity per order
                           </FormDescription>
                           <FormMessage />
@@ -832,31 +984,40 @@ export default function AddProductPage() {
                     control={form.control}
                     name="hasVariants"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-200 dark:border-blue-900/30 p-4 bg-blue-50/50 dark:bg-blue-900/10">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">
+                          <FormLabel className="text-base text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Layers size={16} className="text-blue-500 dark:text-blue-400" />
                             Product Variants
                           </FormLabel>
-                          <FormDescription>
-                            Enable if this product has variants like different
-                            sizes, colors, etc.
+                          <FormDescription className="text-slate-500 dark:text-slate-400">
+                            Enable if this product has variants like different sizes, colors, etc.
                           </FormDescription>
                         </div>
                         <FormControl>
                           <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-800"
                           />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={() => router.back()}>
+                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => router.back()}
+                    className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                  >
                     Cancel
                   </Button>
-                  <Button type="button" onClick={() => setActiveTab("images")}>
+                  <Button 
+                    type="button" 
+                    onClick={() => setActiveTab("images")}
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
+                  >
                     Next: Images
                   </Button>
                 </CardFooter>
@@ -865,29 +1026,39 @@ export default function AddProductPage() {
 
             {/* Images Tab */}
             <TabsContent value="images" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Images</CardTitle>
-                  <CardDescription>
+              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <ImageIcon size={18} />
+                    Product Images
+                  </CardTitle>
+                  <CardDescription className="text-blue-100 dark:text-blue-200">
                     Upload high-quality images for your product
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-6 space-y-6">
                   <div className="flex flex-col gap-2">
+                    <Label 
+                      htmlFor="product-images" 
+                      className="text-slate-700 dark:text-slate-300 flex items-center gap-1 mb-2"
+                    >
+                      <Upload size={14} />
+                      Product Images <span className="text-red-500">*</span>
+                    </Label>
                     <div className="flex items-center justify-center w-full">
                       <label
                         htmlFor="product-images"
-                        className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                        className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg cursor-pointer bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                          <p className="mb-2 text-sm text-gray-500">
+                          <Upload className="w-8 h-8 mb-4 text-blue-500 dark:text-blue-400" />
+                          <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">
                             <span className="font-semibold">
                               Click to upload
                             </span>{" "}
                             or drag and drop
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             PNG, JPG or WebP (MAX. 5MB)
                           </p>
                         </div>
@@ -913,19 +1084,19 @@ export default function AddProductPage() {
                             <img
                               src={preview.url}
                               alt={`Preview ${index + 1}`}
-                              className="object-cover w-full h-40 rounded-lg"
+                              className="object-cover w-full h-40 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
                             />
                             <Button
                               type="button"
                               variant="destructive"
                               size="icon"
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 bg-red-500 hover:bg-red-600"
                               onClick={() => handleRemoveProductImage(index)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
                             {index === 0 && (
-                              <Badge className="absolute bottom-2 left-2 bg-primary">
+                              <Badge className="absolute bottom-2 left-2 bg-blue-600 text-white dark:bg-blue-500">
                                 Main Image
                               </Badge>
                             )}
@@ -935,17 +1106,19 @@ export default function AddProductPage() {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() => setActiveTab("basic")}
+                    className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     Back
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setActiveTab("attributes")}
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     Next: Attributes
                   </Button>
@@ -955,19 +1128,22 @@ export default function AddProductPage() {
 
             {/* Attributes Tab */}
             <TabsContent value="attributes" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Attributes</CardTitle>
-                  <CardDescription>
+              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Tag size={18} />
+                    Product Attributes
+                  </CardTitle>
+                  <CardDescription className="text-blue-100 dark:text-blue-200">
                     Select attributes that define this product
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {attributes.map((attribute) => (
                       <div
                         key={attribute.id}
-                        className="flex items-center space-x-2 border rounded-md p-4"
+                        className="flex items-center space-x-2 border border-blue-200 dark:border-blue-900/30 rounded-md p-4 bg-blue-50/30 dark:bg-blue-900/5"
                       >
                         <Checkbox
                           id={`attr-${attribute.id}`}
@@ -977,16 +1153,19 @@ export default function AddProductPage() {
                           onCheckedChange={(checked) =>
                             handleAttributeSelection(attribute.id, checked)
                           }
+                          className="border-blue-400 dark:border-blue-800 text-blue-600 data-[state=checked]:bg-blue-600"
                         />
                         <label
                           htmlFor={`attr-${attribute.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
                           {attribute.display_name}
                         </label>
-                        <Badge variant="outline">{attribute.type}</Badge>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/70">
+                          {attribute.type}
+                        </Badge>
                         {attribute.is_variant && (
-                          <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                          <Badge className="bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800">
                             Variant
                           </Badge>
                         )}
@@ -996,7 +1175,7 @@ export default function AddProductPage() {
 
                   {selectedAttributes.length > 0 && (
                     <div className="mt-8">
-                      <h3 className="text-lg font-medium mb-4">
+                      <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-4">
                         Configure Selected Attributes
                       </h3>
                       <Accordion type="multiple" className="w-full">
@@ -1004,11 +1183,12 @@ export default function AddProductPage() {
                           <AccordionItem
                             key={attr.attribute_id}
                             value={`attr-${attr.attribute_id}`}
+                            className="border-blue-200 dark:border-blue-900/30"
                           >
-                            <AccordionTrigger>
+                            <AccordionTrigger className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:no-underline py-3 px-4">
                               {attr.attribute.display_name}
                             </AccordionTrigger>
-                            <AccordionContent className="space-y-4">
+                            <AccordionContent className="space-y-4 py-3 px-4">
                               <div className="flex items-center space-x-2">
                                 <Checkbox
                                   id={`attr-req-${attr.attribute_id}`}
@@ -1018,17 +1198,18 @@ export default function AddProductPage() {
                                     updated[index].is_required = checked;
                                     setSelectedAttributes(updated);
                                   }}
+                                  className="border-blue-400 dark:border-blue-800 text-blue-600 data-[state=checked]:bg-blue-600"
                                 />
                                 <label
                                   htmlFor={`attr-req-${attr.attribute_id}`}
-                                  className="text-sm font-medium"
+                                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
                                 >
                                   Required
                                 </label>
                               </div>
 
                               <div className="mt-4">
-                                <h4 className="text-sm font-medium mb-2">
+                                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                   Values
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1036,7 +1217,7 @@ export default function AddProductPage() {
                                     (value) => (
                                       <div
                                         key={value.id}
-                                        className="flex items-center justify-between border rounded-md p-3"
+                                        className="flex items-center justify-between border border-blue-200 dark:border-blue-900/30 rounded-md p-3 bg-blue-50/30 dark:bg-blue-900/5"
                                       >
                                         <div className="flex items-center space-x-2">
                                           <Checkbox
@@ -1053,10 +1234,11 @@ export default function AddProductPage() {
                                                 checked
                                               )
                                             }
+                                            className="border-blue-400 dark:border-blue-800 text-blue-600 data-[state=checked]:bg-blue-600"
                                           />
                                           <label
                                             htmlFor={`attr-val-${attr.attribute_id}-${value.id}`}
-                                            className="text-sm font-medium"
+                                            className="text-sm font-medium text-slate-700 dark:text-slate-300"
                                           >
                                             {value.display_value}
                                           </label>
@@ -1064,7 +1246,7 @@ export default function AddProductPage() {
                                           {attr.attribute.type === "color" &&
                                             value.color_code && (
                                               <div
-                                                className="w-6 h-6 rounded-full border"
+                                                className="w-6 h-6 rounded-full border border-blue-200 dark:border-blue-900/50"
                                                 style={{
                                                   backgroundColor:
                                                     value.color_code,
@@ -1079,12 +1261,12 @@ export default function AddProductPage() {
                                               v.attribute_value_id === value.id
                                           ) && (
                                             <div className="flex items-center space-x-2">
-                                              <span className="text-xs">
+                                              <span className="text-xs text-slate-600 dark:text-slate-400">
                                                 +₹
                                               </span>
                                               <Input
                                                 type="number"
-                                                className="w-20 h-8 text-xs"
+                                                className="w-20 h-8 text-xs border-blue-200 dark:border-blue-900/50"
                                                 placeholder="0.00"
                                                 value={
                                                   attr.values.find(
@@ -1131,11 +1313,12 @@ export default function AddProductPage() {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() => setActiveTab("images")}
+                    className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     Back
                   </Button>
@@ -1144,6 +1327,7 @@ export default function AddProductPage() {
                     onClick={() =>
                       setActiveTab(hasVariants ? "variants" : "advanced")
                     }
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     {hasVariants ? "Next: Variants" : "Next: Advanced"}
                   </Button>
@@ -1153,20 +1337,23 @@ export default function AddProductPage() {
 
             {/* Variants Tab */}
             <TabsContent value="variants" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Variants</CardTitle>
-                  <CardDescription>
+              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Layers size={18} />
+                    Product Variants
+                  </CardTitle>
+                  <CardDescription className="text-blue-100 dark:text-blue-200">
                     Configure variants like different sizes, colors, etc.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-6 space-y-6">
                   {/* Variant selection guidance */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
-                    <h3 className="text-sm font-medium text-blue-800 mb-2">
+                  <div className="bg-blue-50/80 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/30 rounded-md p-4 mb-6">
+                    <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
                       Creating Variants
                     </h3>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-blue-700 dark:text-blue-400">
                       Add different variants of your product (e.g., Small/Blue,
                       Medium/Red). Each variant can have its own price, stock,
                       and images.
@@ -1179,17 +1366,17 @@ export default function AddProductPage() {
                       <Card
                         key={variant.id}
                         className={`border ${
-                          variant.is_default ? "border-primary" : ""
+                          variant.is_default ? "border-blue-500 dark:border-blue-700" : "border-blue-200 dark:border-blue-900/30"
                         }`}
                       >
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <CardTitle className="text-lg">
+                              <CardTitle className="text-lg text-slate-700 dark:text-slate-300">
                                 Variant #{index + 1}
                               </CardTitle>
                               {variant.is_default && (
-                                <Badge className="bg-primary">Default</Badge>
+                                <Badge className="bg-blue-600 dark:bg-blue-700">Default</Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2">
@@ -1199,6 +1386,7 @@ export default function AddProductPage() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setVariantAsDefault(index)}
+                                  className="border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                                 >
                                   Set as Default
                                 </Button>
@@ -1228,7 +1416,7 @@ export default function AddProductPage() {
                         <CardContent className="pt-0 pb-6">
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 SKU*
                               </label>
                               <Input
@@ -1241,11 +1429,12 @@ export default function AddProductPage() {
                                     e.target.value
                                   )
                                 }
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               />
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 Price (₹)*
                               </label>
                               <Input
@@ -1261,11 +1450,12 @@ export default function AddProductPage() {
                                     e.target.value
                                   )
                                 }
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               />
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 Price ($)*
                               </label>
                               <Input
@@ -1281,11 +1471,12 @@ export default function AddProductPage() {
                                     e.target.value
                                   )
                                 }
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               />
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 Stock
                               </label>
                               <Input
@@ -1300,11 +1491,12 @@ export default function AddProductPage() {
                                     parseInt(e.target.value)
                                   )
                                 }
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               />
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 Stock Status
                               </label>
                               <Select
@@ -1317,10 +1509,10 @@ export default function AddProductPage() {
                                   )
                                 }
                               >
-                                <SelectTrigger>
+                                <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="border-blue-100 dark:border-blue-900">
                                   <SelectItem value="yes">In Stock</SelectItem>
                                   <SelectItem value="no">
                                     Out of Stock
@@ -1330,7 +1522,7 @@ export default function AddProductPage() {
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">
+                              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                 Weight (kg)
                               </label>
                               <Input
@@ -1346,6 +1538,7 @@ export default function AddProductPage() {
                                     e.target.value
                                   )
                                 }
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               />
                             </div>
                           </div>
@@ -1355,7 +1548,7 @@ export default function AddProductPage() {
                             (attr) => attr.attribute.is_variant
                           ) && (
                             <div className="mt-6">
-                              <h4 className="text-sm font-medium mb-3">
+                              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                                 Variant Attributes
                               </h4>
                               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1366,7 +1559,7 @@ export default function AddProductPage() {
                                       key={attr.attribute_id}
                                       className="space-y-2"
                                     >
-                                      <label className="text-sm font-medium">
+                                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                         {attr.attribute.display_name}
                                       </label>
                                       <Select
@@ -1392,12 +1585,12 @@ export default function AddProductPage() {
                                           )
                                         }
                                       >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                           <SelectValue
                                             placeholder={`Select ${attr.attribute.display_name}`}
                                           />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="border-blue-100 dark:border-blue-900">
                                           {attr.attribute.AttributeValues.filter(
                                             (val) =>
                                               attr.values.some(
@@ -1423,24 +1616,24 @@ export default function AddProductPage() {
 
                           {/* Variant Images */}
                           <div className="mt-6">
-                            <h4 className="text-sm font-medium mb-3">
+                            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                               Variant Images
                             </h4>
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center justify-center w-full">
                                 <label
                                   htmlFor={`variant-images-${index}`}
-                                  className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                                  className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg cursor-pointer bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors"
                                 >
                                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <Upload className="w-6 h-6 mb-3 text-gray-500" />
-                                    <p className="mb-2 text-xs text-gray-500">
+                                    <Upload className="w-6 h-6 mb-3 text-blue-500 dark:text-blue-400" />
+                                    <p className="mb-2 text-xs text-slate-600 dark:text-slate-400">
                                       <span className="font-semibold">
                                         Click to upload
                                       </span>{" "}
                                       images for this variant
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                       PNG, JPG or WebP (MAX. 5MB)
                                     </p>
                                   </div>
@@ -1470,13 +1663,13 @@ export default function AddProductPage() {
                                           alt={`Variant ${index + 1} Preview ${
                                             imgIndex + 1
                                           }`}
-                                          className="object-cover w-full h-32 rounded-lg"
+                                          className="object-cover w-full h-32 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
                                         />
                                         <Button
                                           type="button"
                                           variant="destructive"
                                           size="icon"
-                                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+                                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 bg-red-500 hover:bg-red-600"
                                           onClick={() =>
                                             handleRemoveVariantImage(
                                               index,
@@ -1487,7 +1680,7 @@ export default function AddProductPage() {
                                           <X className="h-3 w-3" />
                                         </Button>
                                         {imgIndex === 0 && (
-                                          <Badge className="absolute bottom-1 left-1 bg-primary text-xs">
+                                          <Badge className="absolute bottom-1 left-1 bg-blue-600 text-white dark:bg-blue-500 text-xs">
                                             Main
                                           </Badge>
                                         )}
@@ -1507,24 +1700,26 @@ export default function AddProductPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-4 w-full"
+                    className="mt-4 w-full border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                     onClick={addVariant}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Another Variant
                   </Button>
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() => setActiveTab("attributes")}
+                    className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     Back
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setActiveTab("advanced")}
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     Next: Advanced
                   </Button>
@@ -1534,49 +1729,86 @@ export default function AddProductPage() {
 
             {/* Advanced Tab */}
             <TabsContent value="advanced" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Advanced Options</CardTitle>
-                  <CardDescription>
+              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Settings size={18} />
+                    Advanced Options
+                  </CardTitle>
+                  <CardDescription className="text-blue-100 dark:text-blue-200">
                     Configure additional product details
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-6 space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <Controller
-                      name="highlights"
-                      control={form.control}
-                      render={({ field }) => {
-                        return (
-                          <div data-color-mode="light">
+                    <div className="space-y-2">
+                      <Label 
+                        htmlFor="highlights" 
+                        className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                      >
+                        <PenTool size={14} />
+                        Product Highlights
+                      </Label>
+                      <div className="border rounded-lg border-blue-200 dark:border-blue-900/50 overflow-hidden">
+                        <Controller
+                          name="highlights"
+                          control={form.control}
+                          render={({ field }) => (
                             <MDEditor
                               autoCapitalize="none"
                               value={field.value}
                               onChange={field.onChange}
+                              preview="edit"
+                              height={200}
+                              visibleDragbar={false}
+                              className="md-editor-custom"
+                              hideToolbar={false}
                             />
-                          </div>
-                        );
-                      }}
-                    />
+                          )}
+                        />
+                      </div>
+                      {form.formState.errors.highlights && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.highlights?.message}
+                        </p>
+                      )}
+                    </div>
 
-                    <Controller
-                      name="terms_condition"
-                      control={form.control}
-                      render={({ field }) => {
-                        return (
-                          <div data-color-mode="light">
+                    <div className="space-y-2">
+                      <Label 
+                        htmlFor="terms_condition" 
+                        className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                      >
+                        <PenTool size={14} />
+                        Terms & Conditions
+                      </Label>
+                      <div className="border rounded-lg border-blue-200 dark:border-blue-900/50 overflow-hidden">
+                        <Controller
+                          name="terms_condition"
+                          control={form.control}
+                          render={({ field }) => (
                             <MDEditor
                               autoCapitalize="none"
                               value={field.value}
                               onChange={field.onChange}
+                              preview="edit"
+                              height={200}
+                              visibleDragbar={false}
+                              className="md-editor-custom"
+                              hideToolbar={false}
                             />
-                          </div>
-                        );
-                      }}
-                    />
+                          )}
+                        />
+                      </div>
+                      {form.formState.errors.terms_condition && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.terms_condition?.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <Separator />
+                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
 
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <FormField
@@ -1584,9 +1816,16 @@ export default function AddProductPage() {
                       name="hsn_code"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>HSN Code</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Tag size={14} />
+                            HSN Code
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="HSN code" {...field} />
+                            <Input 
+                              placeholder="HSN code" 
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1598,13 +1837,17 @@ export default function AddProductPage() {
                       name="tax"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tax Rate (%)</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <CircleDollarSign size={14} />
+                            Tax Rate (%)
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0"
                               step="0.01"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -1618,13 +1861,17 @@ export default function AddProductPage() {
                       name="weight"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Weight (kg)</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Package size={14} />
+                            Weight (kg)
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="0.00"
                               step="0.01"
                               min="0"
+                              className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                               {...field}
                             />
                           </FormControl>
@@ -1640,16 +1887,19 @@ export default function AddProductPage() {
                       name="free_shipping"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Free Shipping</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Truck size={14} />
+                            Free Shipping
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1665,16 +1915,19 @@ export default function AddProductPage() {
                       name="cod"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Cash on Delivery</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <ShoppingCart size={14} />
+                            Cash on Delivery
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1686,21 +1939,28 @@ export default function AddProductPage() {
                     />
                   </div>
 
-                  <Separator />
+                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
 
                   <div className="space-y-4">
-                    <h3 className="text-base font-medium">SEO Information</h3>
+                    <h3 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <Tag size={14} className="text-blue-500 dark:text-blue-400" />
+                      SEO Information
+                    </h3>
                     <div className="grid grid-cols-1 gap-4">
                       <FormField
                         control={form.control}
                         name="meta_title"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Meta Title</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Title</FormLabel>
                             <FormControl>
-                              <Input placeholder="SEO title" {...field} />
+                              <Input 
+                                placeholder="SEO title" 
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                                {...field} 
+                              />
                             </FormControl>
-                            <FormDescription>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
                               Shown in search engine results (defaults to
                               product title if empty)
                             </FormDescription>
@@ -1714,14 +1974,15 @@ export default function AddProductPage() {
                         name="meta_keywords"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Meta Keywords</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Keywords</FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="keyword1, keyword2, keyword3"
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
                                 {...field}
                               />
                             </FormControl>
-                            <FormDescription>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
                               Comma-separated keywords for SEO
                             </FormDescription>
                             <FormMessage />
@@ -1734,14 +1995,15 @@ export default function AddProductPage() {
                         name="meta_description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Meta Description</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Description</FormLabel>
                             <FormControl>
                               <Textarea
                                 placeholder="Brief description for search engines..."
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 min-h-24"
                                 {...field}
                               />
                             </FormControl>
-                            <FormDescription>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
                               Short description shown in search results
                             </FormDescription>
                             <FormMessage />
@@ -1751,43 +2013,56 @@ export default function AddProductPage() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() =>
                       setActiveTab(hasVariants ? "variants" : "attributes")
                     }
+                    className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     Back
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button type="button">Review & Submit</Button>
+                      <Button 
+                        type="button"
+                        className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
+                      >
+                        <Save size={16} className="mr-1" />
+                        Review & Submit
+                      </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="border border-blue-200 dark:border-blue-900/50">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>
+                        <AlertDialogTitle className="text-slate-800 dark:text-slate-200">
                           Confirm Product Creation
                         </AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
                           Are you sure you want to create this product? Please
                           make sure all required information is correct.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                          Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={form.handleSubmit(onSubmit)}
                           disabled={isSubmitting}
+                          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                         >
                           {isSubmitting ? (
                             <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
                               Creating...
                             </>
                           ) : (
-                            "Create Product"
+                            <>
+                              <Save size={16} className="mr-1" /> 
+                              Create Product
+                            </>
                           )}
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -1799,6 +2074,52 @@ export default function AddProductPage() {
           </Tabs>
         </form>
       </Form>
+
+      {/* MDEditor custom styles */}
+      <style jsx global>{`
+        .w-md-editor {
+          --md-editor-bg-color: transparent !important;
+          --md-editor-border-color: transparent !important;
+          --md-editor-toolbar-bg: #eef2ff !important;
+          --md-editor-toolbar-hover-color: rgba(59, 130, 246, 0.1) !important;
+          --md-editor-toolbar-active-color: rgba(59, 130, 246, 0.2) !important;
+          --md-editor-toolbar-color: #2563eb !important;
+          box-shadow: none !important;
+        }
+
+        .dark .w-md-editor {
+          --md-editor-toolbar-bg: rgba(30, 58, 138, 0.3) !important;
+          --md-editor-toolbar-color: #60a5fa !important;
+          color: #e2e8f0 !important;
+        }
+
+        .w-md-editor-toolbar {
+          border-bottom: 1px solid #bfdbfe !important;
+        }
+
+        .dark .w-md-editor-toolbar {
+          border-bottom: 1px solid rgba(30, 58, 138, 0.5) !important;
+        }
+
+        .w-md-editor-text {
+          padding: 20px !important;
+        }
+
+        .w-md-editor-text-pre,
+        .w-md-editor-text-input,
+        .w-md-editor-text-pre > code {
+          font-family: ui-sans-serif, system-ui, -apple-system,
+            BlinkMacSystemFont, "Segoe UI", Roboto !important;
+          font-size: 0.875rem !important;
+          line-height: 1.5 !important;
+        }
+
+        .dark .w-md-editor-text-pre,
+        .dark .w-md-editor-text-input,
+        .dark .w-md-editor-text-pre > code {
+          color: #e2e8f0 !important;
+        }
+      `}</style>
     </div>
   );
 }

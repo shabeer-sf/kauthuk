@@ -10,18 +10,19 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register } = useUserAuth();
+  const { register, clearError } = useUserAuth();
 
   const validateForm = (formData) => {
     const errors = {};
 
     // Name validation
-    if (!formData.get("name").trim()) {
+    const name = formData.get("name")?.trim() || '';
+    if (!name) {
       errors.name = "Name is required";
     }
 
     // Email validation
-    const email = formData.get("email");
+    const email = formData.get("email")?.trim() || '';
     if (!email) {
       errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -29,7 +30,7 @@ export default function RegisterPage() {
     }
 
     // Password validation
-    const password = formData.get("password");
+    const password = formData.get("password") || '';
     if (!password) {
       errors.password = "Password is required";
     } else if (password.length < 6) {
@@ -37,13 +38,15 @@ export default function RegisterPage() {
     }
 
     // Confirm password validation
-    const confirmPassword = formData.get("confirmPassword");
-    if (password !== confirmPassword) {
+    const confirmPassword = formData.get("confirmPassword") || '';
+    if (!confirmPassword) {
+      errors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
 
     // Mobile validation (optional)
-    const mobile = formData.get("mobile");
+    const mobile = formData.get("mobile")?.trim() || '';
     if (mobile && !/^\d{10,12}$/.test(mobile.replace(/[^0-9]/g, ""))) {
       errors.mobile = "Please enter a valid mobile number";
     }
@@ -58,19 +61,33 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
-    setError("");
-
     try {
+      setLoading(true);
+      setError("");
+      clearError?.(); // Clear any previous auth context errors
+
+      // Create a copy of the FormData with trimmed values
+      const processedFormData = new FormData();
+      processedFormData.append("name", formData.get("name")?.trim() || '');
+      processedFormData.append("email", formData.get("email")?.trim() || '');
+      processedFormData.append("password", formData.get("password") || '');
+      processedFormData.append("confirmPassword", formData.get("confirmPassword") || '');
+      
+      // Only append mobile if it's provided
+      const mobile = formData.get("mobile")?.trim();
+      if (mobile) {
+        processedFormData.append("mobile", mobile);
+      }
+
       // Call register function from auth context
-      const result = await register(formData);
+      const result = await register(processedFormData);
 
       if (!result.success) {
-        setError(result.error);
+        setError(result.error || "Registration failed. Please try again.");
       }
     } catch (err) {
+      console.error("Registration error:", err);
       setError("An unexpected error occurred. Please try again.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -249,8 +266,6 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
-
-          
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Header from "@/components/MainComponents/Header";
 import { CartProvider } from "@/providers/CartProvider";
 import { UserAuthProvider } from "@/providers/UserProvider";
@@ -15,9 +16,10 @@ export default function MainLayout({ children }) {
     <CartProvider>
     <main className={`w-full ${lexend.variable}`}>
       <Header />
-      <div className="w-full px-3">
+      <div className="w-full px-3 min-h-screen">
       {children}
       </div>
+      <Footer />
     </main>
     </CartProvider>
     </UserAuthProvider>
