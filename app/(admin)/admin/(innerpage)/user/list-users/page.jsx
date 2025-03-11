@@ -91,7 +91,12 @@ import {
 import { cn } from "@/lib/utils";
 
 // Actions
-import { deleteUserById, getUsers, getUserById, updateUserStatus } from "@/actions/user";
+import {
+  deleteUserById,
+  getUsers,
+  getUserById,
+  updateUserStatus,
+} from "@/actions/user";
 import { toast } from "sonner";
 
 const ListUsersPage = () => {
@@ -213,40 +218,40 @@ const ListUsersPage = () => {
     setUserDetail(user);
     setLoadingAddresses(true);
     setUserAddresses({ deliveryAddresses: [], billingAddresses: [] });
-    
+
     try {
       // Fetch the detailed user info with addresses using the server action
       const result = await getUserById(user.id);
-      
+
       if (result.success && result.user) {
         // Update user detail with the complete user data
         setUserDetail(result.user);
-        
+
         // Set the addresses
         setUserAddresses({
           deliveryAddresses: result.user.DeliveryAddresses || [],
-          billingAddresses: result.user.BillingAddresses || []
+          billingAddresses: result.user.BillingAddresses || [],
         });
       } else {
         // Show error message with specific error from server
         toast.error(result.error || "Failed to load user details");
-        
+
         // Keep showing the basic user info we already have
         // but empty the addresses
         setUserAddresses({
           deliveryAddresses: [],
-          billingAddresses: []
+          billingAddresses: [],
         });
       }
     } catch (error) {
       console.error("Error fetching user details:", error.message || error);
       toast.error("Failed to load user details. Please try again later.");
-      
+
       // Keep showing the basic user info we already have
       // but empty the addresses
       setUserAddresses({
         deliveryAddresses: [],
-        billingAddresses: []
+        billingAddresses: [],
       });
     } finally {
       setLoadingAddresses(false);
@@ -968,7 +973,7 @@ const ListUsersPage = () => {
                       <h3 className="text-sm font-medium text-gray-500">
                         Account Status
                       </h3>
-                      <p className="mt-1">
+                      <div className="mt-1">
                         <Badge
                           variant={
                             userDetail.status === "active"
@@ -984,7 +989,7 @@ const ListUsersPage = () => {
                         >
                           {userDetail.status}
                         </Badge>
-                      </p>
+                      </div>
                     </div>
 
                     <div>
