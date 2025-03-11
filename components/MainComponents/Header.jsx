@@ -75,8 +75,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  PopoverClose,
 } from "@/components/ui/popover";
+import { Close as PopoverClose } from "@radix-ui/react-popover";
+
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import CategoryList from "../CategoryList";

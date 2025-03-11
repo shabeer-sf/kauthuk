@@ -979,7 +979,137 @@ export default function AddProductPage() {
                       )}
                     />
                   </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="free_shipping"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Truck size={14} />
+                            Free Shipping
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                <SelectValue placeholder="Select option" />
+                              </SelectTrigger>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
+                    <FormField
+                      control={form.control}
+                      name="cod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <ShoppingCart size={14} />
+                            Cash on Delivery
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                <SelectValue placeholder="Select option" />
+                              </SelectTrigger>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
+
+                  <div className="space-y-4">
+                    <h3 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <Tag size={14} className="text-blue-500 dark:text-blue-400" />
+                      SEO Information
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="meta_title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Title</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="SEO title" 
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Shown in search engine results (defaults to
+                              product title if empty)
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="meta_keywords"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Keywords</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="keyword1, keyword2, keyword3"
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Comma-separated keywords for SEO
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="meta_description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Brief description for search engines..."
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 min-h-24"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Short description shown in search results
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                   <FormField
                     control={form.control}
                     name="hasVariants"
@@ -1881,137 +2011,7 @@ export default function AddProductPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="free_shipping"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                            <Truck size={14} />
-                            Free Shipping
-                          </FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
-                                <SelectValue placeholder="Select option" />
-                              </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
-                                <SelectItem value="yes">Yes</SelectItem>
-                                <SelectItem value="no">No</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="cod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                            <ShoppingCart size={14} />
-                            Cash on Delivery
-                          </FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
-                                <SelectValue placeholder="Select option" />
-                              </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
-                                <SelectItem value="yes">Yes</SelectItem>
-                                <SelectItem value="no">No</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
-
-                  <div className="space-y-4">
-                    <h3 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                      <Tag size={14} className="text-blue-500 dark:text-blue-400" />
-                      SEO Information
-                    </h3>
-                    <div className="grid grid-cols-1 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="meta_title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Title</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="SEO title" 
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Shown in search engine results (defaults to
-                              product title if empty)
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="meta_keywords"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Keywords</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="keyword1, keyword2, keyword3"
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Comma-separated keywords for SEO
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="meta_description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Description</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Brief description for search engines..."
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 min-h-24"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Short description shown in search results
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
+                  
                 </CardContent>
                 <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <Button

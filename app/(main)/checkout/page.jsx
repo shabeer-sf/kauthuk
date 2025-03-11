@@ -38,6 +38,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 // Form handling
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 // Icons
@@ -53,7 +54,6 @@ import {
   Info,
   Loader2,
   Lock,
-  LucideGift,
   MapPin,
   RefreshCcw,
   Shield,
@@ -65,7 +65,7 @@ import {
   XCircle
 } from "lucide-react";
 
-// Order Schema - would be in a separate file in a real app
+// Order Schema
 const OrderSchema = z.object({
   // Customer information
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -100,6 +100,26 @@ const OrderSchema = z.object({
     message: "You must accept the terms and conditions",
   }),
 });
+
+// Conditional validation for shipping address based on sameAsBilling
+const OrderSchemaWithConditionalValidation = OrderSchema.refine(
+  (data) => {
+    if (!data.sameAsBilling) {
+      return (
+        !!data.shippingAddress1 &&
+        !!data.shippingCity &&
+        !!data.shippingState &&
+        !!data.shippingPostalCode &&
+        !!data.shippingCountry
+      );
+    }
+    return true;
+  },
+  {
+    message: "Shipping address is required when different from billing",
+    path: ["shippingAddress1"],
+  }
+);
 
 // Server action to create an order (would be in a separate file)
 async function createOrder(orderData) {
@@ -136,9 +156,18 @@ const CheckoutPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  // Sample form with defaults
-  const form = useForm({
-    // resolver: zodResolver(OrderSchema),
+  // Form with validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty, isValid },
+    watch,
+    setValue,
+    getValues,
+    control,
+    trigger
+  } = useForm({
+    resolver: zodResolver(OrderSchemaWithConditionalValidation),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -162,9 +191,15 @@ const CheckoutPage = () => {
       notes: "",
       termsAccepted: false,
     },
+    mode: "onChange"
   });
 
-  // For demo purposes - coupon application
+  // Watch for form values
+  const watchSameAsBilling = watch("sameAsBilling");
+  const watchShippingMethod = watch("shippingMethod");
+  const watchPaymentMethod = watch("paymentMethod");
+
+  // For coupon application
   const applyCoupon = () => {
     if (!couponCode.trim()) {
       toast.error("Please enter a coupon code");
@@ -207,8 +242,7 @@ const CheckoutPage = () => {
   const subtotal = totals[currency];
   
   // Calculate shipping cost based on selected method
-  const shippingMethod = form.watch("shippingMethod");
-  const shippingCost = shippingMethod === "express" ? 100 : 0;
+  const shippingCost = watchShippingMethod === "express" ? 100 : 0;
   
   // Calculate discount if coupon is applied
   const discount = selectedCoupon ? 
@@ -221,26 +255,42 @@ const CheckoutPage = () => {
   // Calculate total
   const total = subtotal - discount + tax + shippingCost;
 
-  // For Razorpay
+  // Check for Razorpay
   useEffect(() => {
-    if (window.Razorpay) {
-      setRazorpayLoaded(true);
-    }
+    // Check if Razorpay is loaded from the script
+    const checkRazorpayLoaded = () => {
+      if (typeof window !== 'undefined' && window.Razorpay) {
+        setRazorpayLoaded(true);
+      }
+    };
+
+    // Check immediately in case it's already loaded
+    checkRazorpayLoaded();
+
+    // Set up event listener for script load
+    const handleScriptLoad = () => checkRazorpayLoaded();
+    window.addEventListener('razorpay-loaded', handleScriptLoad);
+
+    return () => {
+      window.removeEventListener('razorpay-loaded', handleScriptLoad);
+    };
   }, []);
 
   const initializeRazorpay = async (orderId) => {
-    if (!razorpayLoaded) {
-      toast.error("Payment gateway is still loading. Please wait.");
+    if (!window.Razorpay) {
+      toast.error("Payment gateway is not available. Please try again later.");
+      setIsProcessing(false);
       return;
     }
 
-    // Convert to lowest currency unit (paise)
-    const amountInPaise = Math.round(total * 100);
+    // Convert to lowest currency unit (paise for INR, cents for USD)
+    const amountInSmallestUnit = Math.round(total * 100);
+    const currencyCode = currency === "INR" ? "INR" : "USD";
 
     const options = {
-      key: "rzp_test_XJHuf2tDhLQjAV",
-      amount: amountInPaise,
-      currency: currency,
+      key: "rzp_test_XJHuf2tDhLQjAV", // Replace with your actual Razorpay key
+      amount: amountInSmallestUnit,
+      currency: currencyCode,
       name: "Kauthuk",
       description: `Order #${orderId}`,
       order_id: orderId, // Would come from your backend in real implementation
@@ -248,21 +298,33 @@ const CheckoutPage = () => {
         verifyPayment(response, orderId);
       },
       prefill: {
-        name: `${form.getValues("firstName")} ${form.getValues("lastName")}`,
-        email: form.getValues("email"),
-        contact: form.getValues("phone"),
+        name: `${getValues("firstName")} ${getValues("lastName")}`,
+        email: getValues("email"),
+        contact: getValues("phone"),
       },
       notes: {
-        address: form.getValues("billingAddress1"),
+        address: getValues("billingAddress1"),
         order_id: orderId,
       },
       theme: {
         color: "#4f46e5",
       },
+      modal: {
+        ondismiss: function() {
+          setIsProcessing(false);
+          toast.error("Payment cancelled");
+        }
+      }
     };
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+    try {
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error("Razorpay initialization error:", error);
+      toast.error("Failed to initialize payment. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
   const verifyPayment = async (response, orderId) => {
@@ -317,19 +379,20 @@ const CheckoutPage = () => {
         } else {
           // For card/UPI, initialize payment gateway
           await initializeRazorpay(result.order.id);
-          setIsProcessing(false);
+          // Don't set isProcessing to false here - let the Razorpay flow handle it
         }
       } else {
         toast.error(result.error || "Failed to create order");
         setIsProcessing(false);
       }
     } catch (error) {
+      console.error("Order processing error:", error);
       toast.error("An error occurred while processing your order");
       setIsProcessing(false);
     }
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     // If same as billing, copy billing address to shipping
     if (data.sameAsBilling) {
       data.shippingAddress1 = data.billingAddress1;
@@ -342,13 +405,37 @@ const CheckoutPage = () => {
     
     // Different behavior based on current step
     if (currentStep === "contact") {
-      setCurrentStep("shipping");
-      window.scrollTo(0, 0);
+      // Validate contact information
+      const isContactValid = await trigger(["firstName", "lastName", "email", "phone"]);
+      if (isContactValid) {
+        setCurrentStep("shipping");
+        window.scrollTo(0, 0);
+      }
     } else if (currentStep === "shipping") {
-      setCurrentStep("payment");
-      window.scrollTo(0, 0);
+      // Validate shipping & billing information
+      const fieldsToValidate = [
+        "billingAddress1", "billingCity", "billingState", 
+        "billingPostalCode", "billingCountry", "shippingMethod"
+      ];
+      
+      if (!watchSameAsBilling) {
+        fieldsToValidate.push(
+          "shippingAddress1", "shippingCity", "shippingState", 
+          "shippingPostalCode", "shippingCountry"
+        );
+      }
+      
+      const isShippingValid = await trigger(fieldsToValidate);
+      if (isShippingValid) {
+        setCurrentStep("payment");
+        window.scrollTo(0, 0);
+      }
     } else if (currentStep === "payment") {
-      processOrder(data);
+      // Validate payment information and complete the order
+      const isPaymentValid = await trigger(["paymentMethod", "termsAccepted"]);
+      if (isPaymentValid) {
+        processOrder(data);
+      }
     }
   };
 
@@ -418,7 +505,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
               <p className="text-gray-600 mb-8">
-                We've sent a confirmation email to <strong>{form.getValues("email")}</strong> with all the details of your order.
+                We've sent a confirmation email to <strong>{getValues("email")}</strong> with all the details of your order.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 w-full">
                 <Link href="/account/orders" className="flex-1">
@@ -443,8 +530,12 @@ const CheckoutPage = () => {
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="afterInteractive"
-        onLoad={() => setRazorpayLoaded(true)}
+        strategy="lazyOnload"
+        onLoad={() => {
+          setRazorpayLoaded(true);
+          // Dispatch a custom event that can be caught by our effect
+          window.dispatchEvent(new Event('razorpay-loaded'));
+        }}
       />
 
       <div className="min-h-screen bg-gray-50 py-8">
@@ -485,7 +576,7 @@ const CheckoutPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column - Order Form */}
             <div className="lg:col-span-8">
-              <form onSubmit={form.handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 {/* Contact Information */}
                 {currentStep === "contact" && (
                   <Card className="mb-8">
@@ -502,10 +593,13 @@ const CheckoutPage = () => {
                           </label>
                           <Input
                             id="firstName"
-                            {...form.register("firstName")}
+                            {...register("firstName")}
                             placeholder="John"
-                            required
+                            className={errors.firstName ? "border-red-300" : ""}
                           />
+                          {errors.firstName && (
+                            <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                          )}
                         </div>
                         <div>
                           <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -513,10 +607,13 @@ const CheckoutPage = () => {
                           </label>
                           <Input
                             id="lastName"
-                            {...form.register("lastName")}
+                            {...register("lastName")}
                             placeholder="Doe"
-                            required
+                            className={errors.lastName ? "border-red-300" : ""}
                           />
+                          {errors.lastName && (
+                            <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                          )}
                         </div>
                         <div>
                           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -525,10 +622,13 @@ const CheckoutPage = () => {
                           <Input
                             id="email"
                             type="email"
-                            {...form.register("email")}
+                            {...register("email")}
                             placeholder="john.doe@example.com"
-                            required
+                            className={errors.email ? "border-red-300" : ""}
                           />
+                          {errors.email && (
+                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                          )}
                         </div>
                         <div>
                           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
@@ -536,10 +636,13 @@ const CheckoutPage = () => {
                           </label>
                           <Input
                             id="phone"
-                            {...form.register("phone")}
+                            {...register("phone")}
                             placeholder="Your phone number"
-                            required
+                            className={errors.phone ? "border-red-300" : ""}
                           />
+                          {errors.phone && (
+                            <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -563,10 +666,13 @@ const CheckoutPage = () => {
                             </label>
                             <Input
                               id="billingAddress1"
-                              {...form.register("billingAddress1")}
+                              {...register("billingAddress1")}
                               placeholder="Street address"
-                              required
+                              className={errors.billingAddress1 ? "border-red-300" : ""}
                             />
+                            {errors.billingAddress1 && (
+                              <p className="text-red-500 text-sm mt-1">{errors.billingAddress1.message}</p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <label htmlFor="billingAddress2" className="block text-sm font-medium text-gray-700 mb-1">
@@ -574,7 +680,7 @@ const CheckoutPage = () => {
                             </label>
                             <Input
                               id="billingAddress2"
-                              {...form.register("billingAddress2")}
+                              {...register("billingAddress2")}
                               placeholder="Apartment, suite, unit, etc. (optional)"
                             />
                           </div>
@@ -584,10 +690,13 @@ const CheckoutPage = () => {
                             </label>
                             <Input
                               id="billingCity"
-                              {...form.register("billingCity")}
+                              {...register("billingCity")}
                               placeholder="City"
-                              required
+                              className={errors.billingCity ? "border-red-300" : ""}
                             />
+                            {errors.billingCity && (
+                              <p className="text-red-500 text-sm mt-1">{errors.billingCity.message}</p>
+                            )}
                           </div>
                           <div>
                             <label htmlFor="billingState" className="block text-sm font-medium text-gray-700 mb-1">
@@ -595,10 +704,13 @@ const CheckoutPage = () => {
                             </label>
                             <Input
                               id="billingState"
-                              {...form.register("billingState")}
+                              {...register("billingState")}
                               placeholder="State"
-                              required
+                              className={errors.billingState ? "border-red-300" : ""}
                             />
+                            {errors.billingState && (
+                              <p className="text-red-500 text-sm mt-1">{errors.billingState.message}</p>
+                            )}
                           </div>
                           <div>
                             <label htmlFor="billingPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
@@ -606,10 +718,13 @@ const CheckoutPage = () => {
                             </label>
                             <Input
                               id="billingPostalCode"
-                              {...form.register("billingPostalCode")}
+                              {...register("billingPostalCode")}
                               placeholder="Postal code"
-                              required
+                              className={errors.billingPostalCode ? "border-red-300" : ""}
                             />
+                            {errors.billingPostalCode && (
+                              <p className="text-red-500 text-sm mt-1">{errors.billingPostalCode.message}</p>
+                            )}
                           </div>
                           <div>
                             <label htmlFor="billingCountry" className="block text-sm font-medium text-gray-700 mb-1">
@@ -617,9 +732,9 @@ const CheckoutPage = () => {
                             </label>
                             <Select 
                               defaultValue="India"
-                              onValueChange={(value) => form.setValue("billingCountry", value)}
+                              onValueChange={(value) => setValue("billingCountry", value)}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className={errors.billingCountry ? "border-red-300" : ""}>
                                 <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
                               <SelectContent>
@@ -630,6 +745,9 @@ const CheckoutPage = () => {
                                 <SelectItem value="Australia">Australia</SelectItem>
                               </SelectContent>
                             </Select>
+                            {errors.billingCountry && (
+                              <p className="text-red-500 text-sm mt-1">{errors.billingCountry.message}</p>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -645,98 +763,113 @@ const CheckoutPage = () => {
                           <div className="flex items-center">
                             <Checkbox
                               id="sameAsBilling"
-                              checked={form.watch("sameAsBilling")}
+                              checked={watchSameAsBilling}
                               onCheckedChange={(checked) => {
-                                form.setValue("sameAsBilling", checked);
+                                setValue("sameAsBilling", checked === true);
                               }}
                             />
                             <label
                               htmlFor="sameAsBilling"
-                              className="ml-2 text-sm font-medium text-gray-700"
+                              className="ml-2 text-sm font-medium text-gray-700 cursor-pointer"
                             >
                               Same as billing address
                             </label>
                           </div>
                         </div>
 
-                        {!form.watch("sameAsBilling") && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="sm:col-span-2">
-                              <label htmlFor="shippingAddress1" className="block text-sm font-medium text-gray-700 mb-1">
-                                Address Line 1*
-                              </label>
-                              <Input
-                                id="shippingAddress1"
-                                {...form.register("shippingAddress1")}
-                                placeholder="Street address"
-                                required={!form.watch("sameAsBilling")}
-                              />
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label htmlFor="shippingAddress2" className="block text-sm font-medium text-gray-700 mb-1">
-                                Address Line 2
-                              </label>
-                              <Input
-                                id="shippingAddress2"
-                                {...form.register("shippingAddress2")}
-                                placeholder="Apartment, suite, unit, etc. (optional)"
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="shippingCity" className="block text-sm font-medium text-gray-700 mb-1">
-                                City*
-                              </label>
-                              <Input
-                                id="shippingCity"
-                                {...form.register("shippingCity")}
-                                placeholder="City"
-                                required={!form.watch("sameAsBilling")}
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="shippingState" className="block text-sm font-medium text-gray-700 mb-1">
-                                State/Province*
-                              </label>
-                              <Input
-                                id="shippingState"
-                                {...form.register("shippingState")}
-                                placeholder="State"
-                                required={!form.watch("sameAsBilling")}
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="shippingPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
-                                Postal Code*
-                              </label>
-                              <Input
-                                id="shippingPostalCode"
-                                {...form.register("shippingPostalCode")}
-                                placeholder="Postal code"
-                                required={!form.watch("sameAsBilling")}
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="shippingCountry" className="block text-sm font-medium text-gray-700 mb-1">
-                                Country*
-                              </label>
-                              <Select 
-                                defaultValue="India"
-                                onValueChange={(value) => form.setValue("shippingCountry", value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a country" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="India">India</SelectItem>
-                                  <SelectItem value="United States">United States</SelectItem>
-                                  <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                                  <SelectItem value="Canada">Canada</SelectItem>
-                                  <SelectItem value="Australia">Australia</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        )}
+                        {!watchSameAsBilling && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="sm:col-span-2">
+      <label htmlFor="shippingAddress1" className="block text-sm font-medium text-gray-700 mb-1">
+        Address Line 1*
+      </label>
+      <Input
+        id="shippingAddress1"
+        {...register("shippingAddress1")}
+        placeholder="Street address"
+        className={errors.shippingAddress1 ? "border-red-300" : ""}
+      />
+      {errors.shippingAddress1 && (
+        <p className="text-red-500 text-sm mt-1">{errors.shippingAddress1.message}</p>
+      )}
+    </div>
+    <div className="sm:col-span-2">
+      <label htmlFor="shippingAddress2" className="block text-sm font-medium text-gray-700 mb-1">
+        Address Line 2
+      </label>
+      <Input
+        id="shippingAddress2"
+        {...register("shippingAddress2")}
+        placeholder="Apartment, suite, unit, etc. (optional)"
+      />
+    </div>
+    <div>
+      <label htmlFor="shippingCity" className="block text-sm font-medium text-gray-700 mb-1">
+        City*
+      </label>
+      <Input
+        id="shippingCity"
+        {...register("shippingCity")}
+        placeholder="City"
+        className={errors.shippingCity ? "border-red-300" : ""}
+      />
+      {errors.shippingCity && (
+        <p className="text-red-500 text-sm mt-1">{errors.shippingCity.message}</p>
+      )}
+    </div>
+    <div>
+      <label htmlFor="shippingState" className="block text-sm font-medium text-gray-700 mb-1">
+        State/Province*
+      </label>
+      <Input
+        id="shippingState"
+        {...register("shippingState")}
+        placeholder="State"
+        className={errors.shippingState ? "border-red-300" : ""}
+      />
+      {errors.shippingState && (
+        <p className="text-red-500 text-sm mt-1">{errors.shippingState.message}</p>
+      )}
+    </div>
+    <div>
+      <label htmlFor="shippingPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
+        Postal Code*
+      </label>
+      <Input
+        id="shippingPostalCode"
+        {...register("shippingPostalCode")}
+        placeholder="Postal code"
+        className={errors.shippingPostalCode ? "border-red-300" : ""}
+      />
+      {errors.shippingPostalCode && (
+        <p className="text-red-500 text-sm mt-1">{errors.shippingPostalCode.message}</p>
+      )}
+    </div>
+    <div>
+      <label htmlFor="shippingCountry" className="block text-sm font-medium text-gray-700 mb-1">
+        Country*
+      </label>
+      <Select 
+        defaultValue="India"
+        onValueChange={(value) => setValue("shippingCountry", value)}
+      >
+        <SelectTrigger className={errors.shippingCountry ? "border-red-300" : ""}>
+          <SelectValue placeholder="Select a country" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="India">India</SelectItem>
+          <SelectItem value="United States">United States</SelectItem>
+          <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+          <SelectItem value="Canada">Canada</SelectItem>
+          <SelectItem value="Australia">Australia</SelectItem>
+        </SelectContent>
+      </Select>
+      {errors.shippingCountry && (
+        <p className="text-red-500 text-sm mt-1">{errors.shippingCountry.message}</p>
+      )}
+    </div>
+  </div>
+)}
                       </CardContent>
                     </Card>
 
@@ -749,11 +882,12 @@ const CheckoutPage = () => {
 
                         <RadioGroup
                           defaultValue="standard"
-                          onValueChange={(value) => form.setValue("shippingMethod", value)}
+                          value={watchShippingMethod}
+                          onValueChange={(value) => setValue("shippingMethod", value)}
                         >
                           <div className="flex flex-col space-y-4">
                             <label 
-                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${form.watch("shippingMethod") === "standard" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
+                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${watchShippingMethod === "standard" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
                             >
                               <div className="flex items-center">
                                 <RadioGroupItem value="standard" id="standard-shipping" />
@@ -770,7 +904,7 @@ const CheckoutPage = () => {
                             </label>
 
                             <label 
-                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${form.watch("shippingMethod") === "express" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
+                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${watchShippingMethod === "express" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
                             >
                               <div className="flex items-center">
                                 <RadioGroupItem value="express" id="express-shipping" />
@@ -804,11 +938,12 @@ const CheckoutPage = () => {
 
                         <RadioGroup
                           defaultValue="card"
-                          onValueChange={(value) => form.setValue("paymentMethod", value)}
+                          value={watchPaymentMethod}
+                          onValueChange={(value) => setValue("paymentMethod", value)}
                         >
                           <div className="flex flex-col space-y-4">
                             <label 
-                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${form.watch("paymentMethod") === "card" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
+                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${watchPaymentMethod === "card" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
                             >
                               <div className="flex items-center">
                                 <RadioGroupItem value="card" id="card-payment" />
@@ -840,7 +975,7 @@ const CheckoutPage = () => {
                             </label>
 
                             <label 
-                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${form.watch("paymentMethod") === "upi" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
+                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${watchPaymentMethod === "upi" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
                             >
                               <div className="flex items-center">
                                 <RadioGroupItem value="upi" id="upi-payment" />
@@ -872,7 +1007,7 @@ const CheckoutPage = () => {
                             </label>
 
                             <label 
-                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${form.watch("paymentMethod") === "cod" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
+                              className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${watchPaymentMethod === "cod" ? "border-indigo-600 bg-indigo-50" : "border-gray-200 hover:border-indigo-200"}`}
                             >
                               <div className="flex items-center">
                                 <RadioGroupItem value="cod" id="cod-payment" />
@@ -892,7 +1027,7 @@ const CheckoutPage = () => {
                           </div>
                         </RadioGroup>
 
-                        {form.watch("paymentMethod") === "cod" && (
+                        {watchPaymentMethod === "cod" && (
                           <Alert className="mt-4 bg-amber-50 text-amber-800 border-amber-200">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>Cash on Delivery Information</AlertTitle>
@@ -904,34 +1039,10 @@ const CheckoutPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Gift Message & Order Notes */}
+                    {/* Order Notes */}
                     <Card className="mb-6">
                       <CardContent className="p-6">
                         <Accordion type="single" collapsible>
-                          {/* <AccordionItem value="gift-message">
-                            <AccordionTrigger className="text-base font-medium">
-                              <div className="flex items-center">
-                                <LucideGift className="h-4 w-4 mr-2 text-indigo-600" />
-                                Add Gift Message
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="mt-2">
-                                <label htmlFor="giftMessage" className="block text-sm font-medium text-gray-700 mb-1">
-                                  Gift Message
-                                </label>
-                                <Textarea
-                                  id="giftMessage"
-                                  placeholder="Enter your gift message here"
-                                  className="h-24"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                  This message will be printed on a card and included with your gift
-                                </p>
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem> */}
-
                           <AccordionItem value="order-notes">
                             <AccordionTrigger className="text-base font-medium">
                               <div className="flex items-center">
@@ -946,7 +1057,7 @@ const CheckoutPage = () => {
                                 </label>
                                 <Textarea
                                   id="notes"
-                                  {...form.register("notes")}
+                                  {...register("notes")}
                                   placeholder="Any special instructions for delivery"
                                   className="h-24"
                                 />
@@ -963,9 +1074,8 @@ const CheckoutPage = () => {
                         <div className="flex items-start space-x-3">
                           <Checkbox 
                             id="termsAccepted"
-                            checked={form.watch("termsAccepted")}
-                            onCheckedChange={(checked) => form.setValue("termsAccepted", checked === true)}
-                            required
+                            checked={watch("termsAccepted")}
+                            onCheckedChange={(checked) => setValue("termsAccepted", checked === true)}
                           />
                           <div>
                             <label
@@ -986,6 +1096,9 @@ const CheckoutPage = () => {
                             </p>
                           </div>
                         </div>
+                        {errors.termsAccepted && (
+                          <p className="text-red-500 text-sm mt-2 ml-7">{errors.termsAccepted.message}</p>
+                        )}
                       </CardContent>
                     </Card>
                   </>
@@ -1100,7 +1213,7 @@ const CheckoutPage = () => {
                     <Separator />
 
                     {/* Coupon Code */}
-                    {/* <div className="py-4">
+                    <div className="py-4">
                       <label htmlFor="couponCode" className="block text-sm font-medium text-gray-700 mb-1">
                         Apply Coupon
                       </label>
@@ -1149,7 +1262,7 @@ const CheckoutPage = () => {
                           </span>
                         </div>
                       )}
-                    </div> */}
+                    </div>
 
                     <Separator />
 

@@ -1,6 +1,11 @@
 "use client";
 
-import { getOneProduct, updateProduct, getCategoriesAndSubcategories, getProductAttributes } from "@/actions/product";
+import {
+  getOneProduct,
+  updateProduct,
+  getCategoriesAndSubcategories,
+  getProductAttributes,
+} from "@/actions/product";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -47,7 +52,7 @@ import {
   Clock,
   Plus,
   Trash2,
-  X
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -185,48 +190,60 @@ const EditProductPage = () => {
 
         // Set up existing images
         if (product.ProductImages && product.ProductImages.length > 0) {
-          const images = product.ProductImages.map(img => ({
+          const images = product.ProductImages.map((img) => ({
             id: img.id,
             path: img.image_path,
-            url: `https://greenglow.in/kauthuk_test/${img.image_path}`
+            url: `https://greenglow.in/kauthuk_test/${img.image_path}`,
           }));
           setCurrentImages(images);
         }
 
         // Set up attributes
-        if (product.ProductAttributes && product.ProductAttributes.length > 0 && attributes.length > 0) {
-          const mappedAttributes = product.ProductAttributes.map(attr => {
-            const attributeDetails = attributes.find(a => a.id === attr.attribute_id);
-            const values = attr.ProductAttributeValues ? 
-              attr.ProductAttributeValues.map(val => ({
-                attribute_value_id: val.attribute_value_id,
-                price_adjustment_rupees: val.price_adjustment_rupees,
-                price_adjustment_dollars: val.price_adjustment_dollars
-              })) : [];
-            
+        if (
+          product.ProductAttributes &&
+          product.ProductAttributes.length > 0 &&
+          attributes.length > 0
+        ) {
+          const mappedAttributes = product.ProductAttributes.map((attr) => {
+            const attributeDetails = attributes.find(
+              (a) => a.id === attr.attribute_id
+            );
+            const values = attr.ProductAttributeValues
+              ? attr.ProductAttributeValues.map((val) => ({
+                  attribute_value_id: val.attribute_value_id,
+                  price_adjustment_rupees: val.price_adjustment_rupees,
+                  price_adjustment_dollars: val.price_adjustment_dollars,
+                }))
+              : [];
+
             return {
               attribute_id: attr.attribute_id,
               is_required: attr.is_required,
               values: values,
-              attribute: attributeDetails
+              attribute: attributeDetails,
             };
           });
-          
+
           setSelectedAttributes(mappedAttributes);
         }
 
         // Set up variants
-        if (product.hasVariants && product.ProductVariants && product.ProductVariants.length > 0) {
-          const mappedVariants = product.ProductVariants.map(variant => {
+        if (
+          product.hasVariants &&
+          product.ProductVariants &&
+          product.ProductVariants.length > 0
+        ) {
+          const mappedVariants = product.ProductVariants.map((variant) => {
             // Map variant images if any
-            const variantImages = variant.ProductImages?.length > 0 
-              ? variant.ProductImages.map(img => ({
-                  id: img.id,
-                  path: img.image_path,
-                  url: `https://greenglow.in/kauthuk_test/${img.image_path}`
-                }))
-              : [];
-            
+            const variantImages =
+              variant.ProductImages?.length > 0
+                ? variant.ProductImages.map((img) => ({
+                    id: img.id,
+                    path: img.image_path,
+                    url: `https://greenglow.in/kauthuk_test/${img.image_path}`,
+                  }))
+                : [];
+
             return {
               id: variant.id,
               sku: variant.sku,
@@ -236,32 +253,35 @@ const EditProductPage = () => {
               stock_status: variant.stock_status,
               weight: variant.weight?.toString() || "",
               is_default: variant.is_default,
-              attribute_values: variant.VariantAttributeValues?.map(val => ({
-                attribute_value_id: val.attribute_value_id
-              })) || [],
+              attribute_values:
+                variant.VariantAttributeValues?.map((val) => ({
+                  attribute_value_id: val.attribute_value_id,
+                })) || [],
               images: [],
               existingImages: variantImages,
-              imagePreviews: []
+              imagePreviews: [],
             };
           });
-          
+
           setVariants(mappedVariants);
         } else {
           // Initialize with a single variant for new variants
-          setVariants([{
-            id: "new-1",
-            sku: "",
-            price_rupees: "",
-            price_dollars: "",
-            stock_count: 0,
-            stock_status: "yes",
-            weight: "",
-            is_default: true,
-            attribute_values: [],
-            images: [],
-            existingImages: [],
-            imagePreviews: []
-          }]);
+          setVariants([
+            {
+              id: "new-1",
+              sku: "",
+              price_rupees: "",
+              price_dollars: "",
+              stock_count: 0,
+              stock_status: "yes",
+              weight: "",
+              is_default: true,
+              attribute_values: [],
+              images: [],
+              existingImages: [],
+              imagePreviews: [],
+            },
+          ]);
         }
 
         // Update hasVariants state
@@ -272,16 +292,23 @@ const EditProductPage = () => {
         const formData = {
           ...product,
           cat_id: product.cat_id?.toString() || "",
-          subcat_id: product.subcat_id?.toString() || ""
+          subcat_id: product.subcat_id?.toString() || "",
         };
-        
+
         // Reset the form with the product data, but exclude images
-        const { ProductImages, ProductVariants, ProductAttributes, ...restData } = formData;
+        const {
+          ProductImages,
+          ProductVariants,
+          ProductAttributes,
+          ...restData
+        } = formData;
         form.reset(restData);
 
         // Load subcategories based on selected category
         if (product.cat_id) {
-          const selectedCategory = categories.find(cat => cat.id === product.cat_id);
+          const selectedCategory = categories.find(
+            (cat) => cat.id === product.cat_id
+          );
           if (selectedCategory && selectedCategory.SubCategory) {
             setSubcategories(selectedCategory.SubCategory);
           }
@@ -352,11 +379,14 @@ const EditProductPage = () => {
   // Handle removing an existing product image
   const handleRemoveExistingImage = (index) => {
     const updatedImages = [...currentImages];
-    
+
     // Add the image ID to a list of images to delete when submitting
     const imagesToDelete = form.getValues("imagesToDelete") || [];
-    form.setValue("imagesToDelete", [...imagesToDelete, currentImages[index].id]);
-    
+    form.setValue("imagesToDelete", [
+      ...imagesToDelete,
+      currentImages[index].id,
+    ]);
+
     updatedImages.splice(index, 1);
     setCurrentImages(updatedImages);
   };
@@ -478,9 +508,12 @@ const EditProductPage = () => {
     });
 
     // If it's an existing variant, add to variantsToDelete
-    if (typeof updatedVariants[index].id === 'number') {
+    if (typeof updatedVariants[index].id === "number") {
       const variantsToDelete = form.getValues("variantsToDelete") || [];
-      form.setValue("variantsToDelete", [...variantsToDelete, updatedVariants[index].id]);
+      form.setValue("variantsToDelete", [
+        ...variantsToDelete,
+        updatedVariants[index].id,
+      ]);
     }
 
     updatedVariants.splice(index, 1);
@@ -542,12 +575,13 @@ const EditProductPage = () => {
   // Handle removing an existing variant image
   const handleRemoveExistingVariantImage = (variantIndex, imageIndex) => {
     const updatedVariants = [...variants];
-    const variantImage = updatedVariants[variantIndex].existingImages[imageIndex];
-    
+    const variantImage =
+      updatedVariants[variantIndex].existingImages[imageIndex];
+
     // Add to list of images to delete
     const imagesToDelete = form.getValues("imagesToDelete") || [];
     form.setValue("imagesToDelete", [...imagesToDelete, variantImage.id]);
-    
+
     // Remove from the existing images array
     updatedVariants[variantIndex].existingImages.splice(imageIndex, 1);
     setVariants(updatedVariants);
@@ -572,7 +606,7 @@ const EditProductPage = () => {
     // Add variants if hasVariants is true
     if (data.hasVariants) {
       data.variants = variants.map((variant) => ({
-        id: typeof variant.id === 'number' ? variant.id : undefined, // Only include ID if it's a number (existing variant)
+        id: typeof variant.id === "number" ? variant.id : undefined, // Only include ID if it's a number (existing variant)
         sku: variant.sku,
         price_rupees: variant.price_rupees,
         price_dollars: variant.price_dollars,
@@ -591,23 +625,26 @@ const EditProductPage = () => {
   // Reset the form to its initial state with product data
   const resetForm = () => {
     if (productData) {
-      const { ProductImages, ProductVariants, ProductAttributes, ...restData } = productData;
+      const { ProductImages, ProductVariants, ProductAttributes, ...restData } =
+        productData;
       form.reset(restData);
-      
+
       // Reset image previews
-      productImagePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
+      productImagePreviews.forEach((preview) =>
+        URL.revokeObjectURL(preview.url)
+      );
       setProductImagePreviews([]);
-      
+
       // Reload current images
       if (ProductImages && ProductImages.length > 0) {
-        const images = ProductImages.map(img => ({
+        const images = ProductImages.map((img) => ({
           id: img.id,
           path: img.image_path,
-          url: `https://greenglow.in/kauthuk_test/${img.image_path}`
+          url: `https://greenglow.in/kauthuk_test/${img.image_path}`,
         }));
         setCurrentImages(images);
       }
-      
+
       // Reset variants and attributes to original state
       // This would require reloading the product data
       router.refresh();
@@ -757,7 +794,9 @@ const EditProductPage = () => {
       <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Form Completion</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Form Completion
+            </span>
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {
                 [
@@ -797,33 +836,33 @@ const EditProductPage = () => {
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
-              <TabsTrigger 
-                value="basic" 
+              <TabsTrigger
+                value="basic"
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
               >
                 Basic Info
               </TabsTrigger>
-              <TabsTrigger 
-                value="images" 
+              <TabsTrigger
+                value="images"
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
               >
                 Images
               </TabsTrigger>
-              <TabsTrigger 
-                value="attributes" 
+              <TabsTrigger
+                value="attributes"
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
               >
                 Attributes
               </TabsTrigger>
-              <TabsTrigger 
-                value="variants" 
+              <TabsTrigger
+                value="variants"
                 disabled={!hasVariants}
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm disabled:opacity-50"
               >
                 Variants
               </TabsTrigger>
-              <TabsTrigger 
-                value="advanced" 
+              <TabsTrigger
+                value="advanced"
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
               >
                 Advanced
@@ -851,7 +890,8 @@ const EditProductPage = () => {
                         <FormItem>
                           <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
                             <Type size={14} />
-                            Product Title <span className="text-red-500">*</span>
+                            Product Title{" "}
+                            <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -884,7 +924,9 @@ const EditProductPage = () => {
                               </SelectTrigger>
                               <SelectContent className="border-blue-100 dark:border-blue-900">
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="inactive">
+                                  Inactive
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -968,8 +1010,8 @@ const EditProductPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label 
-                      htmlFor="description" 
+                    <Label
+                      htmlFor="description"
                       className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
                     >
                       <PenTool size={14} />
@@ -1035,7 +1077,7 @@ const EditProductPage = () => {
                           <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
                             <DollarSign size={14} />
                             Price (₹) <span className="text-red-500">*</span>
-                            </FormLabel>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1154,7 +1196,146 @@ const EditProductPage = () => {
                       )}
                     />
                   </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="free_shipping"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <Truck size={14} />
+                            Free Shipping
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                <SelectValue placeholder="Select option" />
+                              </SelectTrigger>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
+                    <FormField
+                      control={form.control}
+                      name="cod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <ShoppingCart size={14} />
+                            Cash on Delivery
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                <SelectValue placeholder="Select option" />
+                              </SelectTrigger>
+                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectItem value="yes">Yes</SelectItem>
+                                <SelectItem value="no">No</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
+
+                  <div className="space-y-4">
+                    <h3 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <Tag
+                        size={14}
+                        className="text-blue-500 dark:text-blue-400"
+                      />
+                      SEO Information
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="meta_title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">
+                              Meta Title
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="SEO title"
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Shown in search engine results (defaults to
+                              product title if empty)
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="meta_keywords"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">
+                              Meta Keywords
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="keyword1, keyword2, keyword3"
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Comma-separated keywords for SEO
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="meta_description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 dark:text-slate-300">
+                              Meta Description
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Brief description for search engines..."
+                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 min-h-24"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-slate-500 dark:text-slate-400">
+                              Short description shown in search results
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                   <FormField
                     control={form.control}
                     name="hasVariants"
@@ -1162,11 +1343,15 @@ const EditProductPage = () => {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border border-blue-200 dark:border-blue-900/30 p-4 bg-blue-50/50 dark:bg-blue-900/10">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                            <Layers size={16} className="text-blue-500 dark:text-blue-400" />
+                            <Layers
+                              size={16}
+                              className="text-blue-500 dark:text-blue-400"
+                            />
                             Product Variants
                           </FormLabel>
                           <FormDescription className="text-slate-500 dark:text-slate-400">
-                            Enable if this product has variants like different sizes, colors, etc.
+                            Enable if this product has variants like different
+                            sizes, colors, etc.
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -1181,22 +1366,22 @@ const EditProductPage = () => {
                   />
                 </CardContent>
                 <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => router.back()}
                     className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={() => setActiveTab("images")}
                     className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     Next: Images
                   </Button>
                 </CardFooter>
-                </Card>
+              </Card>
             </TabsContent>
 
             {/* Images Tab */}
@@ -1215,7 +1400,9 @@ const EditProductPage = () => {
                   {/* Current Images */}
                   {currentImages.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="text-base font-medium text-slate-700 dark:text-slate-300">Current Images</h3>
+                      <h3 className="text-base font-medium text-slate-700 dark:text-slate-300">
+                        Current Images
+                      </h3>
                       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {currentImages.map((image, index) => (
                           <div key={image.id} className="relative group">
@@ -1249,8 +1436,8 @@ const EditProductPage = () => {
 
                   {/* Upload New Images */}
                   <div className="flex flex-col gap-2">
-                    <Label 
-                      htmlFor="product-images" 
+                    <Label
+                      htmlFor="product-images"
                       className="text-slate-700 dark:text-slate-300 flex items-center gap-1 mb-2"
                     >
                       <Upload size={14} />
@@ -1302,7 +1489,9 @@ const EditProductPage = () => {
                               variant="destructive"
                               size="icon"
                               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 bg-red-500 hover:bg-red-600"
-                              onClick={() => handleRemoveProductImagePreview(index)}
+                              onClick={() =>
+                                handleRemoveProductImagePreview(index)
+                              }
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -1370,7 +1559,10 @@ const EditProductPage = () => {
                         >
                           {attribute.display_name}
                         </label>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/70">
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/70"
+                        >
                           {attribute.type}
                         </Badge>
                         {attribute.is_variant && (
@@ -1563,8 +1755,9 @@ const EditProductPage = () => {
                       Managing Variants
                     </h3>
                     <p className="text-sm text-blue-700 dark:text-blue-400">
-                      Edit existing variants or add new ones. Each variant can have its own price, stock,
-                      and images. Make sure to select values for variant attributes.
+                      Edit existing variants or add new ones. Each variant can
+                      have its own price, stock, and images. Make sure to select
+                      values for variant attributes.
                     </p>
                   </div>
 
@@ -1574,17 +1767,24 @@ const EditProductPage = () => {
                       <Card
                         key={variant.id}
                         className={`border ${
-                          variant.is_default ? "border-blue-500 dark:border-blue-700" : "border-blue-200 dark:border-blue-900/30"
+                          variant.is_default
+                            ? "border-blue-500 dark:border-blue-700"
+                            : "border-blue-200 dark:border-blue-900/30"
                         }`}
                       >
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <CardTitle className="text-lg text-slate-700 dark:text-slate-300">
-                                Variant #{index + 1} {typeof variant.id === 'number' ? '(ID: ' + variant.id + ')' : '(New)'}
+                                Variant #{index + 1}{" "}
+                                {typeof variant.id === "number"
+                                  ? "(ID: " + variant.id + ")"
+                                  : "(New)"}
                               </CardTitle>
                               {variant.is_default && (
-                                <Badge className="bg-blue-600 dark:bg-blue-700">Default</Badge>
+                                <Badge className="bg-blue-600 dark:bg-blue-700">
+                                  Default
+                                </Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2">
@@ -1829,49 +2029,54 @@ const EditProductPage = () => {
                             </h4>
 
                             {/* Existing images */}
-                            {variant.existingImages && variant.existingImages.length > 0 && (
-                              <div className="mb-4">
-                                <label className="text-sm text-slate-600 dark:text-slate-400 mb-2 block">
-                                  Current Images
-                                </label>
-                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                                  {variant.existingImages.map((image, imgIndex) => (
-                                    <div
-                                      key={imgIndex}
-                                      className="relative group"
-                                    >
-                                      <div className="relative h-32 w-full rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
-                                        <Image
-                                          src={image.url}
-                                          alt={`Variant ${index + 1} image ${imgIndex + 1}`}
-                                          fill
-                                          className="object-cover"
-                                        />
-                                      </div>
-                                      <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 bg-red-500 hover:bg-red-600"
-                                        onClick={() =>
-                                          handleRemoveExistingVariantImage(
-                                            index,
-                                            imgIndex
-                                          )
-                                        }
-                                      >
-                                        <X className="h-3 w-3" />
-                                      </Button>
-                                      {imgIndex === 0 && (
-                                        <Badge className="absolute bottom-1 left-1 bg-blue-600 text-white dark:bg-blue-500 text-xs">
-                                          Main
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  ))}
+                            {variant.existingImages &&
+                              variant.existingImages.length > 0 && (
+                                <div className="mb-4">
+                                  <label className="text-sm text-slate-600 dark:text-slate-400 mb-2 block">
+                                    Current Images
+                                  </label>
+                                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                                    {variant.existingImages.map(
+                                      (image, imgIndex) => (
+                                        <div
+                                          key={imgIndex}
+                                          className="relative group"
+                                        >
+                                          <div className="relative h-32 w-full rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                                            <Image
+                                              src={image.url}
+                                              alt={`Variant ${
+                                                index + 1
+                                              } image ${imgIndex + 1}`}
+                                              fill
+                                              className="object-cover"
+                                            />
+                                          </div>
+                                          <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 bg-red-500 hover:bg-red-600"
+                                            onClick={() =>
+                                              handleRemoveExistingVariantImage(
+                                                index,
+                                                imgIndex
+                                              )
+                                            }
+                                          >
+                                            <X className="h-3 w-3" />
+                                          </Button>
+                                          {imgIndex === 0 && (
+                                            <Badge className="absolute bottom-1 left-1 bg-blue-600 text-white dark:bg-blue-500 text-xs">
+                                              Main
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
                             {/* Add new images */}
                             <div className="flex flex-col gap-2">
@@ -1995,8 +2200,8 @@ const EditProductPage = () => {
                 <CardContent className="p-6 space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label 
-                        htmlFor="highlights" 
+                      <Label
+                        htmlFor="highlights"
                         className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
                       >
                         <PenTool size={14} />
@@ -2028,8 +2233,8 @@ const EditProductPage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label 
-                        htmlFor="terms_condition" 
+                      <Label
+                        htmlFor="terms_condition"
                         className="text-slate-700 dark:text-slate-300 flex items-center gap-1"
                       >
                         <PenTool size={14} />
@@ -2074,10 +2279,10 @@ const EditProductPage = () => {
                             HSN Code
                           </FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="HSN code" 
+                            <Input
+                              placeholder="HSN code"
                               className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -2133,138 +2338,6 @@ const EditProductPage = () => {
                       )}
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="free_shipping"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                            <Truck size={14} />
-                            Free Shipping
-                          </FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
-                                <SelectValue placeholder="Select option" />
-                              </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
-                                <SelectItem value="yes">Yes</SelectItem>
-                                <SelectItem value="no">No</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="cod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                            <ShoppingCart size={14} />
-                            Cash on Delivery
-                          </FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
-                                <SelectValue placeholder="Select option" />
-                              </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
-                                <SelectItem value="yes">Yes</SelectItem>
-                                <SelectItem value="no">No</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
-
-                  <div className="space-y-4">
-                    <h3 className="text-base font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                      <Tag size={14} className="text-blue-500 dark:text-blue-400" />
-                      SEO Information
-                    </h3>
-                    <div className="grid grid-cols-1 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="meta_title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Title</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="SEO title" 
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Shown in search engine results (defaults to
-                              product title if empty)
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="meta_keywords"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Keywords</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="keyword1, keyword2, keyword3"
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Comma-separated keywords for SEO
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="meta_description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-slate-300">Meta Description</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Brief description for search engines..."
-                                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 min-h-24"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription className="text-slate-500 dark:text-slate-400">
-                              Short description shown in search results
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
                 </CardContent>
                 <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
                   <div className="flex gap-3">
@@ -2290,7 +2363,7 @@ const EditProductPage = () => {
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button 
+                      <Button
                         type="button"
                         className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                       >
@@ -2324,7 +2397,7 @@ const EditProductPage = () => {
                             </>
                           ) : (
                             <>
-                              <Save size={16} className="mr-1" /> 
+                              <Save size={16} className="mr-1" />
                               Update Product
                             </>
                           )}
@@ -2388,4 +2461,4 @@ const EditProductPage = () => {
   );
 };
 
-export default EditProductPage
+export default EditProductPage;

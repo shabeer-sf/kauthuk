@@ -27,7 +27,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 // Import the getProducts and getCategory server actions (you'll need to create these)
-import { getCategory } from "@/actions/category";
+import { getCategories2 } from "@/actions/category";
 import { getProducts } from "@/actions/product";
 import { useCart } from "@/providers/CartProvider";
 
@@ -236,7 +236,7 @@ const CategoryProductSlider = ({
 
         // Fetch category data
         if (categoryId) {
-          const categoryResponse = await getCategory(categoryId);
+          const categoryResponse = await getCategories2(categoryId);
           if (categoryResponse && categoryResponse.success) {
             setCategory(categoryResponse.category);
 
