@@ -44,10 +44,9 @@ import {
 import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { Controller, useForm } from "react-hook-form";
-import "react-day-picker/style.css";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
+import "react-day-picker/style.css";
 const AddBlogPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const {

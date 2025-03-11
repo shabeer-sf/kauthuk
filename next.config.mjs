@@ -7,17 +7,24 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: [
-      'images.pexels.com', // Pexels image domain
-      'greenglow.in'       // Added greenglow domain for images
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'greenglow.in',
+        pathname: '**',
+      },
     ],
   },
-  experimental:{
-    serverActions:{
+  experimental: {
+    serverActions: {
       bodySizeLimit: '100mb',
     }
   }
-  
 };
 
 export default nextConfig;
