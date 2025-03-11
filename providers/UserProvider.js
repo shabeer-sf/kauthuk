@@ -247,13 +247,7 @@ export const UserAuthProvider = ({ children }) => {
         clearError
       }}
     >
-      {shouldShowLoading ? (
-        <div className="h-screen w-screen flex justify-center items-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </UserAuthContext.Provider>
   );
 };
