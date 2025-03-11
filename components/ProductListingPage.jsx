@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback,Suspense  } from 'react';
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useRouter } from 'next/navigation';
+import {  useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, 
@@ -637,37 +637,84 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
   );
 };
 
+function SearchParamsHandler({ onParamsChange }) {
+  const { useSearchParams } = require("next/navigation");
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    if (!searchParams) return;
+    
+    const query = searchParams.get('q') || '';
+    const categoryParam = searchParams.get('category') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const sortParam = searchParams.get('sort') || 'latest';
+    
+    onParamsChange({
+      query,
+      categoryParam,
+      page,
+      sortParam
+    });
+  }, [searchParams, onParamsChange]);
+  
+  return null;
+}
 // Main product listing component
 const ProductListingPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const query = searchParams?.get('q') || '';
-  const categoryParam = searchParams?.get('category') || '';
-  const page = parseInt(searchParams?.get('page') || '1', 10);
-  const sortParam = searchParams?.get('sort') || 'latest';
+ 
   
   // State variables
+ 
+  const [urlParams, setUrlParams] = useState({
+    query: '',
+    categoryParam: '',
+    page: 1,
+    sortParam: 'latest'
+  });
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [layout, setLayout] = useState("grid"); // grid or list
-  const [sortOption, setSortOption] = useState(sortParam);
+  const [sortOption, setSortOption] = useState(urlParams.sortParam);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(page);
-  const [searchQuery, setSearchQuery] = useState(query);
-  
+  const [currentPage, setCurrentPage] = useState(urlParams.page);
+  const [searchQuery, setSearchQuery] = useState(urlParams.query);
+
   // Filter state
-  const [filters, setFilters] = useState({
+ const [filters, setFilters] = useState({
     priceRange: [0, 50000],
-    categories: categoryParam ? [categoryParam] : [],
+    categories: urlParams.categoryParam ? [urlParams.categoryParam] : [],
     availability: "all",
   });
   
   const [filteredProducts, setFilteredProducts] = useState([]);
   
+  const handleUrlParamsChange = useCallback((params) => {
+    setUrlParams(params);
+    setSearchQuery(params.query);
+    setSortOption(params.sortParam);
+    setCurrentPage(params.page);
+    
+    // Update categories filter when category param changes
+    if (params.categoryParam && (!filters.categories.includes(params.categoryParam))) {
+      setFilters(prev => ({
+        ...prev,
+        categories: params.categoryParam ? [params.categoryParam] : prev.categories
+      }));
+    }
+  }, [filters.categories]);
+
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      categories: urlParams.categoryParam ? [urlParams.categoryParam] : prev.categories
+    }));
+  }, [urlParams.categoryParam]);
+
   // Function to update URL with search parameters
   const updateURLParams = useCallback((newParams) => {
     if (typeof window === 'undefined') return;
@@ -720,20 +767,19 @@ const ProductListingPage = () => {
     
     fetchCategories();
   }, []);
-  
   // Update sort option and URL when sort changes
   useEffect(() => {
-    if (sortOption !== sortParam) {
+    if (sortOption !== urlParams.sortParam) {
       updateURLParams({ sort: sortOption });
     }
-  }, [sortOption, sortParam, updateURLParams]);
+  }, [sortOption, urlParams.sortParam, updateURLParams]);
 
   // Update page number in URL when current page changes
   useEffect(() => {
-    if (currentPage !== page) {
+    if (currentPage !== urlParams.page) {
       updateURLParams({ page: currentPage });
     }
-  }, [currentPage, page, updateURLParams]);
+  }, [currentPage, urlParams.page, updateURLParams]);
   
   // Fetch products with search, category, pagination, and sorting
   useEffect(() => {
@@ -745,9 +791,9 @@ const ProductListingPage = () => {
         const params = {
           page: currentPage,
           limit: 9, // Products per page
-          category: categoryParam || '',
+          category: urlParams.categoryParam || '',
           sort: sortOption,
-          search: query || ''
+          search: urlParams.query || ''
         };
         
         const response = await getProducts(params);
@@ -772,7 +818,7 @@ const ProductListingPage = () => {
     };
 
     fetchProducts();
-  }, [query, categoryParam, sortOption, currentPage]);
+  }, [urlParams.query, urlParams.categoryParam, sortOption, currentPage, filters]);
   
   // Apply filters to products
   const applyFilters = useCallback((productsToFilter, currentFilters) => {
@@ -868,7 +914,6 @@ const ProductListingPage = () => {
     e.preventDefault();
     updateURLParams({ q: searchQuery, page: 1 });
   };
-  
   // Handle clearing search
   const handleClearSearch = () => {
     setSearchQuery('');
@@ -888,10 +933,11 @@ const ProductListingPage = () => {
   
   // Generate page title based on search or category
   const getPageTitle = () => {
-    if (query) return `Search Results for "${query}"`;
-    if (categoryParam) return categoryParam;
+    if (urlParams.query) return `Search Results for "${urlParams.query}"`;
+    if (urlParams.categoryParam) return urlParams.categoryParam;
     return "All Products";
   };
+  
   
   // Create pagination array
   const getPaginationArray = () => {
@@ -925,8 +971,12 @@ const ProductListingPage = () => {
     ];
   };
 
+
   return (
     <div className="bg-gray-50 min-h-screen">
+      <Suspense fallback={null}>
+        <SearchParamsHandler onParamsChange={handleUrlParamsChange} />
+      </Suspense>
       {/* Search and page header */}
       <div className="bg-gradient-to-b from-white to-gray-50 py-8 border-b border-gray-200">
         <div className="container mx-auto px-4">

@@ -1,20 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { useUserAuth } from "@/providers/UserProvider";
 
+// Separate component that uses useSearchParams
+function RedirectHandler({ onRedirectPathChange }) {
+  const { useSearchParams } = require("next/navigation");
+  const searchParams = useSearchParams();
+  
+  // Get the redirect URL from query params if it exists
+  const redirectPath = searchParams.get("redirect") || "/my-account";
+  
+  // Call the callback to pass the redirect path up to the parent
+  if (onRedirectPathChange) {
+    onRedirectPathChange(redirectPath);
+  }
+  
+  return null;
+}
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirectPath, setRedirectPath] = useState("/my-account"); // Default redirect path
   const { login, clearError } = useUserAuth();
 
-  const searchParams = useSearchParams();
-
-  // Get the redirect URL from query params if it exists
-  const redirectPath = searchParams.get("redirect") || "/my-account";
+  // Handler for redirect path changes
+  const handleRedirectPathChange = (path) => {
+    setRedirectPath(path);
+  };
 
   const handleSubmit = async (formData) => {
     try {
@@ -36,9 +52,8 @@ export default function LoginPage() {
       formDataObj.append("password", password);
       formDataObj.append("remember", remember);
 
-      // Call the login function from auth context
-      // The redirect is handled inside the login function using redirectPath
-      const result = await login(formDataObj);
+      // Pass the redirectPath to the login function
+      const result = await login(formDataObj, redirectPath);
 
       if (!result.success) {
         setError(result.error || "Failed to sign in. Please check your credentials.");
@@ -55,6 +70,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Wrap the search params handler with Suspense */}
+      <Suspense fallback={null}>
+        <RedirectHandler onRedirectPathChange={handleRedirectPathChange} />
+      </Suspense>
+      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Sign in to your account
