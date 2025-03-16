@@ -5,9 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination, EffectCards, EffectCoverflow } from "swiper/modules";
-import { ChevronRight, ShoppingCart,  Star, Eye, Loader2, ArrowLeft, ArrowRight, TrendingUp, Clock, Award, Flame } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Star, Eye, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Import styles
@@ -62,10 +61,6 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
   
   // Select a color variant based on the index
   const colorVariant = colorVariants[index % colorVariants.length];
-  
-
-  
-  
 
   return (
     <motion.div 
@@ -83,7 +78,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           {images && images.length > 0 ? (
             <Image
               src={imageUrl}
-              alt={title}
+              alt={title || "Product"}
               fill
               placeholder="blur"
               blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
@@ -94,12 +89,9 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${colorVariant} flex items-center justify-center p-6 text-white`}>
-              <h3 className="text-xl font-bold text-center">{title}</h3>
+              <h3 className="text-xl font-bold text-center">{title || "Product"}</h3>
             </div>
           )}
-          
-         
-        
           
           {/* Action buttons overlay */}
           <div 
@@ -117,8 +109,6 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
                 <Eye className="w-5 h-5" />
               </motion.button>
             </Link>
-            
-            
           </div>
         </div>
         
@@ -131,7 +121,7 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           </div>
           
           <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
-            {title}
+            {title || "Product"}
           </h3>
           
           <p className="text-sm text-gray-500 mb-3">
@@ -140,9 +130,8 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
           
           <div className="flex items-baseline gap-2">
             <p className="text-xl font-bold text-indigo-600">
-              ₹{parseFloat(price_rupees).toLocaleString()}
+              ₹{parseFloat(price_rupees || 0).toLocaleString()}
             </p>
-           
           </div>
           
           <Link href={`/product/${id}`} className="mt-4 block">
@@ -161,7 +150,15 @@ const ProductCard = ({ id, title, price_rupees, weight, images, index }) => {
   );
 };
 
-const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLink = "/products", displayType = "grid" }) => {
+const ProductSlider = ({ 
+  category, 
+  subcategory,
+  limit = 8, 
+  title = "Our Products", 
+  subtitle = "Discover our curated selection of high-quality products, designed for comfort and style.",
+  viewAllLink = "/products", 
+  displayType = "grid" 
+}) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -175,11 +172,22 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await getProducts({
+        
+        const params = {
           limit,
-          category: category || '',
           sort: 'latest'
-        });
+        };
+        
+        // Only add category or subcategory if they are defined
+        if (category) {
+          params.category = category;
+        }
+        
+        if (subcategory) {
+          params.subcategory = subcategory;
+        }
+        
+        const response = await getProducts(params);
         
         if (response && response.products) {
           setProducts(response.products);
@@ -197,7 +205,7 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
     // Activate header animation after component mounts
     const timer = setTimeout(() => setIsHeaderVisible(true), 100);
     return () => clearTimeout(timer);
-  }, [category, limit]);
+  }, [category, subcategory, limit]);
 
   // Choose Swiper effect based on displayType
   let swiperEffect = {};
@@ -209,13 +217,16 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
       swiperSlideClass = "!w-72";
       break;
     case "coverflow":
-      swiperEffect = { effect: "coverflow", coverflowEffect: {
-        rotate: 50,
-        stretch: 0,
-        depth: 100,
-        modifier: 1,
-        slideShadows: true,
-      }};
+      swiperEffect = { 
+        effect: "coverflow", 
+        coverflowEffect: {
+          rotate: 50,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: true,
+        }
+      };
       break;
     default:
       swiperEffect = {}; // Standard grid/slider
@@ -223,32 +234,75 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
 
   if (loading) {
     return (
-      <div className="w-full min-h-[400px] flex flex-col justify-center items-center gap-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-        <p className="text-gray-500 animate-pulse">Loading amazing products...</p>
-      </div>
+      <section className="w-full py-16 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto relative">
+          <div className="mb-10 space-y-2">
+            <div className="h-10 w-64 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-5 w-96 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          
+          <div className="w-full min-h-[300px] flex flex-col justify-center items-center gap-3 bg-gray-50 rounded-2xl">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+            <p className="text-gray-500 animate-pulse">Loading amazing products...</p>
+          </div>
+        </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full min-h-[300px] flex justify-center items-center bg-red-50 rounded-2xl">
-        <div className="text-center p-6">
-          <p className="text-red-500 font-medium text-lg mb-2">Oops! Something went wrong</p>
-          <p className="text-gray-600">{error}</p>
+      <section className="w-full py-16 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div 
+            className="mb-10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-3 relative inline-block">
+              {title}
+              <span className="absolute bottom-1 left-0 w-full h-3 bg-indigo-100 -z-10 transform -rotate-1"></span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl">{subtitle}</p>
+          </motion.div>
+          
+          <div className="w-full min-h-[300px] flex justify-center items-center bg-red-50 rounded-2xl">
+            <div className="text-center p-6">
+              <p className="text-red-500 font-medium text-lg mb-2">Oops! Something went wrong</p>
+              <p className="text-gray-600">{error}</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (products.length === 0) {
     return (
-      <div className="w-full min-h-[300px] flex justify-center items-center bg-gray-50 rounded-2xl">
-        <div className="text-center p-6">
-          <p className="text-gray-500 font-medium text-lg mb-2">No products available</p>
-          <p className="text-gray-400">Check back soon for new arrivals in this category!</p>
+      <section className="w-full py-16 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div 
+            className="mb-10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-3 relative inline-block">
+              {title}
+              <span className="absolute bottom-1 left-0 w-full h-3 bg-indigo-100 -z-10 transform -rotate-1"></span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl">{subtitle}</p>
+          </motion.div>
+          
+          <div className="w-full min-h-[300px] flex justify-center items-center bg-gray-50 rounded-2xl">
+            <div className="text-center p-6">
+              <p className="text-gray-500 font-medium text-lg mb-2">No products available</p>
+              <p className="text-gray-400">Check back soon for new arrivals in this category!</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -265,24 +319,22 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
             {title}
             <span className="absolute bottom-1 left-0 w-full h-3 bg-indigo-100 -z-10 transform -rotate-1"></span>
           </h2>
-          <p className="text-gray-600 max-w-2xl">
-            Discover our curated selection of high-quality products, designed for comfort and style.
-          </p>
+          <p className="text-gray-600 max-w-2xl">{subtitle}</p>
         </motion.div>
 
         <div className="flex justify-between items-center mb-8">
-         
-          
           <div className="flex items-center gap-4 w-full justify-between">
             <div className="hidden md:flex gap-2">
               <button 
                 ref={prevRef}
+                aria-label="Previous slide"
                 className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <button 
                 ref={nextRef}
+                aria-label="Next slide"
                 className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors"
               >
                 <ArrowRight className="w-5 h-5" />
@@ -312,10 +364,10 @@ const ProductSlider = ({ category, limit = 6, title = "Our Products", viewAllLin
             dynamicBullets: true
           }}
           autoplay={{
-            delay: 4000,
+            delay: 5000,
             disableOnInteraction: false,
           }}
-          loop={true}
+          loop={products.length > 4}
           {...swiperEffect}
           breakpoints={{
             640: {

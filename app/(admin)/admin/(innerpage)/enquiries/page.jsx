@@ -199,19 +199,19 @@ const ListEnquiriesPage = () => {
   const renderSkeletons = () => {
     return Array(5).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -223,7 +223,7 @@ const ListEnquiriesPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse">
         <CardHeader className="p-4">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4 mb-2"></div>
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-1/2 mb-2"></div>
@@ -336,7 +336,7 @@ const ListEnquiriesPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2">
@@ -358,7 +358,7 @@ const ListEnquiriesPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="latest">Latest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                   </SelectContent>
@@ -380,11 +380,11 @@ const ListEnquiriesPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Name</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Email</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Phone</th>
@@ -398,13 +398,13 @@ const ListEnquiriesPage = () => {
                 ) : enquiries.length > 0 ? (
                   enquiries.map((enquiry) => (
                     <tr key={enquiry.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="font-medium text-slate-700 dark:text-slate-300">
                           {enquiry.name}
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <a 
                           href={`mailto:${enquiry.email}`}
                           className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -413,7 +413,7 @@ const ListEnquiriesPage = () => {
                         </a>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         {enquiry.phone ? (
                           <a 
                             href={`tel:${enquiry.phone}`}
@@ -426,11 +426,11 @@ const ListEnquiriesPage = () => {
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         {renderTimestamp(enquiry.createdAt)}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => openEnquiryDetails(enquiry)}
@@ -488,7 +488,7 @@ const ListEnquiriesPage = () => {
             enquiries.map((enquiry) => (
               <Card 
                 key={enquiry.id} 
-                className="overflow-hidden border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
+                className="overflow-hidden border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
               >
                 <CardHeader className="p-4 pb-2">
                   <div className="flex justify-between items-start mb-1">
@@ -547,7 +547,7 @@ const ListEnquiriesPage = () => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <MessageSquare size={40} className="text-blue-300 dark:text-blue-700" />
               </div>

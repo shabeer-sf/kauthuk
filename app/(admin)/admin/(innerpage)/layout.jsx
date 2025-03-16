@@ -1,7 +1,6 @@
 import { Roboto } from "next/font/google";
 import Sidebar from "./_components/Sidebar";
 import Header from "./_components/Header";
-import { AuthProvider } from "@/providers/AuthProvier";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Toaster } from "sonner";
 
@@ -18,7 +17,6 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <AuthProvider>
       <ThemeProvider defaultTheme="light" storageKey="kauthuk-theme">
         <div className={`${roboto.variable} font-sans antialiased min-h-screen bg-background`}>
           <div className="flex h-screen">
@@ -36,6 +34,5 @@ export default function AdminLayout({ children }) {
           <Toaster richColors />
         </div>
       </ThemeProvider>
-    </AuthProvider>
   );
 }

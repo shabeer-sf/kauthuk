@@ -102,6 +102,8 @@ const Header = () => {
     toggleCurrency,
     formatPrice,
     removeFromCart,
+    updateQuantity,
+    clearCart,
   } = useCart();
   const pathname = usePathname();
 
@@ -194,7 +196,7 @@ const Header = () => {
     <header className="w-full bg-white sticky top-0 z-40">
       {/* Announcement Bar with Gradient Background */}
       <div className="w-full bg-gradient-to-r from-green-50 via-green-100 to-green-50 py-2 px-4">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="mx-auto w-full">
           <Marquee
             className="w-full text-sm font-medium text-green-800"
             speed={40}
@@ -218,7 +220,7 @@ const Header = () => {
           isScrolled ? "py-2 shadow-sm" : "py-3"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+        <div className="mx-auto px-4 flex items-center justify-between">
           {/* Mobile Menu Trigger */}
           <div className="lg:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -677,7 +679,7 @@ const Header = () => {
                         </Button>
                       </Link>
                       <Link href="/register">
-                        <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
+                        <Button className="w-full justify-start bg-green-600 hover:bg-green-700 mt-3">
                           Register
                         </Button>
                       </Link>
@@ -687,9 +689,32 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Cart */}
-            {/* Cart */}
-            <Sheet>
+            {/* Go to Cart Button - visible on desktop */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="/cart">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="hidden md:flex items-center gap-1 border-green-200 text-green-700 hover:bg-green-50"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      <span className="hidden lg:inline">Cart</span>
+                      <Badge className="ml-1 bg-green-600 hover:bg-green-600 text-white">
+                        {itemCount}
+                      </Badge>
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  View Cart • {formatPrice(totals.current)}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Cart Sheet Trigger */}
+            {/* <Sheet>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -867,7 +892,7 @@ const Header = () => {
                   </div>
                 )}
               </SheetContent>
-            </Sheet>
+            </Sheet> */}
           </div>
         </div>
       </div>

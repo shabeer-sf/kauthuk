@@ -579,7 +579,7 @@ export default function AddProductPage() {
       </Button>
 
       {/* Form completion progress */}
-      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+      <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between mb-2">
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Form Completion</span>
@@ -621,7 +621,7 @@ export default function AddProductPage() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
+            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-gray-400 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
               <TabsTrigger 
                 value="basic" 
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
@@ -657,7 +657,7 @@ export default function AddProductPage() {
 
             {/* Basic Info Tab */}
             <TabsContent value="basic" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Type size={18} />
@@ -707,7 +707,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="active">Active</SelectItem>
                                 <SelectItem value="inactive">Inactive</SelectItem>
                               </SelectContent>
@@ -737,7 +737,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 {categories.map((category) => (
                                   <SelectItem
                                     key={category.id}
@@ -774,7 +774,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select subcategory" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 {subcategories.map((subcategory) => (
                                   <SelectItem
                                     key={subcategory.id}
@@ -942,7 +942,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">In Stock</SelectItem>
                                 <SelectItem value="no">Out of Stock</SelectItem>
                               </SelectContent>
@@ -997,7 +997,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1025,7 +1025,7 @@ export default function AddProductPage() {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1135,7 +1135,7 @@ export default function AddProductPage() {
                     )}
                   />
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button 
                     variant="outline" 
                     onClick={() => router.back()}
@@ -1156,7 +1156,7 @@ export default function AddProductPage() {
 
             {/* Images Tab */}
             <TabsContent value="images" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <ImageIcon size={18} />
@@ -1214,7 +1214,7 @@ export default function AddProductPage() {
                             <img
                               src={preview.url}
                               alt={`Preview ${index + 1}`}
-                              className="object-cover w-full h-40 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
+                              className="object-cover w-full h-40 rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm"
                             />
                             <Button
                               type="button"
@@ -1236,7 +1236,7 @@ export default function AddProductPage() {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -1258,7 +1258,7 @@ export default function AddProductPage() {
 
             {/* Attributes Tab */}
             <TabsContent value="attributes" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Tag size={18} />
@@ -1443,7 +1443,7 @@ export default function AddProductPage() {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -1467,7 +1467,7 @@ export default function AddProductPage() {
 
             {/* Variants Tab */}
             <TabsContent value="variants" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Layers size={18} />
@@ -1642,7 +1642,7 @@ export default function AddProductPage() {
                                 <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectContent className="border-gray-400 dark:border-blue-900">
                                   <SelectItem value="yes">In Stock</SelectItem>
                                   <SelectItem value="no">
                                     Out of Stock
@@ -1720,7 +1720,7 @@ export default function AddProductPage() {
                                             placeholder={`Select ${attr.attribute.display_name}`}
                                           />
                                         </SelectTrigger>
-                                        <SelectContent className="border-blue-100 dark:border-blue-900">
+                                        <SelectContent className="border-gray-400 dark:border-blue-900">
                                           {attr.attribute.AttributeValues.filter(
                                             (val) =>
                                               attr.values.some(
@@ -1793,7 +1793,7 @@ export default function AddProductPage() {
                                           alt={`Variant ${index + 1} Preview ${
                                             imgIndex + 1
                                           }`}
-                                          className="object-cover w-full h-32 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
+                                          className="object-cover w-full h-32 rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm"
                                         />
                                         <Button
                                           type="button"
@@ -1837,7 +1837,7 @@ export default function AddProductPage() {
                     Add Another Variant
                   </Button>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -1859,7 +1859,7 @@ export default function AddProductPage() {
 
             {/* Advanced Tab */}
             <TabsContent value="advanced" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Settings size={18} />
@@ -2013,7 +2013,7 @@ export default function AddProductPage() {
 
                   
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"

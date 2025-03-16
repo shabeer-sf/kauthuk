@@ -37,7 +37,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { useAuth } from "@/providers/AuthProvier";
+import { useAuth } from "@/providers/AuthProvider";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -71,7 +71,7 @@ const Header = () => {
                 <Menu size={20} />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72 border-r border-blue-100 dark:border-blue-900">
+            <SheetContent side="left" className="p-0 w-72 border-r border-gray-400 dark:border-blue-900">
               <Sidebar />
             </SheetContent>
           </Sheet>
@@ -146,7 +146,7 @@ const Header = () => {
                 <ChevronDown size={14} className="ml-1 text-slate-400" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 border border-blue-100 dark:border-blue-900">
+            <DropdownMenuContent align="end" className="w-56 border border-gray-400 dark:border-blue-900">
               <DropdownMenuLabel className="text-blue-600 dark:text-blue-400">My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-blue-100 dark:bg-blue-900" />
               <DropdownMenuGroup>

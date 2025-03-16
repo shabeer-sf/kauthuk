@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/providers/CartProvider';
@@ -10,14 +10,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
@@ -51,14 +43,11 @@ import {
   ArrowRight, 
   CreditCard, 
   Lock, 
-  Tag, 
-  RefreshCcw,
   Info,
   DollarSign,
   IndianRupee,
   Shield,
   Truck,
-  CircleX,
   ShoppingCart,
   ChevronLeft,
   Layers,
@@ -78,92 +67,15 @@ const ProductCart = () => {
     clearCart 
   } = useCart();
   
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  
-  // Sample function to apply coupon - would connect to backend in real implementation
-  const applyCoupon = () => {
-    if (!couponCode.trim()) {
-      toast.error("Please enter a coupon code");
-      return;
-    }
-    
-    setIsApplyingCoupon(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (couponCode.toUpperCase() === 'SAVE10') {
-        setAppliedCoupon({
-          code: 'SAVE10',
-          discount: 10,
-          type: 'percentage'
-        });
-        toast.success("Coupon applied successfully!");
-      } else if (couponCode.toUpperCase() === 'FREE100') {
-        setAppliedCoupon({
-          code: 'FREE100',
-          discount: 100,
-          type: 'fixed',
-          minSpend: 500
-        });
-        toast.success("Coupon applied successfully!");
-      } else {
-        toast.error("Invalid coupon code");
-      }
-      
-      setIsApplyingCoupon(false);
-    }, 800);
-  };
-  
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode('');
-    toast.info("Coupon removed");
-  };
-  
   // Calculate subtotal
   const subtotal = totals[currency];
   
-  // Calculate discount if coupon is applied
-  const calculateDiscount = () => {
-    if (!appliedCoupon) return 0;
-    
-    if (appliedCoupon.type === 'percentage') {
-      return subtotal * (appliedCoupon.discount / 100);
-    } else {
-      // Fixed amount discount
-      return appliedCoupon.discount;
-    }
-  };
-  
-  const discount = calculateDiscount();
-  
   // Calculate tax (assumed 10%)
   const taxRate = 0.10;
-  const tax = (subtotal - discount) * taxRate;
+  const tax = subtotal * taxRate;
   
   // Calculate total
-  const total = subtotal - discount + tax;
-  
-  // Check if coupon minimum spend requirement is met
-  const isCouponMinimumMet = !appliedCoupon?.minSpend || subtotal >= appliedCoupon.minSpend;
-  
-  // Current date
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  
-  // Estimated delivery date (7 days from now)
-  const deliveryDate = new Date();
-  deliveryDate.setDate(deliveryDate.getDate() + 7);
-  const estimatedDelivery = deliveryDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const total = subtotal + tax;
 
   if (cart.length === 0) {
     return (
@@ -381,78 +293,12 @@ const ProductCart = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                  <p>Order date: {currentDate}</p>
-                  <p className="mt-1">Estimated delivery: {estimatedDelivery}</p>
-                </div>
-                
-                {/* Coupon Code Section */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Coupon Code</p>
-                  <div className="flex space-x-2">
-                    <Input 
-                      placeholder="Enter coupon code" 
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      disabled={!!appliedCoupon}
-                      className="h-9"
-                    />
-                    {appliedCoupon ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="shrink-0 h-9"
-                        onClick={removeCoupon}
-                      >
-                        <CircleX className="h-4 w-4 mr-1" />
-                        Remove
-                      </Button>
-                    ) : (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="shrink-0 h-9"
-                        onClick={applyCoupon}
-                        disabled={isApplyingCoupon}
-                      >
-                        {isApplyingCoupon ? (
-                          <RefreshCcw className="h-4 w-4 mr-1 animate-spin" />
-                        ) : (
-                          <Tag className="h-4 w-4 mr-1" />
-                        )}
-                        Apply
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {appliedCoupon && !isCouponMinimumMet && (
-                    <div className="text-xs text-amber-600 flex items-start gap-1">
-                      <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                      <span>
-                        Spend {formatPrice(appliedCoupon.minSpend - subtotal)} more to use this coupon
-                      </span>
-                    </div>
-                  )}
-                </div>
-                
                 {/* Price Breakdown */}
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
-                  
-                  {appliedCoupon && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600 flex items-center">
-                        <Tag className="h-4 w-4 mr-1" />
-                        Discount ({appliedCoupon.code})
-                      </span>
-                      <span className="text-green-600">
-                        -{formatPrice(isCouponMinimumMet ? discount : 0)}
-                      </span>
-                    </div>
-                  )}
                   
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
@@ -467,7 +313,7 @@ const ProductCart = () => {
                           <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>10% tax applied to the discounted total</p>
+                          <p>10% tax applied to the subtotal</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>

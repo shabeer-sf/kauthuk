@@ -148,13 +148,13 @@ const ListSlidersPage = () => {
   const renderSkeletons = () => {
     return Array(5).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -166,7 +166,7 @@ const ListSlidersPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse">
         <CardHeader className="p-4">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4 mb-2"></div>
         </CardHeader>
@@ -282,7 +282,7 @@ const ListSlidersPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2">
@@ -304,7 +304,7 @@ const ListSlidersPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="latest">Latest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                   </SelectContent>
@@ -326,11 +326,11 @@ const ListSlidersPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Title</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Image</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Actions</th>
@@ -342,13 +342,13 @@ const ListSlidersPage = () => {
                 ) : sliders.length > 0 ? (
                   sliders.map((item) => (
                     <tr key={item.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="font-medium text-slate-700 dark:text-slate-300">{item.title}</div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         {item.image ? (
-                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-gray-400 dark:border-blue-900/30 shadow-sm">
                             <Image
                               src={`https://greenglow.in/kauthuk_test/${item.image}`}
                               fill
@@ -357,13 +357,13 @@ const ListSlidersPage = () => {
                             />
                           </div>
                         ) : (
-                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-blue-100 dark:border-blue-900/30">
+                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-gray-400 dark:border-blue-900/30">
                             <ImageIcon size={24} className="text-blue-300 dark:text-blue-700" />
                           </div>
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => router.push(`/admin/slider/edit-slider/${item.id}`)}
@@ -427,7 +427,7 @@ const ListSlidersPage = () => {
             sliders.map((item) => (
               <Card 
                 key={item.id} 
-                className="overflow-hidden border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
+                className="overflow-hidden border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
               >
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-200">
@@ -437,7 +437,7 @@ const ListSlidersPage = () => {
                 
                 <CardContent className="p-4">
                   {item.image ? (
-                    <div className="relative h-40 w-full rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900/30">
+                    <div className="relative h-40 w-full rounded-lg overflow-hidden border border-gray-400 dark:border-blue-900/30">
                       <Image
                         src={`https://greenglow.in/kauthuk_test/${item.image}`}
                         fill
@@ -446,7 +446,7 @@ const ListSlidersPage = () => {
                       />
                     </div>
                   ) : (
-                    <div className="h-40 w-full bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
+                    <div className="h-40 w-full bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center border border-gray-400 dark:border-blue-900/30">
                       <ImageIcon size={36} className="text-blue-300 dark:text-blue-700" />
                     </div>
                   )}
@@ -481,7 +481,7 @@ const ListSlidersPage = () => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <ImageIcon size={40} className="text-blue-300 dark:text-blue-700" />
               </div>

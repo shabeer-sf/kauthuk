@@ -46,7 +46,6 @@ const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   location: z.string().min(2, "Location is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  image: z.any().optional(),
   rating: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 1 && parseInt(val) <= 5, {
     message: "Rating must be between 1 and 5",
   }),
@@ -54,7 +53,6 @@ const testimonialSchema = z.object({
 });
 
 const AddTestimonialPage = () => {
-  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   
@@ -71,25 +69,13 @@ const AddTestimonialPage = () => {
       name: "",
       location: "",
       description: "",
-      image: null,
       rating: "5",
       status: true,
     },
     mode: "onChange",
   });
 
-  // Image preview
-  const watchImage = watch("image");
-  useEffect(() => {
-    if (watchImage && watchImage[0]) {
-      const file = watchImage[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, [watchImage]);
+ 
 
   const onSubmit = async (data) => {
     try {
@@ -107,8 +93,7 @@ const AddTestimonialPage = () => {
       if (result) {
         toast.success("Testimonial created successfully");
         reset();
-        setImagePreview(null);
-        router.push("/admin/testimonials/list-testimonial");
+        router.push("/admin/testimonials/list-testimonials");
       } else {
         toast.error("Failed to create testimonial");
       }
@@ -153,7 +138,7 @@ const AddTestimonialPage = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin/testimonials/list-testimonial" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+              <BreadcrumbLink href="/admin/testimonials/list-testimonials" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
                 Testimonials
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -170,14 +155,14 @@ const AddTestimonialPage = () => {
         variant="outline"
         size="sm"
         className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-        onClick={() => router.push("/admin/testimonials/list-testimonial")}
+        onClick={() => router.push("/admin/testimonials/list-testimonials")}
       >
         <ArrowLeft size={16} className="mr-1" />
         Back to Testimonials
       </Button>
 
       {/* Main form card */}
-      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+      <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <MessageSquare size={18} />
@@ -225,46 +210,7 @@ const AddTestimonialPage = () => {
               </div>
             </div>
 
-            {/* Customer Photo */}
-            <div className="space-y-2">
-              <Label htmlFor="image" className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                <Upload size={14} />
-                Customer Photo (Optional)
-              </Label>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg p-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/png, image/jpeg"
-                      {...register("image")}
-                      className="border-0 p-0"
-                    />
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                      Supported formats: JPG, PNG. Maximum size: 2MB.
-                    </p>
-                  </div>
-                  {errors.image && (
-                    <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>
-                  )}
-                </div>
-                
-                {/* Image preview */}
-                <div className="w-full md:w-1/3">
-                  <div className="border border-blue-200 dark:border-blue-900/50 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 aspect-square">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center text-slate-400 dark:text-slate-600">
-                        <User size={40} className="mb-2" />
-                        <span className="text-xs">Photo preview</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            
 
             {/* Testimonial Text */}
             <div className="space-y-2">
@@ -360,7 +306,6 @@ const AddTestimonialPage = () => {
                 variant="outline" 
                 onClick={() => {
                   reset();
-                  setImagePreview(null);
                 }} 
                 disabled={isSubmitting || !isDirty}
                 className="border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"

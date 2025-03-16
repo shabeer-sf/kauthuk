@@ -21,7 +21,9 @@ import {
   Activity,
   Box,
   Star,
-  Phone
+  Phone,
+  Menu as MenuIcon,
+  HomeIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -38,16 +40,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/providers/AuthProvier";
+import { useAuth } from "@/providers/AuthProvider";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { getMenuForSidebar } from "@/actions/menu";
 
-const menuData = [
+// Fallback menu data for initial render and error cases
+const fallbackMenuData = [
   {
     section: "Home",
     items: [
       {
         label: "Dashboard",
-        icon: <LayoutDashboard size={18} />,
+        icon: "LayoutDashboard",
         href: "/admin/dashboard",
       },
     ],
@@ -57,100 +62,41 @@ const menuData = [
     items: [
       {
         label: "Sliders",
-        icon: <Layers size={18} />,
+        icon: "Layers",
         subMenu: [
           { label: "View All", href: "/admin/slider/list-sliders" },
           { label: "Add New", href: "/admin/slider/add-slider" },
         ],
       },
-      {
-        label: "Blog Posts",
-        icon: <FileText size={18} />,
-        subMenu: [
-          { label: "All Posts", href: "/admin/blog/list-blogs" },
-          { label: "Create Post", href: "/admin/blog/add-blog" },
-        ],
-      },
-      {
-        label: "Testimonials",
-        icon: <Star size={18} />,
-        subMenu: [
-          { label: "All Testimonials", href: "/admin/testimonials/list-testimonials" },
-          { label: "Create Testimonial", href: "/admin/testimonials/add-testimonial" },
-        ],
-      },
-      {
-        label: "Enquiries",
-        icon: <Phone size={18} />,
-        href: "/admin/enquiries",
-      },
-      {
-        label: "Pages",
-        icon: <FileText size={18} />,
-        subMenu: [
-          { label: "All Pages", href: "/admin/site-content/list-site-content" },
-          { label: "Create Pages", href: "/admin/site-content/add-site-content" },
-        ],
-      },
-    ],
-  },
-  {
-    section: "Catalog",
-    items: [
-      {
-        label: "Categories",
-        icon: <Tag size={18} />,
-        href: "/admin/category",
-      },
-      {
-        label: "Subcategories",
-        icon: <PanelRight size={18} />,
-        href: "/admin/subcategory",
-      },
-      {
-        label: "Attributes",
-        icon: <Palette size={18} />,
-        subMenu: [
-          { label: "Attribute List", href: "/admin/attributes/list-attribute" },
-          { label: "Attribute Values", href: "/admin/attributes/list-attribute-value" },
-        ],
-      },
-      {
-        label: "Products",
-        icon: <Package size={18} />,
-        subMenu: [
-          { label: "All Products", href: "/admin/product/list-products" },
-          { label: "Create Products", href: "/admin/product/add-product" },
-        ],
-      },
-    ],
-  },
-  {
-    section: "Management",
-    items: [
-      {
-        label: "Orders",
-        icon: <ShoppingBag size={18} />,
-        href: "/admin/orders/list-orders",
-        // badge: "12",
-        badgeColor: "bg-green-500"
-      },
-      {
-        label: "Customers",
-        icon: <Users size={18} />,
-        href: "/admin/user/list-users",
-      },
-      {
-        label: "Administrators",
-        icon: <Users size={18} />,
-        href: "/admin/list-admin",
-      },
-      
     ],
   },
 ];
 
-const MenuIcon = ({ icon, isActive }) => (
+// Map icon names from database to Lucide component
+const iconMap = {
+  HomeIcon: <HomeIcon size={18} />,
+  LayoutDashboard: <LayoutDashboard size={18} />,
+  Layers: <Layers size={18} />,
+  FileText: <FileText size={18} />,
+  Tag: <Tag size={18} />,
+  PanelRight: <PanelRight size={18} />,
+  Palette: <Palette size={18} />,
+  Package: <Package size={18} />,
+  ShoppingBag: <ShoppingBag size={18} />,
+  Users: <Users size={18} />,
+  Settings: <Settings size={18} />,
+  Star: <Star size={18} />,
+  Phone: <Phone size={18} />,
+  Menu: <MenuIcon size={18} />,
+  Activity: <Activity size={18} />,
+};
+
+// Component to render the appropriate icon
+const getIconComponent = (iconName) => {
+  return iconMap[iconName] || <MenuIcon size={18} />;
+};
+
+const MenuIconWrapper = ({ icon, isActive }) => (
   <div
     className={cn(
       "flex items-center justify-center w-9 h-9 rounded-lg transition-colors",
@@ -159,10 +105,11 @@ const MenuIcon = ({ icon, isActive }) => (
         : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/40"
     )}
   >
-    {icon}
+    {typeof icon === "string" ? getIconComponent(icon) : icon}
   </div>
 );
 
+// MenuItem component with consistent spacing
 const MenuItem = ({
   item,
   isActive,
@@ -187,13 +134,15 @@ const MenuItem = ({
             <Button
               variant="ghost"
               className={cn(
-                "w-full justify-between p-2 group",
-                isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-300",
+                "w-full justify-between p-2 h-auto my-1 group", // Added consistent my-1 margin
+                isActive
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-slate-600 dark:text-slate-300",
                 isOpen && "bg-blue-50/50 dark:bg-blue-900/20"
               )}
             >
               <div className="flex items-center gap-3">
-                <MenuIcon icon={item.icon} isActive={isActive} />
+                <MenuIconWrapper icon={item.icon} isActive={isActive} />
                 {!isCollapsed && (
                   <span className="text-sm font-medium">{item.label}</span>
                 )}
@@ -209,14 +158,16 @@ const MenuItem = ({
               )}
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="pl-12 space-y-1 pt-1 pb-2">
+          <CollapsibleContent className="pl-12 pt-1 pb-1">
+            {" "}
+            {/* Adjusted padding */}
             {!isCollapsed &&
-              item.subMenu.map((sub) => (
+              item.subMenu.map((sub, index) => (
                 <Link
                   key={sub.label}
                   href={sub.href}
                   className={cn(
-                    "block py-1.5 px-3 rounded-md text-sm transition-colors",
+                    "block py-1.5 px-3 my-1 rounded-md text-sm transition-colors", // Added consistent my-1 margin
                     sub.href === pathname
                       ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/30"
                       : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20"
@@ -232,23 +183,28 @@ const MenuItem = ({
   }
 
   return (
-    <Link href={item.href || "#"} className="w-full" onClick={onClick}>
+    <Link href={item.href || "#"} className="w-full block" onClick={onClick}>
       <div
         className={cn(
-          "flex items-center justify-between p-2 rounded-lg group transition-colors",
+          "flex items-center justify-between p-2 my-1 rounded-lg group transition-colors", // Added consistent my-1 margin
           isActive
             ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
             : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20"
         )}
       >
         <div className="flex items-center gap-3">
-          <MenuIcon icon={item.icon} isActive={isActive} />
+          <MenuIconWrapper icon={item.icon} isActive={isActive} />
           {!isCollapsed && (
             <span className="text-sm font-medium">{item.label}</span>
           )}
         </div>
         {!isCollapsed && item.badge && (
-          <Badge className={cn("text-white text-xs", item.badgeColor || "bg-blue-500")}>
+          <Badge
+            className={cn(
+              "text-white text-xs",
+              item.badgeColor || "bg-blue-500"
+            )}
+          >
             {item.badge}
           </Badge>
         )}
@@ -265,16 +221,73 @@ const Sidebar = ({ className }) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { logout, admin } = useAuth();
   const router = useRouter();
+  const [menuData, setMenuData] = useState(fallbackMenuData);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch menu data from server
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        setLoading(true);
+        const response = await getMenuForSidebar();
+  
+        if (response.success && response.data) {
+          let updatedData = [...response.data];
+          
+          // Only add the Menu item if the user is an admin
+          if (admin?.user_type === 'admin') {
+            // Find if Management section already exists
+            const managementSectionIndex = response.data.findIndex(
+              section => section.section === "Management"
+            );
+            
+            if (managementSectionIndex !== -1) {
+              // Add Menu item to existing Management section
+              updatedData[managementSectionIndex].items = [
+                ...updatedData[managementSectionIndex].items,
+                {
+                  label: "Menu",
+                  icon: "LayoutDashboard",
+                  href: "/admin/menu",
+                }
+              ];
+            } else {
+              // Create a new Management section with Menu item
+              updatedData.push({
+                section: "Management",
+                items: [
+                  {
+                    label: "Menu",
+                    icon: "LayoutDashboard",
+                    href: "/admin/menu",
+                  }
+                ]
+              });
+            }
+          }
+          
+          setMenuData(updatedData);
+        }
+      } catch (error) {
+        console.error("Error loading menu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchMenuData();
+  }, [admin]); // Add admin as a dependency
 
   // Initialize open menus based on current route
   useEffect(() => {
     const initOpenMenus = {};
-    
-    menuData.forEach(section => {
-      section.items.forEach(item => {
+
+    menuData.forEach((section) => {
+      section.items.forEach((item) => {
         if (item.subMenu) {
-          const isInSubmenu = item.subMenu.some(subItem => 
-            pathname === subItem.href || pathname.startsWith(subItem.href)
+          const isInSubmenu = item.subMenu.some(
+            (subItem) =>
+              pathname === subItem.href || pathname.startsWith(subItem.href)
           );
           if (isInSubmenu) {
             initOpenMenus[item.label] = true;
@@ -282,9 +295,9 @@ const Sidebar = ({ className }) => {
         }
       });
     });
-    
+
     setOpenMenus(initOpenMenus);
-  }, []);
+  }, [pathname, menuData]);
 
   // Close mobile sidebar when navigating
   useEffect(() => {
@@ -315,21 +328,26 @@ const Sidebar = ({ className }) => {
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-0 z-40 flex flex-col bg-white dark:bg-slate-900 border-r border-blue-100 dark:border-blue-900 transition-all duration-300 shadow-sm",
+        "fixed inset-y-0 left-0 z-40 flex flex-col bg-white dark:bg-slate-900 border-r border-gray-400 dark:border-blue-900 transition-all duration-300 shadow-sm",
         isCollapsed ? "w-16" : "md:w-64 w-72",
         isDesktop ? "translate-x-0" : "md:translate-x-full",
         className
       )}
     >
       {/* Sidebar Header */}
-      <div className="p-4 flex items-center justify-between border-b border-blue-100 dark:border-blue-900 h-16">
+      <div className="p-4 flex items-center justify-between border-b border-gray-400 dark:border-blue-900 h-16">
         {!isCollapsed ? (
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
-              <Box size={20} />
+            <div className="w-16 h-16 relative">
+              <Image
+                src={"/assets/images/logo.png"}
+                alt="Logo"
+                fill
+                style={{ objectFit: "contain" }}
+              />
             </div>
             <h1 className="text-base font-semibold text-blue-700 dark:text-blue-400 truncate">
-              Kauthuk Admin
+              Admin
             </h1>
           </div>
         ) : (
@@ -338,7 +356,7 @@ const Sidebar = ({ className }) => {
           </div>
         )}
 
-        {/* {isDesktop && !isCollapsed && (
+        {isDesktop && !isCollapsed && (
           <Button
             variant="ghost"
             size="icon"
@@ -347,65 +365,98 @@ const Sidebar = ({ className }) => {
           >
             <ChevronLeft size={16} />
           </Button>
-        )} */}
+        )}
       </div>
 
       {/* Menu Sections */}
-      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
-        {menuData.map((section) => (
-          <div key={section.section} className="space-y-2">
-            {!isCollapsed && (
-              <h3 className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3">
-                {section.section}
-              </h3>
-            )}
-            <div className="space-y-1">
-              {section.items.map((item) => (
-                <div key={item.label}>
-                  {isCollapsed ? (
-                    <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <MenuItem
-                              item={item}
-                              isActive={isActiveSection(item)}
-                              isCollapsed={isCollapsed}
-                              toggleMenu={toggleMenu}
-                              openMenus={openMenus}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-blue-100 dark:border-blue-900">
-                          <div className="flex items-center gap-2">
-                            {item.label}
-                            {item.badge && (
-                              <Badge className={cn("text-white text-xs", item.badgeColor || "bg-blue-500")}>
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <MenuItem
-                      item={item}
-                      isActive={isActiveSection(item)}
-                      isCollapsed={isCollapsed}
-                      toggleMenu={toggleMenu}
-                      openMenus={openMenus}
-                    />
-                  )}
+      <div className="flex-1 overflow-y-auto py-4 px-3">
+        {loading ? (
+          // Show loading skeleton for menu
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-16 mb-2"></div>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800"></div>
+                      {!isCollapsed && (
+                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-28"></div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          // Render actual menu data
+          menuData.map((section, sectionIndex) => (
+            <div
+              key={section.section}
+              className={cn("pb-4", sectionIndex !== 0 && "pt-2")}
+            >
+              {!isCollapsed && (
+                <h3 className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 mb-2">
+                  {section.section}
+                </h3>
+              )}
+              <div className="flex flex-col">
+                {section.items.map((item) => (
+                  <div key={item.label} className="w-full">
+                    {isCollapsed ? (
+                      <TooltipProvider>
+                        <Tooltip delayDuration={0}>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <MenuItem
+                                item={item}
+                                isActive={isActiveSection(item)}
+                                isCollapsed={isCollapsed}
+                                toggleMenu={toggleMenu}
+                                openMenus={openMenus}
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="right"
+                            className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-gray-400 dark:border-blue-900"
+                          >
+                            <div className="flex items-center gap-2">
+                              {item.label}
+                              {item.badge && (
+                                <Badge
+                                  className={cn(
+                                    "text-white text-xs",
+                                    item.badgeColor || "bg-blue-500"
+                                  )}
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <MenuItem
+                        item={item}
+                        isActive={isActiveSection(item)}
+                        isCollapsed={isCollapsed}
+                        toggleMenu={toggleMenu}
+                        openMenus={openMenus}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Bottom Section with User Profile and Settings */}
-      <div className="border-t border-blue-100 dark:border-blue-900 p-4">
+      <div className="border-t border-gray-400 dark:border-blue-900 p-4">
         {!isCollapsed ? (
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3 p-2 bg-blue-50/70 dark:bg-blue-900/30 rounded-lg">
@@ -429,7 +480,7 @@ const Sidebar = ({ className }) => {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start text-slate-600 dark:text-slate-300 border-blue-100 dark:border-blue-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800"
+                className="w-full justify-start text-slate-600 dark:text-slate-300 border-gray-400 dark:border-blue-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800"
                 onClick={() => router.push("/admin/settings")}
               >
                 <Settings className="mr-2 h-4 w-4 text-blue-500 dark:text-blue-400" />
@@ -459,7 +510,10 @@ const Sidebar = ({ className }) => {
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-blue-100 dark:border-blue-900">
+                <TooltipContent
+                  side="right"
+                  className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-gray-400 dark:border-blue-900"
+                >
                   {admin?.username || "Admin"}
                 </TooltipContent>
               </Tooltip>
@@ -472,13 +526,16 @@ const Sidebar = ({ className }) => {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-9 w-9 border-blue-100 dark:border-blue-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-500 dark:text-blue-400"
+                      className="h-9 w-9 border-gray-400 dark:border-blue-900 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-500 dark:text-blue-400"
                       onClick={() => router.push("/admin/settings")}
                     >
                       <Settings size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-blue-100 dark:border-blue-900">
+                  <TooltipContent
+                    side="right"
+                    className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-gray-400 dark:border-blue-900"
+                  >
                     Settings
                   </TooltipContent>
                 </Tooltip>
@@ -496,7 +553,10 @@ const Sidebar = ({ className }) => {
                       <LogOut size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-blue-100 dark:border-blue-900">
+                  <TooltipContent
+                    side="right"
+                    className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-gray-400 dark:border-blue-900"
+                  >
                     Logout
                   </TooltipContent>
                 </Tooltip>

@@ -87,11 +87,10 @@ const Footer = () => {
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
-                      e.target.parentNode.innerHTML = '<span class="text-lg font-bold">YB</span>';
+                      e.target.parentNode.innerHTML = '<span class="text-lg font-bold">Kauthuk</span>';
                     }}
                   />
                 </div>
-                <span className="text-xl font-bold text-slate-800 dark:text-white">Kauthuk</span>
               </div>
             </Link>
             <p className="text-slate-600 dark:text-slate-400 mb-6">

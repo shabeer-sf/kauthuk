@@ -202,26 +202,26 @@ const ListProductsPage = () => {
   const renderSkeletons = () => {
     return Array(5).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-full"></div>
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-1/2 mt-2"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-24 mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-24 mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-16 mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -233,7 +233,7 @@ const ListProductsPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse overflow-hidden">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse overflow-hidden">
         <div className="w-full h-48 bg-blue-100 dark:bg-blue-900/30"></div>
         <CardHeader className="p-4">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4 mb-2"></div>
@@ -360,7 +360,7 @@ const ListProductsPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
               <div>
@@ -382,7 +382,7 @@ const ListProductsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
@@ -399,7 +399,7 @@ const ListProductsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
@@ -413,7 +413,7 @@ const ListProductsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="latest">Latest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
@@ -430,11 +430,11 @@ const ListProductsPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Product</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Category</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Image</th>
@@ -450,7 +450,7 @@ const ListProductsPage = () => {
                 ) : products.length > 0 ? (
                   products.map((item) => (
                     <tr key={item.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="font-medium text-slate-700 dark:text-slate-300">
                           {item.title}
                         </div>
@@ -462,7 +462,7 @@ const ListProductsPage = () => {
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex flex-col">
                           <span className="text-slate-700 dark:text-slate-300">{item.SubCategory?.Category?.catName}</span>
                           <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -471,9 +471,9 @@ const ListProductsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         {item.ProductImages && item.ProductImages.length > 0 ? (
-                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-gray-400 dark:border-blue-900/30 shadow-sm">
                             <Image
                               src={`https://greenglow.in/kauthuk_test/${item.ProductImages[0].image_path}`}
                               fill
@@ -482,13 +482,13 @@ const ListProductsPage = () => {
                             />
                           </div>
                         ) : (
-                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-blue-100 dark:border-blue-900/30">
+                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-gray-400 dark:border-blue-900/30">
                             <ImageIcon size={24} className="text-blue-300 dark:text-blue-700" />
                           </div>
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         <div className="flex items-center justify-center text-slate-700 dark:text-slate-300 font-medium">
                           <IndianRupee size={14} className="mr-1 text-blue-500 dark:text-blue-400" />
                           {formatPrice(item.price_rupees)}
@@ -499,7 +499,7 @@ const ListProductsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         <div className="font-medium text-slate-700 dark:text-slate-300">{item.stock_count}</div>
                         <div className="text-xs mt-1">
                           {item.stock_status === "yes" ? (
@@ -520,7 +520,7 @@ const ListProductsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         {item.status === "active" ? (
                           <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 border-none">
                             Active
@@ -535,7 +535,7 @@ const ListProductsPage = () => {
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => setPreviewProduct(item)}
@@ -609,10 +609,10 @@ const ListProductsPage = () => {
             products.map((item) => (
               <Card 
                 key={item.id} 
-                className="overflow-hidden border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
+                className="overflow-hidden border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
               >
                 {/* Product Image */}
-                <div className="relative w-full h-48 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <div className="relative w-full h-48 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   {item.ProductImages && item.ProductImages.length > 0 ? (
                     <Image
                       src={`https://greenglow.in/kauthuk_test/${item.ProductImages[0].image_path}`}
@@ -754,7 +754,7 @@ const ListProductsPage = () => {
                 </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <Package size={40} className="text-blue-300 dark:text-blue-700" />
               </div>
@@ -843,7 +843,7 @@ const ListProductsPage = () => {
                   <div
                     key={image.id}
                     className={cn(
-                      "relative rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900/30",
+                      "relative rounded-lg overflow-hidden border border-gray-400 dark:border-blue-900/30",
                       index === 0 ? "col-span-4 h-56" : "h-24"
                     )}
                   >
@@ -864,7 +864,7 @@ const ListProductsPage = () => {
               <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
                 Price Information
               </h3>
-              <div className="mt-1 space-y-2 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+              <div className="mt-1 space-y-2 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-gray-400 dark:border-blue-900/30">
                 <div className="flex justify-between">
                   <span className="text-slate-600 dark:text-slate-400">Base Price:</span>
                   <span className="font-medium text-slate-800 dark:text-slate-200">
@@ -896,7 +896,7 @@ const ListProductsPage = () => {
               <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
                 Inventory Information
               </h3>
-              <div className="mt-1 space-y-2 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+              <div className="mt-1 space-y-2 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-gray-400 dark:border-blue-900/30">
                 <div className="flex justify-between">
                   <span className="text-slate-600 dark:text-slate-400">Stock:</span>
                   <span className="font-medium text-slate-800 dark:text-slate-200">
@@ -943,7 +943,7 @@ const ListProductsPage = () => {
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Shipping Information
             </h3>
-            <div className="mt-1 flex flex-wrap gap-4 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="mt-1 flex flex-wrap gap-4 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="flex items-center">
                 <Truck size={16} className="text-blue-500 dark:text-blue-400 mr-2" />
                 <span className="text-slate-700 dark:text-slate-300">
@@ -969,7 +969,7 @@ const ListProductsPage = () => {
 
           <div className="mt-4">
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Description</h3>
-            <div className="mt-1 text-slate-700 dark:text-slate-300 border border-blue-100 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 max-h-40 overflow-y-auto">
+            <div className="mt-1 text-slate-700 dark:text-slate-300 border border-gray-400 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 max-h-40 overflow-y-auto">
               {previewProduct?.description}
             </div>
           </div>
@@ -982,14 +982,14 @@ const ListProductsPage = () => {
                   Product Attributes
                 </h3>
                 <Accordion type="single" collapsible className="mt-1">
-                  <AccordionItem value="attributes" className="border-blue-100 dark:border-blue-900/30">
+                  <AccordionItem value="attributes" className="border-gray-400 dark:border-blue-900/30">
                     <AccordionTrigger className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:no-underline">
                       View All Attributes
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {previewProduct.ProductAttributes.map((attr) => (
-                          <div key={attr.id} className="border border-blue-100 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
+                          <div key={attr.id} className="border border-gray-400 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
                             <div className="font-medium text-slate-700 dark:text-slate-300">
                               {attr.Attribute.display_name}
                             </div>
@@ -1032,19 +1032,19 @@ const ListProductsPage = () => {
                   Product Variants ({previewProduct.ProductVariants.length})
                 </h3>
                 <Accordion type="single" collapsible className="mt-1">
-                  <AccordionItem value="variants" className="border-blue-100 dark:border-blue-900/30">
+                  <AccordionItem value="variants" className="border-gray-400 dark:border-blue-900/30">
                     <AccordionTrigger className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:no-underline">
                       View All Variants
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-3">
                         {previewProduct.ProductVariants.map((variant) => (
-                          <Card key={variant.id} className="p-3 shadow-sm border-blue-100 dark:border-blue-900/30">
+                          <Card key={variant.id} className="p-3 shadow-sm border-gray-400 dark:border-blue-900/30">
                             <div className="flex flex-col md:flex-row gap-3">
                               {/* Variant image if available */}
                               {variant.ProductImages &&
                                 variant.ProductImages.length > 0 && (
-                                  <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-blue-100 dark:border-blue-900/30">
+                                  <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-400 dark:border-blue-900/30">
                                     <Image
                                       src={`https://greenglow.in/kauthuk_test/${variant.ProductImages[0].image_path}`}
                                       fill
@@ -1160,12 +1160,12 @@ const ListProductsPage = () => {
                 SEO Information
               </h3>
               <Accordion type="single" collapsible className="mt-1">
-                <AccordionItem value="seo" className="border-blue-100 dark:border-blue-900/30">
+                <AccordionItem value="seo" className="border-gray-400 dark:border-blue-900/30">
                   <AccordionTrigger className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:no-underline">
                     View SEO Details
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="space-y-3 text-sm bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                    <div className="space-y-3 text-sm bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-gray-400 dark:border-blue-900/30">
                       {previewProduct?.meta_title && (
                         <div>
                           <span className="font-medium text-slate-700 dark:text-slate-300">Meta Title:</span>
@@ -1204,7 +1204,7 @@ const ListProductsPage = () => {
                 Additional Information
               </h3>
               <Accordion type="single" collapsible className="mt-1">
-                <AccordionItem value="additional" className="border-blue-100 dark:border-blue-900/30">
+                <AccordionItem value="additional" className="border-gray-400 dark:border-blue-900/30">
                   <AccordionTrigger className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:no-underline">
                     View Additional Details
                   </AccordionTrigger>
@@ -1213,7 +1213,7 @@ const ListProductsPage = () => {
                       {previewProduct?.highlights && (
                         <div>
                           <span className="font-medium text-slate-700 dark:text-slate-300">Highlights:</span>
-                          <div className="mt-1 text-slate-600 dark:text-slate-400 border border-blue-100 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
+                          <div className="mt-1 text-slate-600 dark:text-slate-400 border border-gray-400 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
                             {previewProduct.highlights}
                           </div>
                         </div>
@@ -1223,7 +1223,7 @@ const ListProductsPage = () => {
                           <span className="font-medium text-slate-700 dark:text-slate-300">
                             Terms & Conditions:
                           </span>
-                          <div className="mt-1 text-slate-600 dark:text-slate-400 border border-blue-100 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
+                          <div className="mt-1 text-slate-600 dark:text-slate-400 border border-gray-400 dark:border-blue-900/30 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">
                             {previewProduct.terms_condition}
                           </div>
                         </div>

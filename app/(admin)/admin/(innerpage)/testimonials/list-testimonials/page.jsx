@@ -1,44 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // UI Components
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,45 +15,74 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 // Icons
 import {
-  Plus,
-  Search,
-  RotateCcw,
-  Pencil,
-  Trash2,
+  Eye,
   Filter,
+  HomeIcon,
   LayoutGrid,
   LayoutList,
-  HomeIcon,
-  MessageSquare,
-  Star,
-  User,
   MapPin,
+  MessageSquare,
+  Pencil,
+  Plus,
   Quote,
-  CheckCircle,
-  XCircle,
-  Eye
+  RotateCcw,
+  Search,
+  Star,
+  Trash2,
+  User
 } from "lucide-react";
 
 // Hooks and Utilities
+import { truncateText } from "@/helpers/multifunction";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { truncateText } from "@/helpers/multifunction";
 
 // Server Actions
-import { getTestimonials, deleteTestimonialById, updateTestimonialStatus } from "@/actions/testimonial";
+import { deleteTestimonialById, getTestimonials, updateTestimonialStatus } from "@/actions/testimonial";
 
 const ListTestimonialsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -199,16 +194,16 @@ const ListTestimonialsPage = () => {
   const renderSkeletons = () => {
     return Array(3).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center">
             <div className="flex space-x-1">
               {Array(5).fill(0).map((_, i) => (
@@ -217,10 +212,10 @@ const ListTestimonialsPage = () => {
             </div>
           </div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-6 w-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -232,7 +227,7 @@ const ListTestimonialsPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse overflow-hidden">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse overflow-hidden">
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between">
             <div className="flex gap-3 items-center">
@@ -367,7 +362,7 @@ const ListTestimonialsPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -389,7 +384,7 @@ const ListTestimonialsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="rating_high">Highest Rating</SelectItem>
                     <SelectItem value="rating_low">Lowest Rating</SelectItem>
                     <SelectItem value="newest">Newest First</SelectItem>
@@ -404,7 +399,7 @@ const ListTestimonialsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="all">All Testimonials</SelectItem>
                     <SelectItem value="active">Active Only</SelectItem>
                     <SelectItem value="inactive">Inactive Only</SelectItem>
@@ -418,11 +413,11 @@ const ListTestimonialsPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Customer</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Photo</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Location</th>
@@ -437,7 +432,7 @@ const ListTestimonialsPage = () => {
                 ) : testimonials.length > 0 ? (
                   testimonials.map((item) => (
                     <tr key={item.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div>
                           <div className="font-medium text-slate-700 dark:text-slate-300">
                             {item.name}
@@ -457,31 +452,23 @@ const ListTestimonialsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
-                        {item.image ? (
-                          <div className="relative h-12 w-12 rounded-full overflow-hidden mx-auto border border-blue-100 dark:border-blue-900/30 shadow-sm">
-                            <Image
-                              src={`https://greenglow.in/kauthuk_test/${item.image}`}
-                              fill
-                              alt={item.name}
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto border border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
+                        
+                          <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto border border-gray-400 dark:border-blue-900/30">
                             <User size={20} className="text-blue-300 dark:text-blue-700" />
                           </div>
-                        )}
+                    
+
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex items-center text-slate-600 dark:text-slate-400">
                           <MapPin size={14} className="mr-1 text-slate-400" />
                           {item.location}
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         <div className="flex justify-center">
                           <div className="flex space-x-1">
                             {renderStars(item.rating)}
@@ -489,7 +476,7 @@ const ListTestimonialsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         <div className="flex justify-center items-center">
                           <Switch
                             checked={item.status === "active"}
@@ -515,7 +502,7 @@ const ListTestimonialsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => router.push(`/admin/testimonials/edit-testimonial/${item.id}`)}
@@ -580,27 +567,18 @@ const ListTestimonialsPage = () => {
               <Card 
                 key={item.id} 
                 className={cn(
-                  "overflow-hidden border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow",
+                  "overflow-hidden border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow",
                   item.status === "inactive" && "bg-slate-50/50 dark:bg-slate-800/50 opacity-75"
                 )}
               >
                 <CardHeader className="p-4 pb-2">
                   <div className="flex justify-between">
                     <div className="flex gap-3 items-start">
-                      {item.image ? (
-                        <div className="relative h-12 w-12 rounded-full overflow-hidden border border-blue-100 dark:border-blue-900/30 shadow-sm">
-                          <Image
-                            src={`https://greenglow.in/kauthuk_test/${item.image}`}
-                            fill
-                            alt={item.name}
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
+                      
+                        <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center border border-gray-400 dark:border-blue-900/30">
                           <User size={20} className="text-blue-300 dark:text-blue-700" />
                         </div>
-                      )}
+                     
                       <div>
                         <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200">
                           {item.name}
@@ -689,7 +667,7 @@ const ListTestimonialsPage = () => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <MessageSquare size={40} className="text-blue-300 dark:text-blue-700" />
               </div>

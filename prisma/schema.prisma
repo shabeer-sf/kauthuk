@@ -221,14 +221,59 @@ model Slider {
   updatedAt DateTime @updatedAt
 }
 
+// Add these models to your Prisma schema
+
+// Menu model to represent each menu item in the sidebar
+model Menu {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique @db.VarChar(100) // Unique identifier for the menu (e.g., "products", "orders")
+  display_name String    @db.VarChar(100) // Display name (e.g., "Products", "Orders")
+  path         String    @db.VarChar(255) // URL path (e.g., "/admin/product")
+  icon         String?   @db.VarChar(50)  // Icon name (e.g., "Package")
+  parent_id    Int?      // For submenu items, reference to parent menu
+  sort_order   Int       @default(0)      // For ordering the menu items
+  is_submenu   Boolean   @default(false)  // Whether this is a submenu
+  is_header    Boolean   @default(false)  // Whether this is a section header
+  status       Statuses  @default(active) // Menu can be disabled globally
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Self-relation for parent-child menu structure
+  parent   Menu?  @relation("MenuHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+  children Menu[] @relation("MenuHierarchy")
+  
+  // Relation to permissions
+  MenuPermissions MenuPermission[]
+}
+
+// Menu permissions model to handle role-based access control
+model MenuPermission {
+  id          Int           @id @default(autoincrement())
+  menu_id     Int
+  admin_id    Int
+  can_view    Boolean       @default(true)  // Permission to see the menu
+  can_create  Boolean       @default(false) // Permission to create new items
+  can_edit    Boolean       @default(false) // Permission to edit existing items
+  can_delete  Boolean       @default(false) // Permission to delete items
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  Menu  Menu  @relation(fields: [menu_id], references: [id], onDelete: Cascade)
+  Admin Admin @relation(fields: [admin_id], references: [id], onDelete: Cascade)
+
+  @@unique([menu_id, admin_id]) // Each admin can have only one permission record per menu
+}
+
+// Update Admin model to include the relation to MenuPermission
 model Admin {
-  id        Int       @id @default(autoincrement())
-  username  String    @db.VarChar(255)
-  password  String    @db.VarChar(255)
-  user_type AdminEnum @default(admin)
-  status    Statuses  @default(active)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              Int             @id @default(autoincrement())
+  username        String          @unique @db.VarChar(255)
+  password        String          @db.VarChar(255)
+  user_type       AdminEnum       @default(admin)
+  status          Statuses        @default(active)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  MenuPermissions MenuPermission[]
 }
 
 enum AdminEnum {
@@ -343,7 +388,6 @@ model Testimonial {
   name        String   @db.VarChar(255)
   location    String   @db.VarChar(255)
   description String   @db.Text
-  image       String?  @db.VarChar(255)
   rating      Int?     @default(5)
   status      Statuses @default(active)
   createdAt   DateTime @default(now())

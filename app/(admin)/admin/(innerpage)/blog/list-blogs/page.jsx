@@ -171,20 +171,20 @@ const ListBlogsPage = () => {
   const renderSkeletons = () => {
     return Array(5).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-full"></div>
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-1/2 mt-2"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-4 bg-blue-100 dark:bg-blue-900/30 rounded w-24 mx-auto"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -196,7 +196,7 @@ const ListBlogsPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse overflow-hidden">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse overflow-hidden">
         <div className="w-full h-48 bg-blue-100 dark:bg-blue-900/30"></div>
         <CardHeader className="p-4">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4 mb-2"></div>
@@ -316,7 +316,7 @@ const ListBlogsPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2">
@@ -338,7 +338,7 @@ const ListBlogsPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="latest">Latest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                   </SelectContent>
@@ -360,11 +360,11 @@ const ListBlogsPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Title</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Description</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Image</th>
@@ -378,13 +378,13 @@ const ListBlogsPage = () => {
                 ) : blogs.length > 0 ? (
                   blogs.map((item) => (
                     <tr key={item.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="font-medium text-slate-700 dark:text-slate-300">
                           {item.title}
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="text-slate-600 dark:text-slate-400">
                           {truncateText(item.description, 80)}
                           <Button
@@ -399,9 +399,9 @@ const ListBlogsPage = () => {
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center">
                         {item.image ? (
-                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                          <div className="relative h-16 w-16 rounded-lg overflow-hidden mx-auto border border-gray-400 dark:border-blue-900/30 shadow-sm">
                             <Image
                               src={`https://greenglow.in/kauthuk_test/${item.image}`}
                               fill
@@ -410,20 +410,20 @@ const ListBlogsPage = () => {
                             />
                           </div>
                         ) : (
-                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-blue-100 dark:border-blue-900/30">
+                          <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto border border-gray-400 dark:border-blue-900/30">
                             <ImageIcon size={24} className="text-blue-300 dark:text-blue-700" />
                           </div>
                         )}
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30 text-center whitespace-nowrap">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1">
                           <Clock size={14} className="text-blue-500 dark:text-blue-400" />
                           <span className="text-slate-600 dark:text-slate-400">{format(item.date, "LLL dd, y")}</span>
                         </div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => router.push(`/admin/blog/edit-blog/${item.id}`)}
@@ -487,10 +487,10 @@ const ListBlogsPage = () => {
             blogs.map((item) => (
               <Card 
                 key={item.id} 
-                className="overflow-hidden border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
+                className="overflow-hidden border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow"
               >
                 {/* Blog Image */}
-                <div className="relative w-full h-48 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <div className="relative w-full h-48 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   {item.image ? (
                     <Image
                       src={`https://greenglow.in/kauthuk_test/${item.image}`}
@@ -566,7 +566,7 @@ const ListBlogsPage = () => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <BookOpen size={40} className="text-blue-300 dark:text-blue-700" />
               </div>
@@ -632,7 +632,7 @@ const ListBlogsPage = () => {
           </DialogHeader>
           
           {previewBlog?.image && (
-            <div className="relative w-full h-56 my-4 overflow-hidden rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm">
+            <div className="relative w-full h-56 my-4 overflow-hidden rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm">
               <Image
                 src={`https://greenglow.in/kauthuk_test/${previewBlog.image}`}
                 fill
@@ -642,7 +642,7 @@ const ListBlogsPage = () => {
             </div>
           )}
           
-          <div className="markdown-preview bg-white dark:bg-slate-800 rounded-lg p-4 border border-blue-100 dark:border-blue-900/30">
+          <div className="markdown-preview bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-400 dark:border-blue-900/30">
             <MDEditor.Markdown
               source={previewBlog?.description || ""}
               style={{ whiteSpace: "pre-wrap" }}

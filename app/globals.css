@@ -91,3 +91,57 @@ body {
     @apply bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent;
   }
 }
+
+/* styles/global.css */
+/* styles/print.css */
+@media print {
+  /* Hide browser UI elements */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  
+  /* Hide elements not needed for printing */
+  .print-hidden, 
+  button,
+  nav,
+  footer {
+    display: none !important;
+  }
+  
+  /* Remove shadows and backgrounds for better printing */
+  body {
+    background: white !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Ensure proper page breaks */
+  table { 
+    page-break-inside: avoid;
+  }
+  
+  tr { 
+    page-break-inside: avoid; 
+  }
+  
+  /* Set text color to black for better printing */
+  * {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Ensure tables display properly */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  
+  td, th {
+    padding: 4px !important;
+  }
+}

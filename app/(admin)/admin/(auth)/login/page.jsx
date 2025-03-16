@@ -15,16 +15,19 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/lib/validators";
-import useFetch from "@/hooks/use-fetch";
 import { adminLogin } from "@/actions/admin";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, LockKeyhole, User } from "lucide-react";
-import Image from "next/image";
+import { Eye, EyeOff, LockKeyhole, User, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/providers/AuthProvider"; // Import auth hook
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+  const { admin } = useAuth(); // Use the auth hook
   
   const {
     register,
@@ -39,25 +42,37 @@ export default function AdminLoginPage() {
     }
   });
 
-  const {
-    data: admin,
-    loading: isLoading,
-    error,
-    fn: adminLoginFN,
-  } = useFetch(adminLogin);
-
+  // Redirect if already logged in
   useEffect(() => {
-    if (admin?.token) {
-      // Store token in localStorage
-      localStorage.setItem("adminToken", admin.token);
-      
-      // Use router.push instead of redirect
+    if (admin) {
       router.push("/admin/dashboard");
     }
   }, [admin, router]);
 
   const onSubmit = async (data) => {
-    await adminLoginFN(data);
+    setIsLoading(true);
+    setErrorMessage("");
+    
+    try {
+      const result = await adminLogin(data);
+      
+      if (result.token) {
+        // Store token in localStorage
+        localStorage.setItem("adminToken", result.token);
+        
+        toast.success(`Welcome back, ${result.username}!`);
+        
+        // Use router.push instead of redirect
+        router.push("/admin/dashboard");
+      } else {
+        setErrorMessage("Authentication failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage(error.message || "Failed to login. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -93,6 +108,7 @@ export default function AdminLoginPage() {
                       errors.username && "border-red-500 focus-visible:ring-red-500"
                     )}
                     {...register("username")}
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.username && (
@@ -117,6 +133,7 @@ export default function AdminLoginPage() {
                       errors.password && "border-red-500 focus-visible:ring-red-500"
                     )}
                     {...register("password")}
+                    disabled={isLoading}
                   />
                   <div 
                     className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
@@ -136,9 +153,10 @@ export default function AdminLoginPage() {
                 )}
               </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600 text-center">{error}</p>
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md flex items-start">
+                  <AlertCircle className="h-4 w-4 text-red-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-red-600">{errorMessage}</p>
                 </div>
               )}
 
@@ -165,8 +183,6 @@ export default function AdminLoginPage() {
             © {new Date().getFullYear()} Kauthuk. All rights reserved.
           </CardFooter>
         </Card>
-        
-        
       </div>
     </div>
   );

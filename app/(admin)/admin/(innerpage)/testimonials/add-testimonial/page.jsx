@@ -10,31 +10,29 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { toast } from "sonner";
-import Image from "next/image";
-import { 
-  HomeIcon, 
-  ArrowLeft, 
-  MessageSquare, 
-  Upload, 
-  User, 
-  MapPin, 
-  Star, 
-  Save,
+import {
+  ArrowLeft,
   CheckCircle,
-  Pencil
+  HomeIcon,
+  MapPin,
+  MessageSquare,
+  Pencil,
+  Save,
+  Star,
+  User
 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 // Validation schema
@@ -42,7 +40,6 @@ const testimonialSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   location: z.string().min(2, "Location is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  image: z.any().optional(),
   rating: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 1 && parseInt(val) <= 5, {
     message: "Rating must be between 1 and 5",
   }),
@@ -54,8 +51,6 @@ const EditTestimonialPage = () => {
   const testimonialId = Number(id);
   const [testimonialData, setTestimonialData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [currentImage, setCurrentImage] = useState(null);
   const router = useRouter();
   
   const {
@@ -72,7 +67,6 @@ const EditTestimonialPage = () => {
       name: "",
       location: "",
       description: "",
-      image: null,
       rating: "5",
       status: true,
     },
@@ -87,11 +81,7 @@ const EditTestimonialPage = () => {
         const response = await getOneTestimonial(testimonialId);
         setTestimonialData(response);
         
-        // Set current image if exists
-        if (response.image) {
-          setCurrentImage(`https://greenglow.in/kauthuk_test/${response.image}`);
-        }
-        
+      
         // Convert status from string to boolean for the form
         const formData = {
           ...response,
@@ -99,8 +89,7 @@ const EditTestimonialPage = () => {
           status: response.status === "active",
         };
         
-        // Reset form with existing data, but exclude the image field
-        const { image, ...restData } = formData;
+        const {  ...restData } = formData;
         reset(restData);
         
       } catch (error) {
@@ -116,18 +105,7 @@ const EditTestimonialPage = () => {
     }
   }, [testimonialId, reset]);
 
-  // Image preview
-  const watchImage = watch("image");
-  useEffect(() => {
-    if (watchImage && watchImage[0]) {
-      const file = watchImage[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, [watchImage]);
+  
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -233,7 +211,7 @@ const EditTestimonialPage = () => {
       </Button>
 
       {/* Main form card */}
-      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+      <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <MessageSquare size={18} />
@@ -281,58 +259,7 @@ const EditTestimonialPage = () => {
               </div>
             </div>
 
-            {/* Customer Photo */}
-            <div className="space-y-2">
-              <Label htmlFor="image" className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                <Upload size={14} />
-                Customer Photo
-              </Label>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg p-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/png, image/jpeg"
-                      {...register("image")}
-                      className="border-0 p-0"
-                    />
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                      Leave empty to keep current image. Supported formats: JPG, PNG. Maximum size: 2MB.
-                    </p>
-                  </div>
-                  {errors.image && (
-                    <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>
-                  )}
-                </div>
-                
-                {/* Image preview */}
-                <div className="w-full md:w-1/3">
-                  <div className="border border-blue-200 dark:border-blue-900/50 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 aspect-square">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : currentImage ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={currentImage}
-                          alt={testimonialData?.name || "Customer image"}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center text-slate-400 dark:text-slate-600">
-                        <User size={40} className="mb-2" />
-                        <span className="text-xs">No image</span>
-                      </div>
-                    )}
-                  </div>
-                  {currentImage && !imagePreview && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">Current image</p>
-                  )}
-                </div>
-              </div>
-            </div>
+            
 
             {/* Testimonial Text */}
             <div className="space-y-2">
@@ -432,9 +359,8 @@ const EditTestimonialPage = () => {
                     rating: testimonialData.rating.toString(),
                     status: testimonialData.status === "active",
                   };
-                  const { image, ...restData } = formData;
+                  const { ...restData } = formData;
                   reset(restData);
-                  setImagePreview(null);
                 }} 
                 disabled={isLoading || !isDirty}
                 className="border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"

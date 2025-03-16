@@ -118,7 +118,7 @@ const AddSiteContentPage = () => {
       </Button>
 
       {/* Main form card */}
-      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+      <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <FileText size={18} />

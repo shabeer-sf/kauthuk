@@ -50,7 +50,7 @@ export const UserAuthProvider = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Set isClient to true on mount
+  // Set isClient to true on mount - this helps prevent hydration errors
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -58,6 +58,8 @@ export const UserAuthProvider = ({ children }) => {
   // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
+      if (!isClient) return; // Skip on server-side rendering
+      
       try {
         setError(null);
         const { authenticated, user, error } = await checkAuthStatus();
@@ -77,23 +79,23 @@ export const UserAuthProvider = ({ children }) => {
       }
     };
 
-    checkAuth();
-  }, []);
+    if (isClient) {
+      checkAuth();
+    }
+  }, [isClient]);
 
   // Redirect to login if accessing protected routes without authentication
   useEffect(() => {
-    if (!loading && !user && pathname) {
+    if (!loading && !user && pathname && isClient) {
       const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
       
       if (isProtectedRoute) {
         // Save the attempted URL to redirect back after login
-        if (typeof window !== 'undefined') {
-          localStorage.setItem("redirectAfterLogin", pathname);
-        }
+        localStorage.setItem("redirectAfterLogin", pathname);
         router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       }
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, isClient]);
 
   // Login function
   const login = async (formData) => {
@@ -107,12 +109,10 @@ export const UserAuthProvider = ({ children }) => {
         
         // Check if there's a redirect URL
         let redirectUrl = "/my-account";
-        if (typeof window !== 'undefined') {
-          const storedRedirect = localStorage.getItem("redirectAfterLogin");
-          if (storedRedirect) {
-            redirectUrl = storedRedirect;
-            localStorage.removeItem("redirectAfterLogin");
-          }
+        const storedRedirect = localStorage.getItem("redirectAfterLogin");
+        if (storedRedirect) {
+          redirectUrl = storedRedirect;
+          localStorage.removeItem("redirectAfterLogin");
         }
         
         router.push(redirectUrl);

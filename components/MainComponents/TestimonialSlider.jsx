@@ -1,10 +1,9 @@
 "use client"
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper/modules';
-import { Quote, Loader2 } from 'lucide-react';
 import { getTestimonials } from '@/actions/testimonial';
+import { Loader2, Quote } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
 import "swiper/css";
@@ -12,7 +11,7 @@ import "swiper/css/autoplay";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const TestimonialCard = ({ name, location, description, image, rating, role = "Customer" }) => (
+const TestimonialCard = ({ name, location, description, rating, role = "Customer" }) => (
   <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300 h-full">
     <div className="flex items-start gap-4 mb-6">
       <Quote className="text-indigo-600 w-10 h-10 flex-shrink-0" />
@@ -22,20 +21,9 @@ const TestimonialCard = ({ name, location, description, image, rating, role = "C
     </div>
     
     <div className="flex items-center gap-4 mt-8">
-      <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-        {image ? (
-          <Image
-            src={`https://greenglow.in/kauthuk_test/${image}`}
-            alt={name}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            {name.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
+      {/* <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+     
+      </div> */}
       
       <div className="flex-1">
         <h4 className="font-semibold text-gray-900">{name}</h4>
@@ -167,7 +155,6 @@ const TestimonialSlider = () => {
                 name={testimonial.name}
                 location={testimonial.location}
                 description={testimonial.description}
-                image={testimonial.image}
                 rating={testimonial.rating}
               />
             </SwiperSlide>

@@ -185,8 +185,8 @@ const SiteContentPage = () => {
         </Breadcrumb>
 
         {/* Content Card */}
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-md overflow-hidden">
-          <CardHeader className="bg-white dark:bg-slate-800 p-8 border-b border-blue-100 dark:border-blue-900/30">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-md overflow-hidden">
+          <CardHeader className="bg-white dark:bg-slate-800 p-8 border-b border-gray-400 dark:border-blue-900/30">
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-3xl font-bold text-slate-800 dark:text-white mb-3">

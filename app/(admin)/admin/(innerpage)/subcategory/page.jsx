@@ -253,13 +253,13 @@ const SubcategoryPage = () => {
   const renderSkeletons = () => {
     return Array(3).fill(0).map((_, index) => (
       <tr key={`skeleton-${index}`} className="animate-pulse">
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4"></div>
         </td>
-        <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+        <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
           <div className="flex justify-center space-x-2">
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
             <div className="h-9 w-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg"></div>
@@ -271,7 +271,7 @@ const SubcategoryPage = () => {
 
   const renderGridSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      <Card key={`grid-skeleton-${index}`} className="border-blue-100 dark:border-blue-900/30 animate-pulse">
+      <Card key={`grid-skeleton-${index}`} className="border-gray-400 dark:border-blue-900/30 animate-pulse">
         <CardHeader className="p-4">
           <div className="h-5 bg-blue-100 dark:bg-blue-900/30 rounded w-3/4 mb-2"></div>
         </CardHeader>
@@ -392,7 +392,7 @@ const SubcategoryPage = () => {
 
       {/* Search and Filters */}
       {showFilters && (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/3">
@@ -414,7 +414,7 @@ const SubcategoryPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="all">All Categories</SelectItem>
                     {categoryArray?.map(cat => (
                       <SelectItem key={cat.id} value={cat.id.toString()}>{cat.catName}</SelectItem>
@@ -429,7 +429,7 @@ const SubcategoryPage = () => {
                   <SelectTrigger className="w-full border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="border-blue-100 dark:border-blue-900">
+                  <SelectContent className="border-gray-400 dark:border-blue-900">
                     <SelectItem value="latest">Latest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="name_asc">Name (A-Z)</SelectItem>
@@ -453,11 +453,11 @@ const SubcategoryPage = () => {
 
       {/* Table View */}
       {viewMode === "table" ? (
-        <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+        <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-900/30">
+                <tr className="bg-blue-50/80 dark:bg-blue-900/20 border-b border-gray-400 dark:border-blue-900/30">
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Category</th>
                   <th className="text-left p-4 font-medium text-slate-700 dark:text-slate-300">Subcategory</th>
                   <th className="text-center p-4 font-medium text-slate-700 dark:text-slate-300">Actions</th>
@@ -469,7 +469,7 @@ const SubcategoryPage = () => {
                 ) : subcategories.length > 0 ? (
                   subcategories.map((item) => (
                     <tr key={item.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <Badge 
                           variant="outline" 
                           className="bg-blue-50/70 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/40"
@@ -478,11 +478,11 @@ const SubcategoryPage = () => {
                         </Badge>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="font-medium text-slate-700 dark:text-slate-300">{item.subcategory}</div>
                       </td>
                       
-                      <td className="p-4 border-b border-blue-100 dark:border-blue-900/30">
+                      <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
                         <div className="flex justify-center items-center space-x-2">
                           <Button
                             onClick={() => handleEdit(item)}
@@ -547,7 +547,7 @@ const SubcategoryPage = () => {
             subcategories.map((item) => (
               <Card 
                 key={item.id} 
-                className="border-blue-100 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow overflow-hidden"
+                className="border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow overflow-hidden"
               >
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-200">
@@ -597,7 +597,7 @@ const SubcategoryPage = () => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-blue-100 dark:border-blue-900/30">
+            <div className="col-span-full p-12 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-gray-400 dark:border-blue-900/30">
               <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                 <PanelRight size={40} className="text-blue-300 dark:text-blue-700" />
               </div>
@@ -654,7 +654,7 @@ const SubcategoryPage = () => {
 
       {/* Create Subcategory Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="sm:max-w-md border-blue-100 dark:border-blue-900/30">
+        <DialogContent className="sm:max-w-md border-gray-400 dark:border-blue-900/30">
           <DialogHeader>
             <DialogTitle className="text-slate-800 dark:text-slate-200">Create New Subcategory</DialogTitle>
             <DialogDescription className="text-slate-500 dark:text-slate-400">
@@ -676,7 +676,7 @@ const SubcategoryPage = () => {
                     <SelectTrigger className={`border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 ${errors.cat_id ? "border-red-300 dark:border-red-800 focus-visible:ring-red-500" : ""}`}>
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
-                    <SelectContent className="border-blue-100 dark:border-blue-900">
+                    <SelectContent className="border-gray-400 dark:border-blue-900">
                       {categoryArray.length > 0 ? (
                         categoryArray.map((cat) => (
                           <SelectItem
@@ -750,7 +750,7 @@ const SubcategoryPage = () => {
 
       {/* Edit Subcategory Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="sm:max-w-md border-blue-100 dark:border-blue-900/30">
+        <DialogContent className="sm:max-w-md border-gray-400 dark:border-blue-900/30">
           <DialogHeader>
             <DialogTitle className="text-slate-800 dark:text-slate-200">Edit Subcategory</DialogTitle>
             <DialogDescription className="text-slate-500 dark:text-slate-400">
@@ -776,7 +776,7 @@ const SubcategoryPage = () => {
                     <SelectTrigger className={`border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500 ${errors.cat_id ? "border-red-300 dark:border-red-800 focus-visible:ring-red-500" : ""}`}>
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
-                    <SelectContent className="border-blue-100 dark:border-blue-900">
+                    <SelectContent className="border-gray-400 dark:border-blue-900">
                       {categoryArray.length > 0 ? (
                         categoryArray.map((cat) => (
                           <SelectItem

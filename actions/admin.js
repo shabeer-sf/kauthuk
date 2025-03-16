@@ -40,6 +40,7 @@ export async function adminLogin(data) {
     if (!username || !password) {
       throw new Error("Username and password are required.");
     }
+    // console.log("tokenPayload")
 
     // Check if the admin exists
     const admin = await db.admin.findUnique({
@@ -56,46 +57,29 @@ export async function adminLogin(data) {
         "Your account is inactive. Please contact the administrator."
       );
     }
-
+// console.log("apple")
     // Compare the provided password with the hashed password
     const isPasswordValid = await bcrypt.compare(password, admin.password);
+    console.log("isPasswordValid")
     if (!isPasswordValid) {
       throw new Error("Invalid username or password.");
     }
-
-    // Debug JWT information
-    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-    console.log("JWT_SECRET length:", process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0);
     
-    // Create token payload and verify it's not null
+    // Create token payload
     const tokenPayload = {
       id: admin.id,
       username: admin.username,
       user_type: admin.user_type,
       status: admin.status,
     };
-    
-    console.log("Token payload:", tokenPayload);
-    
-    // Extra safety check
-    if (!tokenPayload || typeof tokenPayload !== 'object') {
-      throw new Error("Invalid token payload");
-    }
+    console.log("tokenPayload")
 
-    // Use a try-catch specifically for the JWT signing
-    let token;
-    try {
-      token = jwt.sign(
-        tokenPayload,
-        process.env.JWT_SECRET || "fallback_secret_for_development_only",
-        { expiresIn: "1d" }
-      );
-      console.log("JWT token generated successfully");
-    } catch (jwtError) {
-      console.error("JWT signing error:", jwtError);
-      throw new Error("Authentication error: " + jwtError.message);
-    }
-
+    // Use JWT_SECRET from environment or fallback
+    const secret = process.env.JWT_SECRET || "fallback_secret_for_development_only";
+    
+    // Sign JWT token
+    const token = jwt.sign(tokenPayload, secret, { expiresIn: "1d" });
+    
     // Return admin details with token
     return {
       id: admin.id,

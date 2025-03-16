@@ -791,7 +791,7 @@ const EditProductPage = () => {
       </Button>
 
       {/* Form completion progress */}
-      <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm">
+      <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm">
         <CardContent className="p-4">
           <div className="flex justify-between mb-2">
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -835,7 +835,7 @@ const EditProductPage = () => {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
+            <TabsList className="grid w-full grid-cols-5 mb-8 h-auto border border-gray-400 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-900/10 p-1 rounded-lg">
               <TabsTrigger
                 value="basic"
                 className="py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
@@ -871,7 +871,7 @@ const EditProductPage = () => {
 
             {/* Basic Info Tab */}
             <TabsContent value="basic" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Type size={18} />
@@ -922,7 +922,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="active">Active</SelectItem>
                                 <SelectItem value="inactive">
                                   Inactive
@@ -954,7 +954,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 {categories.map((category) => (
                                   <SelectItem
                                     key={category.id}
@@ -991,7 +991,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select subcategory" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 {subcategories.map((subcategory) => (
                                   <SelectItem
                                     key={subcategory.id}
@@ -1159,7 +1159,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">In Stock</SelectItem>
                                 <SelectItem value="no">Out of Stock</SelectItem>
                               </SelectContent>
@@ -1214,7 +1214,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1242,7 +1242,7 @@ const EditProductPage = () => {
                               <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                 <SelectValue placeholder="Select option" />
                               </SelectTrigger>
-                              <SelectContent className="border-blue-100 dark:border-blue-900">
+                              <SelectContent className="border-gray-400 dark:border-blue-900">
                                 <SelectItem value="yes">Yes</SelectItem>
                                 <SelectItem value="no">No</SelectItem>
                               </SelectContent>
@@ -1365,7 +1365,7 @@ const EditProductPage = () => {
                     )}
                   />
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     onClick={() => router.back()}
@@ -1386,7 +1386,7 @@ const EditProductPage = () => {
 
             {/* Images Tab */}
             <TabsContent value="images" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <ImageIcon size={18} />
@@ -1406,7 +1406,7 @@ const EditProductPage = () => {
                       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {currentImages.map((image, index) => (
                           <div key={image.id} className="relative group">
-                            <div className="h-40 w-full rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden relative">
+                            <div className="h-40 w-full rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden relative">
                               <Image
                                 src={image.url}
                                 alt={`Product Image ${index + 1}`}
@@ -1482,7 +1482,7 @@ const EditProductPage = () => {
                             <img
                               src={preview.url}
                               alt={`Preview ${index + 1}`}
-                              className="object-cover w-full h-40 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
+                              className="object-cover w-full h-40 rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm"
                             />
                             <Button
                               type="button"
@@ -1504,7 +1504,7 @@ const EditProductPage = () => {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -1526,7 +1526,7 @@ const EditProductPage = () => {
 
             {/* Attributes Tab */}
             <TabsContent value="attributes" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Tag size={18} />
@@ -1714,7 +1714,7 @@ const EditProductPage = () => {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -1738,7 +1738,7 @@ const EditProductPage = () => {
 
             {/* Variants Tab */}
             <TabsContent value="variants" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Layers size={18} />
@@ -1920,7 +1920,7 @@ const EditProductPage = () => {
                                 <SelectTrigger className="border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
-                                <SelectContent className="border-blue-100 dark:border-blue-900">
+                                <SelectContent className="border-gray-400 dark:border-blue-900">
                                   <SelectItem value="yes">In Stock</SelectItem>
                                   <SelectItem value="no">
                                     Out of Stock
@@ -1998,7 +1998,7 @@ const EditProductPage = () => {
                                             placeholder={`Select ${attr.attribute?.display_name}`}
                                           />
                                         </SelectTrigger>
-                                        <SelectContent className="border-blue-100 dark:border-blue-900">
+                                        <SelectContent className="border-gray-400 dark:border-blue-900">
                                           {attr.attribute?.AttributeValues?.filter(
                                             (val) =>
                                               attr.values?.some(
@@ -2042,7 +2042,7 @@ const EditProductPage = () => {
                                           key={imgIndex}
                                           className="relative group"
                                         >
-                                          <div className="relative h-32 w-full rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+                                          <div className="relative h-32 w-full rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                                             <Image
                                               src={image.url}
                                               alt={`Variant ${
@@ -2123,7 +2123,7 @@ const EditProductPage = () => {
                                           alt={`Variant ${index + 1} Preview ${
                                             imgIndex + 1
                                           }`}
-                                          className="object-cover w-full h-32 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
+                                          className="object-cover w-full h-32 rounded-lg border border-gray-400 dark:border-blue-900/30 shadow-sm"
                                         />
                                         <Button
                                           type="button"
@@ -2165,7 +2165,7 @@ const EditProductPage = () => {
                     Add Another Variant
                   </Button>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <Button
                     variant="outline"
                     type="button"
@@ -2187,7 +2187,7 @@ const EditProductPage = () => {
 
             {/* Advanced Tab */}
             <TabsContent value="advanced" className="space-y-6">
-              <Card className="border-blue-100 dark:border-blue-900/30 shadow-sm overflow-hidden">
+              <Card className="border-gray-400 dark:border-blue-900/30 shadow-sm overflow-hidden">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white p-5">
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <Settings size={18} />
@@ -2339,7 +2339,7 @@ const EditProductPage = () => {
                     />
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between border-t border-blue-100 dark:border-blue-900/30 px-6 py-4">
+                <CardFooter className="flex justify-between border-t border-gray-400 dark:border-blue-900/30 px-6 py-4">
                   <div className="flex gap-3">
                     <Button
                       variant="outline"

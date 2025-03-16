@@ -1,12 +1,12 @@
 "use client";
 
-import { useCart } from "@/providers/CartProvider";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import Script from "next/script";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import Script from 'next/script';
+import { useCart } from '@/providers/CartProvider';
+import { toast } from 'sonner';
 
 // UI Components
 import {
@@ -55,14 +55,11 @@ import {
   Loader2,
   Lock,
   MapPin,
-  RefreshCcw,
   Shield,
   ShoppingBag,
-  Tag,
   Truck,
   User,
-  Wallet,
-  XCircle
+  Wallet
 } from "lucide-react";
 
 // Order Schema
@@ -152,19 +149,15 @@ const CheckoutPage = () => {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [currentStep, setCurrentStep] = useState("contact");
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-  const [couponCode, setCouponCode] = useState("");
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   // Form with validation
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isValid },
+    formState: { errors },
     watch,
     setValue,
     getValues,
-    control,
     trigger
   } = useForm({
     resolver: zodResolver(OrderSchemaWithConditionalValidation),
@@ -199,61 +192,18 @@ const CheckoutPage = () => {
   const watchShippingMethod = watch("shippingMethod");
   const watchPaymentMethod = watch("paymentMethod");
 
-  // For coupon application
-  const applyCoupon = () => {
-    if (!couponCode.trim()) {
-      toast.error("Please enter a coupon code");
-      return;
-    }
-    
-    setIsApplyingCoupon(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (couponCode.toUpperCase() === 'WELCOME10') {
-        setSelectedCoupon({
-          code: 'WELCOME10',
-          discount: 10,
-          type: 'percentage'
-        });
-        toast.success("Coupon applied successfully!");
-      } else if (couponCode.toUpperCase() === 'FIRST100') {
-        setSelectedCoupon({
-          code: 'FIRST100',
-          discount: 100,
-          type: 'fixed'
-        });
-        toast.success("Coupon applied successfully!");
-      } else {
-        toast.error("Invalid coupon code");
-      }
-      
-      setIsApplyingCoupon(false);
-    }, 800);
-  };
-  
-  const removeCoupon = () => {
-    setSelectedCoupon(null);
-    setCouponCode('');
-    toast.info("Coupon removed");
-  };
-
   // Calculate order summary
   const subtotal = totals[currency];
   
   // Calculate shipping cost based on selected method
   const shippingCost = watchShippingMethod === "express" ? 100 : 0;
   
-  // Calculate discount if coupon is applied
-  const discount = selectedCoupon ? 
-    (selectedCoupon.type === 'percentage' ? subtotal * (selectedCoupon.discount / 100) : selectedCoupon.discount) : 0;
-  
   // Calculate tax (assumed 10%)
   const taxRate = 0.10;
-  const tax = (subtotal - discount) * taxRate;
+  const tax = subtotal * taxRate;
   
   // Calculate total
-  const total = subtotal - discount + tax + shippingCost;
+  const total = subtotal + tax + shippingCost;
 
   // Check for Razorpay
   useEffect(() => {
@@ -360,9 +310,7 @@ const CheckoutPage = () => {
         subtotal,
         shipping: shippingCost,
         tax,
-        discount,
         total,
-        couponApplied: selectedCoupon?.code || null,
       });
       
       if (result.success) {
@@ -778,98 +726,98 @@ const CheckoutPage = () => {
                         </div>
 
                         {!watchSameAsBilling && (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-    <div className="sm:col-span-2">
-      <label htmlFor="shippingAddress1" className="block text-sm font-medium text-gray-700 mb-1">
-        Address Line 1*
-      </label>
-      <Input
-        id="shippingAddress1"
-        {...register("shippingAddress1")}
-        placeholder="Street address"
-        className={errors.shippingAddress1 ? "border-red-300" : ""}
-      />
-      {errors.shippingAddress1 && (
-        <p className="text-red-500 text-sm mt-1">{errors.shippingAddress1.message}</p>
-      )}
-    </div>
-    <div className="sm:col-span-2">
-      <label htmlFor="shippingAddress2" className="block text-sm font-medium text-gray-700 mb-1">
-        Address Line 2
-      </label>
-      <Input
-        id="shippingAddress2"
-        {...register("shippingAddress2")}
-        placeholder="Apartment, suite, unit, etc. (optional)"
-      />
-    </div>
-    <div>
-      <label htmlFor="shippingCity" className="block text-sm font-medium text-gray-700 mb-1">
-        City*
-      </label>
-      <Input
-        id="shippingCity"
-        {...register("shippingCity")}
-        placeholder="City"
-        className={errors.shippingCity ? "border-red-300" : ""}
-      />
-      {errors.shippingCity && (
-        <p className="text-red-500 text-sm mt-1">{errors.shippingCity.message}</p>
-      )}
-    </div>
-    <div>
-      <label htmlFor="shippingState" className="block text-sm font-medium text-gray-700 mb-1">
-        State/Province*
-      </label>
-      <Input
-        id="shippingState"
-        {...register("shippingState")}
-        placeholder="State"
-        className={errors.shippingState ? "border-red-300" : ""}
-      />
-      {errors.shippingState && (
-        <p className="text-red-500 text-sm mt-1">{errors.shippingState.message}</p>
-      )}
-    </div>
-    <div>
-      <label htmlFor="shippingPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
-        Postal Code*
-      </label>
-      <Input
-        id="shippingPostalCode"
-        {...register("shippingPostalCode")}
-        placeholder="Postal code"
-        className={errors.shippingPostalCode ? "border-red-300" : ""}
-      />
-      {errors.shippingPostalCode && (
-        <p className="text-red-500 text-sm mt-1">{errors.shippingPostalCode.message}</p>
-      )}
-    </div>
-    <div>
-      <label htmlFor="shippingCountry" className="block text-sm font-medium text-gray-700 mb-1">
-        Country*
-      </label>
-      <Select 
-        defaultValue="India"
-        onValueChange={(value) => setValue("shippingCountry", value)}
-      >
-        <SelectTrigger className={errors.shippingCountry ? "border-red-300" : ""}>
-          <SelectValue placeholder="Select a country" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="India">India</SelectItem>
-          <SelectItem value="United States">United States</SelectItem>
-          <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-          <SelectItem value="Canada">Canada</SelectItem>
-          <SelectItem value="Australia">Australia</SelectItem>
-        </SelectContent>
-      </Select>
-      {errors.shippingCountry && (
-        <p className="text-red-500 text-sm mt-1">{errors.shippingCountry.message}</p>
-      )}
-    </div>
-  </div>
-)}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="sm:col-span-2">
+                              <label htmlFor="shippingAddress1" className="block text-sm font-medium text-gray-700 mb-1">
+                                Address Line 1*
+                              </label>
+                              <Input
+                                id="shippingAddress1"
+                                {...register("shippingAddress1")}
+                                placeholder="Street address"
+                                className={errors.shippingAddress1 ? "border-red-300" : ""}
+                              />
+                              {errors.shippingAddress1 && (
+                                <p className="text-red-500 text-sm mt-1">{errors.shippingAddress1.message}</p>
+                              )}
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label htmlFor="shippingAddress2" className="block text-sm font-medium text-gray-700 mb-1">
+                                Address Line 2
+                              </label>
+                              <Input
+                                id="shippingAddress2"
+                                {...register("shippingAddress2")}
+                                placeholder="Apartment, suite, unit, etc. (optional)"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="shippingCity" className="block text-sm font-medium text-gray-700 mb-1">
+                                City*
+                              </label>
+                              <Input
+                                id="shippingCity"
+                                {...register("shippingCity")}
+                                placeholder="City"
+                                className={errors.shippingCity ? "border-red-300" : ""}
+                              />
+                              {errors.shippingCity && (
+                                <p className="text-red-500 text-sm mt-1">{errors.shippingCity.message}</p>
+                              )}
+                            </div>
+                            <div>
+                              <label htmlFor="shippingState" className="block text-sm font-medium text-gray-700 mb-1">
+                                State/Province*
+                              </label>
+                              <Input
+                                id="shippingState"
+                                {...register("shippingState")}
+                                placeholder="State"
+                                className={errors.shippingState ? "border-red-300" : ""}
+                              />
+                              {errors.shippingState && (
+                                <p className="text-red-500 text-sm mt-1">{errors.shippingState.message}</p>
+                              )}
+                            </div>
+                            <div>
+                              <label htmlFor="shippingPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                                Postal Code*
+                              </label>
+                              <Input
+                                id="shippingPostalCode"
+                                {...register("shippingPostalCode")}
+                                placeholder="Postal code"
+                                className={errors.shippingPostalCode ? "border-red-300" : ""}
+                              />
+                              {errors.shippingPostalCode && (
+                                <p className="text-red-500 text-sm mt-1">{errors.shippingPostalCode.message}</p>
+                              )}
+                            </div>
+                            <div>
+                              <label htmlFor="shippingCountry" className="block text-sm font-medium text-gray-700 mb-1">
+                                Country*
+                              </label>
+                              <Select 
+                                defaultValue="India"
+                                onValueChange={(value) => setValue("shippingCountry", value)}
+                              >
+                                <SelectTrigger className={errors.shippingCountry ? "border-red-300" : ""}>
+                                  <SelectValue placeholder="Select a country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="India">India</SelectItem>
+                                  <SelectItem value="United States">United States</SelectItem>
+                                  <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                                  <SelectItem value="Canada">Canada</SelectItem>
+                                  <SelectItem value="Australia">Australia</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              {errors.shippingCountry && (
+                                <p className="text-red-500 text-sm mt-1">{errors.shippingCountry.message}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
 
@@ -1212,75 +1160,12 @@ const CheckoutPage = () => {
 
                     <Separator />
 
-                    {/* Coupon Code */}
-                    <div className="py-4">
-                      <label htmlFor="couponCode" className="block text-sm font-medium text-gray-700 mb-1">
-                        Apply Coupon
-                      </label>
-                      <div className="flex space-x-2">
-                        <Input
-                          id="couponCode"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                          placeholder="Enter coupon code"
-                          disabled={!!selectedCoupon || isApplyingCoupon}
-                        />
-                        {selectedCoupon ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="shrink-0"
-                            onClick={removeCoupon}
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Remove
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="shrink-0"
-                            onClick={applyCoupon}
-                            disabled={isApplyingCoupon}
-                          >
-                            {isApplyingCoupon ? (
-                              <RefreshCcw className="h-4 w-4 mr-1 animate-spin" />
-                            ) : (
-                              <Tag className="h-4 w-4 mr-1" />
-                            )}
-                            Apply
-                          </Button>
-                        )}
-                      </div>
-                      {selectedCoupon && (
-                        <div className="flex items-center text-green-600 text-sm mt-2">
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
-                          <span>
-                            {selectedCoupon.type === "percentage"
-                              ? `${selectedCoupon.discount}% discount applied`
-                              : `${formatPrice(selectedCoupon.discount)} discount applied`}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <Separator />
-
                     {/* Price Breakdown */}
                     <div className="py-4 space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Subtotal</span>
                         <span>{formatPrice(subtotal)}</span>
                       </div>
-
-                      {selectedCoupon && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-green-600">Discount</span>
-                          <span className="text-green-600">
-                            -{formatPrice(discount)}
-                          </span>
-                        </div>
-                      )}
 
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Shipping</span>
