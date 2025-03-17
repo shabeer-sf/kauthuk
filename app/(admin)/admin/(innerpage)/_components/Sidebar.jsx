@@ -224,6 +224,7 @@ const Sidebar = ({ className }) => {
   const [menuData, setMenuData] = useState(fallbackMenuData);
   const [loading, setLoading] = useState(true);
 
+  // console.log("admin?.user_type",admin?.user_type)
   // Fetch menu data from server
   useEffect(() => {
     const fetchMenuData = async () => {
