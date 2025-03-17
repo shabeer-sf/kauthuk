@@ -70,6 +70,7 @@ import {
 // Server Actions
 import { getOneProduct } from "@/actions/product";
 import { toast } from "sonner";
+import RelatedProducts from "@/components/RelatedProducts";
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -846,13 +847,13 @@ const ProductDetails = () => {
                 </div>
               </div>
 
-              <div className="flex items-start">
+              {/* <div className="flex items-start">
                 <RotateCcw className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" />
                 <div>
                   <p className="font-medium text-gray-900">Returns</p>
                   <p className="text-sm text-gray-500">30-day easy returns</p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -1175,11 +1176,11 @@ const ProductDetails = () => {
               </p>
             </div>
 
-            <div className="flex flex-col items-center">
+            {/* <div className="flex flex-col items-center">
               <RotateCcw className="h-8 w-8 text-indigo-600 mb-2" />
               <h3 className="font-medium">Easy Returns</h3>
               <p className="text-sm text-gray-500">30-day return policy</p>
-            </div>
+            </div> */}
 
             <div className="flex flex-col items-center">
               <Sparkles className="h-8 w-8 text-indigo-600 mb-2" />
@@ -1189,6 +1190,13 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+      {product.SubCategory && (
+        <RelatedProducts
+          subcategoryId={product.SubCategory.id}
+          productId={product.id}
+          limit={10}
+        />
+      )}
     </>
   );
 };

@@ -33,6 +33,7 @@ import {
   searchProducts,
   getPopularSearchTerms,
   getCurrentUser,
+  getCategories3,
 } from "@/actions/category";
 
 // UI Components
@@ -80,7 +81,10 @@ import { Close as PopoverClose } from "@radix-ui/react-popover";
 
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import CategoryList from "../CategoryList";
+import dynamic from "next/dynamic";
+
+// Import the improved CategoryList component
+const CategoryList = dynamic(() => import("../CategoryList"), { ssr: false });
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -93,6 +97,8 @@ const Header = () => {
   const [featuredCategories, setFeaturedCategories] = useState([]);
   const [popularSearches, setPopularSearches] = useState([]);
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const {
     cart,
@@ -145,6 +151,11 @@ const Header = () => {
           await getFeaturedCategories();
         setFeaturedCategories(fetchedCategories);
 
+        // Fetch categories for mobile menu
+        const { categories: fetchedAllCategories } = await getCategories3();
+        setCategories(fetchedAllCategories);
+        setCategoriesLoading(false);
+
         // Fetch popular search terms
         const { popularTerms } = await getPopularSearchTerms();
         setPopularSearches(popularTerms);
@@ -154,6 +165,7 @@ const Header = () => {
         setUserData(user);
       } catch (error) {
         console.error("Error fetching initial data:", error);
+        setCategoriesLoading(false);
       }
     };
 
@@ -253,75 +265,52 @@ const Header = () => {
                 </div>
 
                 <div className="px-6 py-4">
-                  <div className="flex flex-col space-y-1">
-                    <Link
-                      href="/"
-                      className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Home className="h-4 w-4 text-green-600" />
-                      <span
-                        className={
-                          pathname === "/" ? "font-medium text-green-600" : ""
-                        }
-                      >
-                        Home
-                      </span>
-                    </Link>
-
-                    <Link
-                      href="/pages/about"
-                      className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Info className="h-4 w-4 text-green-600" />
-                      <span
-                        className={
-                          pathname === "/pages/about"
-                            ? "font-medium text-green-600"
-                            : ""
-                        }
-                      >
-                        About Us
-                      </span>
-                    </Link>
-
-                    <Link
-                      href="/contact"
-                      className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Phone className="h-4 w-4 text-green-600" />
-                      <span
-                        className={
-                          pathname === "/contact"
-                            ? "font-medium text-green-600"
-                            : ""
-                        }
-                      >
-                        Contact
-                      </span>
-                    </Link>
-                  </div>
-
-                  <Separator className="my-4" />
-
                   {/* Mobile Categories */}
                   <div className="space-y-2">
                     <h3 className="text-sm font-medium text-gray-500 px-3 py-1">
                       Categories
                     </h3>
-                    {featuredCategories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/category/${category.id}`}
-                        className="flex items-center space-x-2 py-2 px-3 rounded-md hover:bg-gray-100"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Bookmark className="h-4 w-4 text-green-600" />
-                        <span>{category.catName}</span>
-                      </Link>
-                    ))}
+                    {categoriesLoading ? (
+                      Array(5).fill(0).map((_, index) => (
+                        <div key={index} className="flex items-center space-x-2 py-2 px-3">
+                          <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      ))
+                    ) : (
+                      categories.map((category) => (
+                        <div key={category.id} className="space-y-1">
+                          <Link
+                            href={`/category/${category.id}`}
+                            className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center">
+                              <Bookmark className="h-4 w-4 text-green-600 mr-2" />
+                              <span>{category.catName}</span>
+                            </div>
+                            {category.SubCategory?.length > 0 && (
+                              <ChevronDown className="h-4 w-4 text-gray-500" />
+                            )}
+                          </Link>
+                          
+                          {category.SubCategory?.length > 0 && (
+                            <div className="pl-8 space-y-1">
+                              {category.SubCategory.map((subcat) => (
+                                <Link
+                                  key={subcat.id}
+                                  href={`/subcategory/${subcat.id}`}
+                                  className="flex items-center py-1.5 px-3 text-sm text-gray-600 hover:text-green-600"
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                  {subcat.subcategory}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -404,56 +393,6 @@ const Header = () => {
               />
             </div>
           </Link>
-
-          {/* Desktop Nav Links - Hidden on Mobile */}
-          <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/"
-                        ? "text-green-600 font-medium"
-                        : "text-gray-700"
-                    )}
-                  >
-                    Home
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link href="/pages/about" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/pages/about"
-                        ? "text-green-600 font-medium"
-                        : "text-gray-700"
-                    )}
-                  >
-                    About Us
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link href="/contact" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      pathname === "/contact"
-                        ? "text-green-600 font-medium"
-                        : "text-gray-700"
-                    )}
-                  >
-                    Contact
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
 
           {/* Search Bar */}
           <Popover
@@ -712,210 +651,14 @@ const Header = () => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-
-            {/* Cart Sheet Trigger */}
-            {/* <Sheet>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <SheetTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="relative hover:bg-gray-100"
-                      >
-                        <ShoppingCart className="h-4 w-4 text-gray-700" />
-                        {itemCount > 0 && (
-                          <Badge className="absolute -top-1 -right-1 px-1 h-4 flex items-center justify-center bg-green-600 hover:bg-green-600 text-[10px]">
-                            {itemCount}
-                          </Badge>
-                        )}
-                      </Button>
-                    </SheetTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Cart • {formatPrice(totals.current)}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <SheetContent side="right" className="w-full sm:max-w-md p-0">
-                <div className="p-6 bg-gradient-to-r from-green-50 to-green-100">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Your Cart</h2>
-                    <Badge variant="outline" className="bg-white">
-                      {itemCount} {itemCount === 1 ? "item" : "items"}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="p-6 h-[calc(100vh-220px)] overflow-y-auto">
-                  {itemCount > 0 ? (
-                    <div className="space-y-4">
-                      {cart.map((item, index) => (
-                        <div key={index} className="flex space-x-4">
-                          <div className="relative w-16 h-16 bg-gray-100 rounded">
-                            {item.image ? (
-                              <Image
-                                src={`https://greenglow.in/kauthuk_test/${item.image}`}
-                                fill
-                                alt={item.title}
-                                className="object-cover rounded"
-                              />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center">
-                                <Package className="h-6 w-6 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-medium">
-                              {item.title}
-                            </h4>
-                            {item.variant && (
-                              <p className="text-xs text-gray-500">
-                                {item.variant.name}
-                              </p>
-                            )}
-                            <div className="flex items-center mt-1">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-5 w-5 rounded-full"
-                                onClick={() =>
-                                  updateQuantity(index, item.quantity - 1)
-                                }
-                                disabled={item.quantity <= 1}
-                              >
-                                <span className="text-xs">-</span>
-                              </Button>
-                              <span className="mx-2 text-xs">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-5 w-5 rounded-full"
-                                onClick={() =>
-                                  updateQuantity(index, item.quantity + 1)
-                                }
-                                disabled={
-                                  item.maxStock &&
-                                  item.quantity >= item.maxStock
-                                }
-                              >
-                                <span className="text-xs">+</span>
-                              </Button>
-                            </div>
-                            <p className="text-sm font-medium text-green-600 mt-1">
-                              {currency === "INR"
-                                ? formatPrice(item.price * item.quantity, "INR")
-                                : formatPrice(
-                                    item.priceDollars * item.quantity,
-                                    "USD"
-                                  )}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => removeFromCart(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full space-y-4">
-                      <ShoppingCart className="h-16 w-16 text-gray-300" />
-                      <p className="text-gray-500">Your cart is empty</p>
-                      <SheetClose asChild>
-                        <Link href="/products">
-                          <Button className="bg-green-600 hover:bg-green-700">
-                            Continue Shopping
-                          </Button>
-                        </Link>
-                      </SheetClose>
-                    </div>
-                  )}
-                </div>
-
-                {itemCount > 0 && (
-                  <div className="border-t p-6 space-y-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-medium">
-                        {formatPrice(totals.current)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Shipping</span>
-                      <span className="font-medium">
-                        Calculated at checkout
-                      </span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between">
-                      <span className="font-medium">Total</span>
-                      <span className="font-bold">
-                        {formatPrice(totals.current)}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <SheetClose asChild>
-                        <Link href="/checkout">
-                          <Button className="w-full bg-green-600 hover:bg-green-700">
-                            Checkout
-                          </Button>
-                        </Link>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Link href="/cart">
-                          <Button variant="outline" className="w-full">
-                            View Cart
-                          </Button>
-                        </Link>
-                      </SheetClose>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 mt-2"
-                      onClick={() => {
-                        clearCart();
-                        toast.success("Cart has been cleared");
-                      }}
-                    >
-                      Clear Cart
-                    </Button>
-                  </div>
-                )}
-              </SheetContent>
-            </Sheet> */}
           </div>
         </div>
       </div>
 
       {/* Category Navigation - Desktop Only */}
-      <div className="hidden md:block w-full border-b border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-2 px-4">
-                {[...Array(6)].map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-4 bg-gray-200 rounded animate-pulse w-24 mx-2"
-                  ></div>
-                ))}
-              </div>
-            }
-          >
-            <div className="overflow-hidden">
-              <CategoryList />
-            </div>
-          </Suspense>
+      <div className="hidden md:block w-full border-b border-gray-100 bg-white relative">
+        <div className="">
+          <CategoryList />
         </div>
       </div>
 

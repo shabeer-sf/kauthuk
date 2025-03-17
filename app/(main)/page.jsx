@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import CategoryProductSlider from '@/components/CategoryProductSlider';
+import { getCategoriesAndSubcategories } from '@/actions/product';
 import Hero from '@/components/MainComponents/Hero';
 import ProductSlider from '@/components/MainComponents/ProductSlider';
-import TestimonialSlider from '@/components/MainComponents/TestimonialSlider';
 import QuickContact from '@/components/MainComponents/QuickContact';
-import { getCategoriesAndSubcategories } from '@/actions/product';
+import TestimonialSlider from '@/components/MainComponents/TestimonialSlider';
 import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const MainPage = () => {
   const [categories, setCategories] = useState([]);
@@ -57,47 +56,33 @@ const MainPage = () => {
       
       {/* Featured Categories Sliders */}
       {featuredCategories.length > 0 ? (
-        <>
-          {/* Crafted Collection - First category */}
-          <ProductSlider 
-            category={featuredCategories[0]?.id} 
-            title={`${featuredCategories[0]?.catName} Collection`} 
-            viewAllLink={`/category/${featuredCategories[0]?.id}`}
-            
-
-            limit={8}
-          />
-          
-          {/* Eco-Friendly Products - Second category */}
-          {featuredCategories.length > 1 && (
-            <ProductSlider 
-              category={featuredCategories[1]?.id} 
-              title={`${featuredCategories[1]?.catName} Products`}
-              viewAllLink={`/category/${featuredCategories[1]?.id}`}
-              
-              limit={8}
-            />
-          )}
-          
-          {/* Trending Now - Third category */}
-          {featuredCategories.length > 2 && (
-            <ProductSlider 
-              category={featuredCategories[2]?.id} 
-              title={`${featuredCategories[2]?.catName} Showcase`}
-              viewAllLink={`/category/${featuredCategories[2]?.id}`}
-              
-              limit={8}
-            />
-          )}
-        </>
-      ) : (
-        // Fallback if no categories found
-        <>
-          <ProductSlider title="Featured Products" viewAllLink="/products" limit={8} />
-          <ProductSlider title="New Arrivals" viewAllLink="/products?sort=latest" displayType="coverflow" limit={8} />
-          <ProductSlider title="Popular Items" viewAllLink="/products?sort=popular" displayType="cards" limit={8} />
-        </>
-      )}
+  <>
+    {featuredCategories.slice(0, 3).map((category, index) => {
+      // Define different title suffixes based on the index
+      const titleSuffixes = ["Collection", "Products", "Showcase"];
+      // Define different display types if needed
+      const displayTypes = ["default", "coverflow", "cards"];
+      
+      return (
+        <ProductSlider 
+          key={category.id}
+          category={category.id} 
+          title={`${category.catName} ${titleSuffixes[index] || "Collection"}`} 
+          viewAllLink={`/category/${category.id}`}
+          // displayType={displayTypes[index] || "default"}
+          limit={8}
+        />
+      );
+    })}
+  </>
+) : (
+  // Fallback if no categories found
+  <>
+    <ProductSlider title="Featured Products" viewAllLink="/products" limit={8} />
+    <ProductSlider title="New Arrivals" viewAllLink="/products?sort=latest" displayType="coverflow" limit={8} />
+    <ProductSlider title="Popular Items" viewAllLink="/products?sort=popular" displayType="cards" limit={8} />
+  </>
+)}
       
       {/* Category Grid Display */}
       {/* <CategoryProductSlider /> */}
