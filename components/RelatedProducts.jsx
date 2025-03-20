@@ -9,36 +9,36 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/providers/CartProvider";
 import { getProducts } from "@/actions/product";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 
 // Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { formatPrice, currency } = useCart();
-  
+
   useEffect(() => {
     const fetchRelatedProducts = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch products from the same subcategory
         const response = await getProducts({
           subcategory: subcategoryId,
           limit: limit + 1, // +1 to account for excluding current product
         });
-        
+
         if (response && response.products) {
           // Filter out the current product
-          const filteredProducts = response.products.filter(
-            product => product.id !== parseInt(productId)
-          ).slice(0, limit);
-          
+          const filteredProducts = response.products
+            .filter((product) => product.id !== parseInt(productId))
+            .slice(0, limit);
+
           setProducts(filteredProducts);
         }
       } catch (error) {
@@ -47,24 +47,29 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
         setLoading(false);
       }
     };
-    
+
     if (subcategoryId) {
       fetchRelatedProducts();
     }
   }, [subcategoryId, productId, limit]);
-  
+
   if (loading) {
     return (
       <div className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Related Products</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Related Products
+            </h2>
             <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, index) => (
-              <div key={index} className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
+              <div
+                key={index}
+                className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden"
+              >
                 <div className="aspect-square bg-gray-100 animate-pulse"></div>
                 <div className="p-4 space-y-2">
                   <div className="animate-pulse bg-gray-200 h-4 w-3/4 rounded"></div>
@@ -77,16 +82,18 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
       </div>
     );
   }
-  
+
   if (!products || products.length === 0) {
     return null; // Don't show the section if no related products
   }
-  
+
   return (
     <div className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">More Products You May Like</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            More Products You May Like
+          </h2>
           {subcategoryId && (
             <Link
               href={`/subcategory/${subcategoryId}`}
@@ -96,7 +103,7 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
             </Link>
           )}
         </div>
-        
+
         <div className="hidden lg:block">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {products.map((product) => (
@@ -104,7 +111,7 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
             ))}
           </div>
         </div>
-        
+
         {/* Mobile and tablet slider view */}
         <div className="lg:hidden -mx-4 px-4">
           <Swiper
@@ -113,13 +120,13 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
             slidesPerView={1.2}
             centeredSlides={false}
             loop={false}
-            autoplay={{ 
+            autoplay={{
               delay: 5000,
-              disableOnInteraction: false
+              disableOnInteraction: false,
             }}
-            pagination={{ 
+            pagination={{
               clickable: true,
-              dynamicBullets: true
+              dynamicBullets: true,
             }}
             breakpoints={{
               400: {
@@ -149,13 +156,13 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
 const RelatedProductCard = ({ product }) => {
   const { addToCart, formatPrice, currency } = useCart();
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // Safely handle image URLs
-  const imageUrl = 
+  const imageUrl =
     product?.ProductImages && product.ProductImages.length > 0
       ? `https://greenglow.in/kauthuk_test/${product.ProductImages[0].image_path}`
-      : "/assets/images/placeholder.jpg";
-  
+      : "/assets/images/placeholder.png";
+
   // Calculate discount if applicable
   const hasDiscount = product?.base_price > product?.price_rupees;
   const discountPercentage = hasDiscount
@@ -166,16 +173,17 @@ const RelatedProductCard = ({ product }) => {
 
   // Determine if product is in stock
   const inStock = product?.stock_status === "yes" && product?.stock_count > 0;
-  
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (inStock) {
-      const thumbnail = product.ProductImages && product.ProductImages.length > 0
-        ? product.ProductImages[0].image_path
-        : null;
-        
+      const thumbnail =
+        product.ProductImages && product.ProductImages.length > 0
+          ? product.ProductImages[0].image_path
+          : null;
+
       const cartItem = {
         id: product.id,
         title: product.title,
@@ -184,20 +192,20 @@ const RelatedProductCard = ({ product }) => {
         image: thumbnail,
         quantity: 1,
       };
-      
+
       addToCart(cartItem);
     } else {
       toast("Product Out of Stock");
     }
   };
-  
+
   const truncateDescription = (text, maxLength = 80) => {
     if (!text) return "";
     return text.length > maxLength
       ? `${text.substring(0, maxLength)}...`
       : text;
   };
-  
+
   // Shimmer effect for image loading
   const shimmer = (w, h) => `
   <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -218,7 +226,7 @@ const RelatedProductCard = ({ product }) => {
     typeof window === "undefined"
       ? Buffer.from(str).toString("base64")
       : window.btoa(str);
-  
+
   return (
     <motion.div
       className="h-full"
@@ -286,10 +294,6 @@ const RelatedProductCard = ({ product }) => {
           <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
             {product?.title || "Product Name"}
           </h3>
-
-          <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-            {truncateDescription(product?.description)}
-          </p>
 
           <div className="flex items-baseline gap-2">
             <p className="text-xl font-bold text-indigo-600">

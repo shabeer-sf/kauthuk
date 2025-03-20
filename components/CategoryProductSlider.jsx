@@ -71,7 +71,7 @@ const ProductCard = ({ product, index }) => {
       image:
         ProductImages && ProductImages.length > 0
           ? `https://greenglow.in/kauthuk_test/${ProductImages[0].image_path}`
-          : "/assets/images/placeholder.jpg",
+          : "/assets/images/placeholder.png",
       maxStock: product.stock_count || 10,
     });
   };
@@ -92,7 +92,7 @@ const ProductCard = ({ product, index }) => {
   const imageUrl =
     ProductImages && ProductImages.length > 0
       ? `https://greenglow.in/kauthuk_test/${ProductImages[0].image_path}`
-      : "/assets/images/placeholder.jpg";
+      : "/assets/images/placeholder.png";
 
   // Create color variants for the backgrounds when no images are available
   const colorVariants = [
@@ -164,21 +164,6 @@ const ProductCard = ({ product, index }) => {
         </div>
 
         <div className="p-5">
-          <div className="flex items-center mb-2">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={cn(
-                  "w-4 h-4",
-                  i < rating
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-gray-300"
-                )}
-              />
-            ))}
-            <span className="text-xs text-gray-500 ml-2">(24)</span>
-          </div>
-
           <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
             {title || "Product"}
           </h3>

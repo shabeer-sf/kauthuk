@@ -79,7 +79,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
   const imageUrl =
     product?.ProductImages && product.ProductImages.length > 0
       ? `https://greenglow.in/kauthuk_test/${product.ProductImages[0].image_path}`
-      : "/assets/images/placeholder.jpg";
+      : "/assets/images/placeholder.png";
 
   // Calculate discount if applicable (should come from the API in a real app)
   const hasDiscount = product?.base_price > product?.price_rupees;
@@ -177,10 +177,6 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             {product?.title || "Product Name"}
           </h3>
 
-          <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-            {truncateDescription(product?.description)}
-          </p>
-
           <div className="flex items-baseline gap-2">
             <p className="text-xl font-bold text-indigo-600">
               ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
@@ -260,20 +256,6 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         <div className="flex-1 flex flex-col">
           <div className="mb-auto">
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-4 h-4 ${
-                      i < 4
-                        ? "text-yellow-400 fill-yellow-400"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
-                <span className="text-xs text-gray-500 ml-2">(24)</span>
-              </div>
-
               <Badge
                 className={`px-2 py-1 font-medium shadow-sm ${
                   inStock
@@ -289,9 +271,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               {product?.title || "Product Name"}
             </h3>
 
-            <p className="text-sm text-gray-500 mb-4 md:line-clamp-3">
-              {product?.description || "No description available"}
-            </p>
+          
 
             {/* Additional product details */}
             <div className="hidden md:grid grid-cols-2 gap-x-6 gap-y-2 mb-4">

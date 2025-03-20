@@ -8,6 +8,30 @@ import * as ftp from "basic-ftp";
 
 const localTempDir = os.tmpdir();
 
+// FTP configuration - extracted to avoid repetition and improve security
+// In production, these should be environment variables
+const FTP_CONFIG = {
+  host: "ftp.greenglow.in",
+  port: 21,
+  user: "u737108297.kauthuktest",
+  password: "Test_kauthuk#123",
+  remoteDir: "/kauthuk_test/"
+};
+
+// Utility function to connect to FTP
+async function connectToFTP(ftpClient) {
+  if (ftpClient.closed) {
+    await ftpClient.access({
+      host: FTP_CONFIG.host,
+      port: FTP_CONFIG.port,
+      user: FTP_CONFIG.user,
+      password: FTP_CONFIG.password,
+    });
+    console.log("Connected to FTP server");
+  }
+  return ftpClient;
+}
+
 // Create a new product with all related data
 export async function createProduct(data) {
   const ftpClient = new ftp.Client();
@@ -101,18 +125,11 @@ export async function createProduct(data) {
   }
 }
 
-// Helper function to handle image uploads to FTP
+// Improved helper function to handle image uploads to FTP
 async function handleProductImages(ftpClient, productId, images, variantId = null) {
   try {
     // Connect to FTP server
-    await ftpClient.access({
-      host: "ftp.greenglow.in",
-      port: 21,
-      user: "u737108297.kauthuktest",
-      password: "Test_kauthuk#123",
-    });
-
-    console.log("Connected to FTP server for image upload");
+    await connectToFTP(ftpClient);
 
     // Process each image
     for (let i = 0; i < images.length; i++) {
@@ -126,21 +143,23 @@ async function handleProductImages(ftpClient, productId, images, variantId = nul
       await fs.writeFile(tempImagePath, buffer);
 
       // Upload to FTP
-      const remoteFilePath = `/kauthuk_test/${newImageName}`;
+      const remoteFilePath = `${FTP_CONFIG.remoteDir}${newImageName}`;
       await ftpClient.uploadFrom(tempImagePath, remoteFilePath);
       console.log(`Image ${i+1} uploaded successfully to: ${remoteFilePath}`);
 
       // Create product image record in database
-      await db.productImage.create({
+      const createdImage = await db.productImage.create({
         data: {
           product_id: productId,
           product_variant_id: variantId,
           image_path: newImageName,
           image_type: i === 0 ? "main" : "gallery",
           display_order: i,
-          is_thumbnail: i === 0 // First image is thumbnail by default
+          is_thumbnail: i === 0 // First image is thumbnail - matches your existing data pattern
         }
       });
+      
+      console.log(`Created product image record:`, createdImage);
 
       // Remove temporary file
       await fs.unlink(tempImagePath);
@@ -238,7 +257,7 @@ export async function getOneProduct(id) {
             Category: true
           }
         },
-        ProductImages: true,
+        ProductImages: true, // Get all images without filtering
         ProductAttributes: {
           include: {
             Attribute: true,
@@ -270,6 +289,13 @@ export async function getOneProduct(id) {
       throw new Error("Product not found");
     }
 
+    // Check if we got any product images
+    if (product.ProductImages.length === 0) {
+      console.log("No images found for product ID:", productId);
+    } else {
+      console.log(`Found ${product.ProductImages.length} images for product ID:`, productId);
+    }
+
     return product;
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -297,19 +323,12 @@ export async function deleteProductById(id) {
 
     // Connect to FTP server to delete images
     if (productImages.length > 0) {
-      await ftpClient.access({
-        host: "ftp.greenglow.in",
-        port: 21,
-        user: "u737108297.kauthuktest",
-        password: "Test_kauthuk#123",
-      });
-
-      console.log("Connected to FTP server for image deletion");
+      await connectToFTP(ftpClient);
 
       // Delete each image from FTP
       for (const image of productImages) {
         try {
-          const remoteFilePath = `/kauthuk_test/${image.image_path}`;
+          const remoteFilePath = `${FTP_CONFIG.remoteDir}${image.image_path}`;
           await ftpClient.remove(remoteFilePath);
           console.log("Image deleted from FTP:", remoteFilePath);
         } catch (ftpError) {
@@ -412,14 +431,17 @@ export async function getProducts({
       orderBy,
       include: {
         SubCategory: {
-          // Add this 'include' to handle null SubCategory
           include: {
             Category: true
           }
         },
         ProductImages: {
-          where: { is_thumbnail: true },
-          take: 1
+          // Looking at your database, none of your images have is_thumbnail=true
+          // So we'll get all images for each product instead of filtering
+          take: 5, // Limit to 5 images per product for performance
+          orderBy: {
+            display_order: 'asc' // Order by display_order to get most important first
+          }
         },
         ProductVariants: {
           select: {
@@ -435,6 +457,11 @@ export async function getProducts({
     // Filter out products with invalid SubCategory if needed for the client
     const validProducts = products.filter(product => product.SubCategory !== null);
 
+    // Log image counts for debugging
+    for (const product of validProducts) {
+      console.log(`Product ${product.id} (${product.title}) has ${product.ProductImages.length} images`);
+    }
+
     return {
       products: validProducts, // Send only products with valid subcategories
       totalPages: Math.ceil(totalCount / limit),
@@ -443,6 +470,98 @@ export async function getProducts({
   } catch (error) {
     console.error("Error fetching products:", error.message);
     throw new Error("Failed to fetch products. Please try again later.");
+  }
+}
+
+// Check if images exist for a product (debugging function)
+export async function checkProductImages(productId) {
+  try {
+    // Get all images for the product
+    const images = await db.productImage.findMany({
+      where: { product_id: parseInt(productId) }
+    });
+
+    // Look specifically for thumbnail images
+    const thumbnailImages = await db.productImage.findMany({
+      where: { 
+        product_id: parseInt(productId),
+        is_thumbnail: true
+      }
+    });
+    
+    // Check if we need to fix this product's images
+    let fixResult = null;
+    if (images.length > 0 && thumbnailImages.length === 0) {
+      // Set the first image as a thumbnail if none exists
+      const firstImage = images[0];
+      await db.productImage.update({
+        where: { id: firstImage.id },
+        data: { is_thumbnail: true }
+      });
+      fixResult = "Fixed: Set the first image as thumbnail";
+    }
+    
+    return {
+      success: true,
+      imagesCount: images.length,
+      thumbnailCount: thumbnailImages.length,
+      images,
+      fixResult
+    };
+  } catch (error) {
+    console.error("Error checking product images:", error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// Utility function to fix all product images with no thumbnails
+export async function fixProductImageThumbnails() {
+  try {
+    // Get all products
+    const products = await db.product.findMany({
+      select: { id: true }
+    });
+    
+    let fixedCount = 0;
+    
+    // For each product, check if it needs fixing
+    for (const product of products) {
+      const images = await db.productImage.findMany({
+        where: { product_id: product.id },
+        orderBy: { display_order: 'asc' }
+      });
+      
+      const thumbnailImages = await db.productImage.findMany({
+        where: { 
+          product_id: product.id,
+          is_thumbnail: true
+        }
+      });
+      
+      // If we have images but no thumbnails, fix it
+      if (images.length > 0 && thumbnailImages.length === 0) {
+        const firstImage = images[0];
+        await db.productImage.update({
+          where: { id: firstImage.id },
+          data: { is_thumbnail: true }
+        });
+        fixedCount++;
+      }
+    }
+    
+    return {
+      success: true,
+      message: `Fixed ${fixedCount} products with missing thumbnails`
+    };
+  } catch (error) {
+    console.error("Error fixing product thumbnails:", error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }
 
@@ -552,18 +671,11 @@ export async function updateProduct(id, data) {
           
           // Delete images from FTP
           if (variantImages.length > 0) {
-            if (!ftpClient.closed) {
-              await ftpClient.access({
-                host: "ftp.greenglow.in",
-                port: 21,
-                user: "u737108297.kauthuktest",
-                password: "Test_kauthuk#123",
-              });
-            }
+            await connectToFTP(ftpClient);
             
             for (const image of variantImages) {
               try {
-                const remoteFilePath = `/kauthuk_test/${image.image_path}`;
+                const remoteFilePath = `${FTP_CONFIG.remoteDir}${image.image_path}`;
                 await ftpClient.remove(remoteFilePath);
               } catch (ftpError) {
                 console.warn("Error deleting variant image:", ftpError.message);
@@ -701,19 +813,12 @@ async function deleteProductImages(ftpClient, imageIds) {
     }
 
     // Connect to FTP if not already connected
-    if (ftpClient.closed) {
-      await ftpClient.access({
-        host: "ftp.greenglow.in",
-        port: 21, 
-        user: "u737108297.kauthuktest",
-        password: "Test_kauthuk#123",
-      });
-    }
+    await connectToFTP(ftpClient);
 
     // Delete each image from FTP and database
     for (const image of imagesToDelete) {
       try {
-        const remoteFilePath = `/kauthuk_test/${image.image_path}`;
+        const remoteFilePath = `${FTP_CONFIG.remoteDir}${image.image_path}`;
         await ftpClient.remove(remoteFilePath);
         console.log("Image deleted from FTP:", remoteFilePath);
       } catch (ftpError) {
@@ -775,8 +880,7 @@ export async function getCategoriesAndSubcategories() {
   }
 }
 
-
-
+// Fix products with missing subcategories
 export async function repairProductSubcategories() {
   try {
     // Find products with missing subcategory references
@@ -826,7 +930,6 @@ export async function repairProductSubcategories() {
       message: `Repaired ${invalidProducts.length} products with invalid subcategory references`
     };
   } catch (error) {
-    // Fix the console.error call
     console.error("Error repairing products:", error?.message || "Unknown error");
     
     return {

@@ -527,12 +527,7 @@ const ProductDetails = () => {
                   </Badge>
                 )}
 
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Tag className="h-3 w-3" />
-                  <span>
-                    SKU: {selectedVariant ? selectedVariant.sku : "N/A"}
-                  </span>
-                </Badge>
+                
               </div>
             </div>
 

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useCart } from '@/providers/CartProvider';
 import { toast } from 'sonner';
+import { useUserAuth } from '@/providers/UserProvider';
 
 // UI Components
 import {
@@ -121,16 +122,23 @@ const OrderSchemaWithConditionalValidation = OrderSchema.refine(
 // Server action to create an order (would be in a separate file)
 async function createOrder(orderData) {
   try {
-    // This would be a fetch call to your API in a real app
-    return {
-      success: true,
-      order: {
-        id: "ORD" + Math.floor(100000 + Math.random() * 900000),
-        ...orderData,
-        createdAt: new Date().toISOString(),
-        status: "pending"
-      }
-    };
+    // In a real implementation, this would be an API call
+    // For now, we'll simulate a successful order creation
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create order');
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error creating order:", error);
     return {
@@ -143,6 +151,7 @@ async function createOrder(orderData) {
 const CheckoutPage = () => {
   const router = useRouter();
   const { cart, totals, currency, formatPrice, itemCount, clearCart } = useCart();
+  const { user, isAuthenticated } = useUserAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [order, setOrder] = useState(null);
@@ -158,14 +167,15 @@ const CheckoutPage = () => {
     watch,
     setValue,
     getValues,
-    trigger
+    trigger,
+    reset
   } = useForm({
     resolver: zodResolver(OrderSchemaWithConditionalValidation),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
+      firstName: user?.name?.split(' ')[0] || "",
+      lastName: user?.name?.split(' ')[1] || "",
+      email: user?.email || "",
+      phone: user?.mobile || "",
       billingAddress1: "",
       billingAddress2: "",
       billingCity: "",
@@ -187,10 +197,42 @@ const CheckoutPage = () => {
     mode: "onChange"
   });
 
+  // Populate form with user data if they're logged in
+  useEffect(() => {
+    if (user) {
+      setValue("firstName", user.name?.split(' ')[0] || "");
+      setValue("lastName", user.name?.split(' ')[1] || "");
+      setValue("email", user.email || "");
+      setValue("phone", user.mobile || "");
+
+      // If user has default delivery address, set it
+      if (user.DeliveryAddresses && user.DeliveryAddresses.length > 0) {
+        const defaultAddress = user.DeliveryAddresses.find(addr => addr.is_default) || user.DeliveryAddresses[0];
+        
+        if (defaultAddress) {
+          setValue("billingAddress1", defaultAddress.address || "");
+          setValue("billingCity", defaultAddress.city || "");
+          setValue("billingState", defaultAddress.state_id?.state_en || "");
+          setValue("billingPostalCode", defaultAddress.pin || "");
+          setValue("billingCountry", defaultAddress.country_id?.country_enName || "India");
+        }
+      }
+    }
+  }, [user, setValue]);
+
   // Watch for form values
   const watchSameAsBilling = watch("sameAsBilling");
   const watchShippingMethod = watch("shippingMethod");
   const watchPaymentMethod = watch("paymentMethod");
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated() && typeof window !== 'undefined') {
+      localStorage.setItem("redirectAfterLogin", "/checkout");
+      toast.info("Please log in to proceed with checkout");
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
 
   // Calculate order summary
   const subtotal = totals[currency];
@@ -238,7 +280,7 @@ const CheckoutPage = () => {
     const currencyCode = currency === "INR" ? "INR" : "USD";
 
     const options = {
-      key: "rzp_test_XJHuf2tDhLQjAV", // Replace with your actual Razorpay key
+      key: "rzp_test_jG2ZIwR6d1w09S", // Your Razorpay key from your data
       amount: amountInSmallestUnit,
       currency: currencyCode,
       name: "Kauthuk",
@@ -284,14 +326,30 @@ const CheckoutPage = () => {
       // In a real app, you would make a server call to verify the payment
       console.log("Payment verification:", response);
       
-      // Simulate a successful verification
-      setTimeout(() => {
-        setPaymentSuccess(true);
-        setIsProcessing(false);
-        
-        // Clear the cart after successful payment
-        clearCart();
-      }, 1500);
+      // Make an API call to verify the payment
+      const verificationResult = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+          order_id: orderId
+        }),
+      });
+
+      if (!verificationResult.ok) {
+        throw new Error('Payment verification failed');
+      }
+      
+      // If verification successful
+      setPaymentSuccess(true);
+      setIsProcessing(false);
+      
+      // Clear the cart after successful payment
+      clearCart();
     } catch (error) {
       toast.error("Payment verification failed. Please contact support.");
       setIsProcessing(false);
@@ -302,8 +360,8 @@ const CheckoutPage = () => {
     setIsProcessing(true);
     
     try {
-      // Create the order in your database
-      const result = await createOrder({
+      // Format the customer data for the order
+      const orderData = {
         ...data,
         items: cart,
         currency,
@@ -311,7 +369,11 @@ const CheckoutPage = () => {
         shipping: shippingCost,
         tax,
         total,
-      });
+        userId: user?.id,
+      };
+      
+      // Create the order in your database
+      const result = await createOrder(orderData);
       
       if (result.success) {
         setOrder(result.order);
@@ -456,9 +518,9 @@ const CheckoutPage = () => {
                 We've sent a confirmation email to <strong>{getValues("email")}</strong> with all the details of your order.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 w-full">
-                <Link href="/account/orders" className="flex-1">
+                <Link href="/my-account" className="flex-1">
                   <Button variant="outline" className="w-full">
-                    View Order
+                    View My Orders
                   </Button>
                 </Link>
                 <Link href="/products" className="flex-1">
@@ -698,34 +760,95 @@ const CheckoutPage = () => {
                             )}
                           </div>
                         </div>
+
+                        <div className="flex items-center mt-6">
+                          <Checkbox
+                            id="sameAsBilling"
+                            checked={watchSameAsBilling}
+                            onCheckedChange={(checked) => {
+                              setValue("sameAsBilling", checked === true);
+                            }}
+                          />
+                          <label
+                            htmlFor="sameAsBilling"
+                            className="ml-2 text-sm font-medium text-gray-700 cursor-pointer"
+                          >
+                            Same as billing address
+                          </label>
+                        </div>
                       </CardContent>
                     </Card>
 
+                    {/* Order Notes */}
                     <Card className="mb-6">
                       <CardContent className="p-6">
-                        <div className="flex items-center justify-between mb-6">
-                          <h2 className="text-xl font-semibold flex items-center">
+                        <Accordion type="single" collapsible>
+                          <AccordionItem value="order-notes">
+                            <AccordionTrigger className="text-base font-medium">
+                              <div className="flex items-center">
+                                <Info className="h-4 w-4 mr-2 text-indigo-600" />
+                                Add Order Notes
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="mt-2">
+                                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                                  Order Notes
+                                </label>
+                                <Textarea
+                                  id="notes"
+                                  {...register("notes")}
+                                  placeholder="Any special instructions for delivery"
+                                  className="h-24"
+                                />
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </CardContent>
+                    </Card>
+
+                    {/* Terms and Conditions */}
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox 
+                            id="termsAccepted"
+                            checked={watch("termsAccepted")}
+                            onCheckedChange={(checked) => setValue("termsAccepted", checked === true)}
+                          />
+                          <div>
+                            <label
+                              htmlFor="termsAccepted"
+                              className="text-sm font-medium text-gray-700 cursor-pointer"
+                            >
+                              I accept the terms and conditions
+                            </label>
+                            <p className="text-xs text-gray-500 mt-1">
+                              By placing your order, you agree to our{" "}
+                              <Link href="/terms" className="text-indigo-600 hover:text-indigo-800">
+                                Terms of Service
+                              </Link>{" "}
+                              and{" "}
+                              <Link href="/privacy" className="text-indigo-600 hover:text-indigo-800">
+                                Privacy Policy
+                              </Link>
+                            </p>
+                          </div>
+                        </div>
+                        {errors.termsAccepted && (
+                          <p className="text-red-500 text-sm mt-2 ml-7">{errors.termsAccepted.message}</p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {!watchSameAsBilling && (
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-xl font-semibold mb-6 flex items-center">
                             <MapPin className="h-5 w-5 mr-2 text-indigo-600" />
                             Shipping Information
                           </h2>
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="sameAsBilling"
-                              checked={watchSameAsBilling}
-                              onCheckedChange={(checked) => {
-                                setValue("sameAsBilling", checked === true);
-                              }}
-                            />
-                            <label
-                              htmlFor="sameAsBilling"
-                              className="ml-2 text-sm font-medium text-gray-700 cursor-pointer"
-                            >
-                              Same as billing address
-                            </label>
-                          </div>
-                        </div>
-
-                        {!watchSameAsBilling && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="sm:col-span-2">
                               <label htmlFor="shippingAddress1" className="block text-sm font-medium text-gray-700 mb-1">
@@ -817,11 +940,11 @@ const CheckoutPage = () => {
                               )}
                             </div>
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                      </Card>
+                    )}
 
-                    <Card>
+                    <Card className="mb-6">
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-6 flex items-center">
                           <Truck className="h-5 w-5 mr-2 text-indigo-600" />
@@ -987,35 +1110,6 @@ const CheckoutPage = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Order Notes */}
-                    <Card className="mb-6">
-                      <CardContent className="p-6">
-                        <Accordion type="single" collapsible>
-                          <AccordionItem value="order-notes">
-                            <AccordionTrigger className="text-base font-medium">
-                              <div className="flex items-center">
-                                <Info className="h-4 w-4 mr-2 text-indigo-600" />
-                                Add Order Notes
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="mt-2">
-                                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                                  Order Notes
-                                </label>
-                                <Textarea
-                                  id="notes"
-                                  {...register("notes")}
-                                  placeholder="Any special instructions for delivery"
-                                  className="h-24"
-                                />
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </CardContent>
-                    </Card>
-
                     {/* Terms and Conditions */}
                     <Card>
                       <CardContent className="p-6">
@@ -1110,10 +1204,15 @@ const CheckoutPage = () => {
                           <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                             {item.image ? (
                               <Image
-                                src={`https://greenglow.in/kauthuk_test/${item.image}`}
-                                alt={item.title}
+                                src={item.image.startsWith('http') ? item.image : `https://greenglow.in/kauthuk_test/${item.image}`}
+                                alt={item.title || "Product"}
                                 fill
+                                sizes="64px"
                                 className="object-cover"
+                                onError={(e) => {
+                                  // Handle image loading errors
+                                  e.currentTarget.src = '/product-placeholder.jpg';
+                                }}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
@@ -1121,16 +1220,16 @@ const CheckoutPage = () => {
                               </div>
                             )}
                             <div className="absolute -top-1 -right-1 bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
-                              {item.quantity}
+                              {item.quantity || 1}
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="text-sm font-medium text-gray-900 truncate">
-                              {item.title}
+                              {item.title || "Product"}
                             </h3>
                             {item.variant && (
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {item.variant.attributes.map((attr, i) => (
+                                {item.variant.attributes && item.variant.attributes.map((attr, i) => (
                                   <Badge key={i} variant="outline" className="text-xs px-1 py-0">
                                     {attr.value}
                                   </Badge>
@@ -1139,18 +1238,18 @@ const CheckoutPage = () => {
                             )}
                             <div className="text-sm text-gray-600 mt-1">
                               {currency === "INR" ? (
-                                <>{formatPrice(item.price)} × {item.quantity}</>
+                                <>{formatPrice(item.price || 0)} × {item.quantity || 1}</>
                               ) : (
-                                <>{formatPrice(item.priceDollars)} × {item.quantity}</>
+                                <>{formatPrice(item.priceDollars || 0)} × {item.quantity || 1}</>
                               )}
                             </div>
                           </div>
                           <div className="text-right">
                             <span className="text-sm font-medium">
                               {currency === "INR" ? (
-                                <>{formatPrice(item.price * item.quantity)}</>
+                                <>{formatPrice((item.price || 0) * (item.quantity || 1))}</>
                               ) : (
-                                <>{formatPrice(item.priceDollars * item.quantity)}</>
+                                <>{formatPrice((item.priceDollars || 0) * (item.quantity || 1))}</>
                               )}
                             </span>
                           </div>
