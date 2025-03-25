@@ -71,7 +71,7 @@ const MainPage = () => {
           <PromotionalBanner 
             title="STARTING ₹99" 
             subtitle="Kids collection"
-            imagePath="/assets/images/kids-collection.jpg"
+            imagePath="/assets/images/banner.jpg"
             bgColor="#F9EBD7"
             link="/category/kids"
           />
@@ -99,7 +99,7 @@ const MainPage = () => {
           <PromotionalBanner 
             title="HANDCRAFTED" 
             subtitle="Aranmula Kannadi"
-            imagePath="/assets/images/aranmula-mirror.jpg"
+            imagePath="/assets/images/banner.jpg"
             bgColor="#E7DFD8"
             link="/product/aranmula-mirror"
           />
