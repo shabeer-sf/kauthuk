@@ -9,7 +9,8 @@ export async function GET() {
     const { image, code } = await generateCaptcha();
     
     // Store the captcha code in a cookie for verification
-    cookies().set({
+    const cookieStore = await cookies();
+    await cookieStore.set({
       name: 'captcha_code',
       value: code,
       httpOnly: true,

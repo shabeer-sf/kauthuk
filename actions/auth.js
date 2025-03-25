@@ -31,8 +31,8 @@ export async function verifyOTP(userId, otp) {
     }
 
     // Check if the OTP matches the one stored in the session
-    const cookieStore = cookies();
-    const storedOTP = cookieStore.get('user_otp')?.value;
+    const cookieStore = await cookies();
+    const storedOTP = await cookieStore.get('user_otp')?.value;
 
     if (!storedOTP || storedOTP !== otp) {
       return {
@@ -562,7 +562,8 @@ export async function loginUser(formData) {
         error: "Your account is currently inactive. Please contact support."
       };
     }
-    
+    const decodedStoredPassword3 = await baseDecode(user.password);
+    console.log("decodedStoredPassword3",decodedStoredPassword3)
     // First try modern bcrypt verification
     let passwordMatch = false;
     try {
