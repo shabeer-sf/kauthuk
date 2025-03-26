@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/MainComponents/Header";
+import CategoryList from "@/components/CategoryList"; // Import CategoryList
 import { CartProvider } from "@/providers/CartProvider";
 import { UserAuthProvider } from "@/providers/UserProvider";
 import { Playfair_Display, Poppins } from "next/font/google";
@@ -24,6 +25,8 @@ export default function MainLayout({ children }) {
       <CartProvider>
         <main className={`w-full ${playfair.variable} ${poppins.variable}`}>
           <Header />
+          {/* Add CategoryList component below Header */}
+          {/* <CategoryList /> */}
           <div className="w-full px-3 min-h-screen">
             {children}
           </div>

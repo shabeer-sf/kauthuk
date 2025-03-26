@@ -316,10 +316,10 @@ const ProductSlider = ({
                 slidesPerView: 3,
               },
               768: {
-                slidesPerView: 4,
+                slidesPerView: 3,
               },
               1024: {
-                slidesPerView: 5,
+                slidesPerView: 3,
               },
             }}
             onInit={(swiper) => {

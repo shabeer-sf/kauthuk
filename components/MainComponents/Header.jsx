@@ -233,19 +233,10 @@ const Header = () => {
           </Link>
 
           {/* Main Navigation - Desktop */}
-          <div className="hidden md:flex items-center space-x-6">
-            {getNavCategories().map((category) => (
-              <Link
-                key={category.id}
-                href={category.href}
-                className="text-white flex items-center font-normal text-sm hover:opacity-80 transition-opacity"
-              >
-                <span className="mr-1.5">{category.icon}</span>
-                <span style={{ fontFamily: 'Poppins, sans-serif' }}>{category.name}</span>
-              </Link>
-            ))}
-          </div>
+          <div className="flex-1">
+          <CategoryList />
 
+          </div>
           {/* Right Icons */}
           <div className="flex items-center space-x-3">
             {/* Search Icon */}

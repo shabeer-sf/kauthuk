@@ -145,3 +145,70 @@ body {
     padding: 4px !important;
   }
 }
+
+/* Add these styles to your global.css file */
+
+/* Font variables for reference in inline styles */
+:root {
+  --font-playfair: 'Playfair Display', serif;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+/* Mega menu dropdown hover effects */
+.mega-menu-item {
+  position: relative;
+}
+
+.mega-menu-item:hover .mega-menu-dropdown {
+  display: block !important;
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.mega-menu-dropdown {
+  display: none !important;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  visibility: hidden;
+  z-index: 100;
+}
+
+/* Category underline animation */
+.category-underline {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #6B2F1A;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.mega-menu-item:hover .category-underline {
+  transform: scaleX(1);
+}
+
+/* Ensure subcategory text uses Poppins font */
+.subcategory-item {
+  font-family: var(--font-poppins);
+}
+
+/* Ensure category headings use Playfair Display font */
+.category-heading {
+  font-family: var(--font-playfair);
+}
+
+/* Mobile menu styling enhancements */
+.mobile-menu-category {
+  font-family: var(--font-playfair);
+  font-weight: 500;
+}
+
+.mobile-menu-subcategory {
+  font-family: var(--font-poppins);
+  font-weight: 400;
+}

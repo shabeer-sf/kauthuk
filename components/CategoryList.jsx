@@ -25,38 +25,13 @@ const CategoryList = () => {
     fetchCategories();
   }, []);
   
-  // Add custom CSS for hover effects
+  // We're now using global CSS instead of injected styles
   useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .mega-menu-item {
-        position: relative;
-      }
-      .mega-menu-item:hover .mega-menu-dropdown {
-        display: block;
-      }
-      .mega-menu-dropdown {
-        display: none;
-      }
-      
-      @font-face {
-        font-family: 'Playfair Display';
-        font-style: normal;
-        font-weight: 400;
-        src: url(https://fonts.gstatic.com/s/playfairdisplay/v30/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgEM86xQ.woff2) format('woff2');
-      }
-      
-      @font-face {
-        font-family: 'Poppins';
-        font-style: normal;
-        font-weight: 400;
-        src: url(https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2) format('woff2');
-      }
-    `;
-    document.head.appendChild(style);
+    // Add class to body when component is mounted to help with specificity if needed
+    document.body.classList.add('has-mega-menu');
     
     return () => {
-      document.head.removeChild(style);
+      document.body.classList.remove('has-mega-menu');
     };
   }, []);
   
@@ -84,44 +59,37 @@ const CategoryList = () => {
   }
 
   return (
-    <nav className="bg-white">
+    <nav className="">
       {/* Main Categories */}
-      <div className="flex items-center justify-center gap-10 py-4">
+      <div className="flex items-center gap-10 py-4 px-4 max-w-7xl">
         {categories
-          .filter(category => category.showHome === 'active')  // Only show active categories
+          .filter(category => category.showHome === 'active')
           .map((category) => (
           <div
             key={category.id}
             className="relative mega-menu-item"
+            // Using both React state and CSS hover for better compatibility
             onMouseEnter={() => setHoveredCategory(category.id)}
             onMouseLeave={() => setHoveredCategory(null)}
           >
             <Link
               href={`/category/${category.id}`}
-              className="whitespace-nowrap py-2 text-sm font-medium text-[#6B2F1A] transition-colors relative hover:text-[#8D4425] flex items-center"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              className="whitespace-nowrap py-2 text-sm font-bold uppercase text-[#fee3d8] transition-colors relative hover:text-[#8D4425] flex items-center subcategory-item"
             >
               <span className="mr-2">{getCategoryIcon(category.catName)}</span>
               {category.catName}
-              {category.SubCategory?.length > 0 && (
-                <span 
-                  className={`absolute bottom-0 left-0 w-full h-0.5 bg-[#6B2F1A] transition-transform origin-left duration-300 ${
-                    hoveredCategory === category.id ? 'scale-x-100' : 'scale-x-0'
-                  }`}
-                ></span>
-              )}
+              <span className="category-underline"></span>
             </Link>
             
-            {/* Dropdown menu */}
-            {category.SubCategory?.length > 0 && hoveredCategory === category.id && (
+            {/* Dropdown menu - visibility controlled by CSS hover */}
+            {category.SubCategory?.length > 0 && (
               <div 
-                className="absolute left-1/2 transform -translate-x-1/2 bg-white shadow-md rounded-b-md z-50 w-[250px] mt-1 py-3 mega-menu-dropdown"
+                className="absolute left-1/2 transform -translate-x-1/2 bg-[#fee3d8] shadow-md rounded-b-md z-50 w-[250px] mt-2 py-3 mega-menu-dropdown text-[#6B2F1A]"
                 style={{ borderTop: '2px solid #6B2F1A' }}
               >
                 <div className="px-2">
                   <h3 
-                    className="font-medium mb-2 px-4 uppercase text-xs tracking-wide text-[#6B2F1A]"
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                    className="font-medium mb-2 px-4 uppercase text-xs tracking-wide text-[#6B2F1A] category-heading"
                   >
                     Browse {category.catName}
                   </h3>
@@ -131,8 +99,7 @@ const CategoryList = () => {
                       <Link
                         key={subcat.id}
                         href={`/subcategory/${subcat.id}`}
-                        className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors"
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors category-heading"
                       >
                         <span>{subcat.subcategory}</span>
                         <ChevronRight className="h-4 w-4 opacity-70" />
@@ -143,8 +110,7 @@ const CategoryList = () => {
                   <div className="pt-3 mt-3 border-t border-gray-100 px-4">
                     <Link
                       href={`/category/${category.id}`}
-                      className="flex items-center justify-center w-full py-2 text-sm font-medium text-white bg-[#6B2F1A] hover:bg-[#5A2814] rounded-md transition-colors"
-                      style={{ fontFamily: 'Poppins, sans-serif' }}
+                      className="flex items-center justify-center w-full py-2 text-sm font-medium text-white bg-[#6B2F1A] hover:bg-[#5A2814] rounded-md transition-colors category-heading px-3"
                     >
                       View All {category.catName}
                     </Link>
