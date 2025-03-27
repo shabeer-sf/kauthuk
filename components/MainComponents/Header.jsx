@@ -155,18 +155,21 @@ const Header = () => {
     }
   };
 
-  // Navigation categories - now coming from API data dynamically
-  // These will match what's in your admin panel
-  const getNavIcon = (categoryName) => {
-    const icons = {
-      "Paintings": "🖼️",
-      "Gifts & Souvenirs": "🎁",
-      "Decor & Crafts": "🏠",
-      "Apparels & Accessories": "👕",
-      "Furniture": "🪑",
-      "Living Essentials": "🏡"
-    };
-    return icons[categoryName] || "📦";
+  // Get the icon for each category
+  const getCategoryIcon = (categoryName) => {
+    if (categoryName === "Paintings") {
+      return `/assets/images/paintings.png`;
+    }
+    if (categoryName === "Apparels & Accessories") {
+      return `/assets/images/souvenirs.png`;
+    }
+    if (categoryName === "Gifts & Souvenirs") {
+      return `/assets/images/gifts.png`;
+    }
+    if (categoryName === "Decor & Crafts") {
+      return `/assets/images/decor.png`;
+    }
+    return `/assets/images/paintings.png`;
   };
   
   // We'll generate navigation items from fetched categories
@@ -178,7 +181,7 @@ const Header = () => {
       id: category.id,
       name: category.catName.toUpperCase(),
       href: `/category/${category.id}`,
-      icon: getNavIcon(category.catName),
+      icon: getCategoryIcon(category.catName),
       subcategories: category.SubCategory || []
     }));
   };
@@ -234,9 +237,9 @@ const Header = () => {
 
           {/* Main Navigation - Desktop */}
           <div className="flex-1 max-md:hidden">
-          <CategoryList />
-
+            <CategoryList />
           </div>
+          
           {/* Right Icons */}
           <div className="flex items-center space-x-3">
             {/* Search Icon */}
@@ -348,8 +351,6 @@ const Header = () => {
               </span>
             </Button>
 
-            {/* Wishlist Icon removed as requested */}
-
             {/* User Icon */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -422,9 +423,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category Navigation - We're removing this since we'll use the CategoryList component instead */}
-
-                  {/* Mobile Menu (Sheet) */}
+      {/* Mobile Menu (Sheet) */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-50"
@@ -458,7 +457,7 @@ const Header = () => {
             {/* Mobile Nav Menu */}
             <div className="p-4">
               <div className="mb-6">
-                <div className="text-sm font-medium text-gray-500 mb-2">Categories</div>
+                <div className="text-sm font-medium text-gray-500 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Categories</div>
                 <div className="space-y-2">
                   {getNavCategories().map(category => (
                     <Link 
@@ -467,7 +466,18 @@ const Header = () => {
                       className="flex items-center py-2 border-b border-gray-100 text-gray-800"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="mr-2">{category.icon}</span>
+                      <span className="mr-2 relative w-5 h-5 flex items-center justify-center">
+                        <Image 
+                          src={category.icon} 
+                          width={20} 
+                          height={20} 
+                          alt={category.name}
+                          className="object-contain"
+                          onError={(e) => {
+                            e.target.src = "/assets/images/default-icon.png"; // Fallback image
+                          }}
+                        />
+                      </span>
                       <span style={{ fontFamily: 'Poppins, sans-serif' }}>{category.name}</span>
                     </Link>
                   ))}
@@ -475,12 +485,13 @@ const Header = () => {
               </div>
               
               <div className="mb-6">
-                <div className="text-sm font-medium text-gray-500 mb-2">Account</div>
+                <div className="text-sm font-medium text-gray-500 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Account</div>
                 <div className="space-y-2">
                   <Link 
                     href="/login"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     Login
                   </Link>
@@ -488,6 +499,7 @@ const Header = () => {
                     href="/register"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     Register
                   </Link>
@@ -495,6 +507,7 @@ const Header = () => {
                     href="/cart"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     Cart ({itemCount})
                   </Link>
@@ -502,6 +515,7 @@ const Header = () => {
                     href="/wishlist"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     Wishlist
                   </Link>
