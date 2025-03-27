@@ -16,8 +16,15 @@ import {
   Heart,
   Share2,
   Loader2,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Copy,
+  X,
+  Check
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Import styles
@@ -53,6 +60,9 @@ const toBase64 = (str) =>
 
 const ProductCard = ({ id, title, price_rupees, images, index }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareMenuRef = useRef(null);
 
   // Choose the first image or use a fallback
   const imageUrl =
@@ -66,22 +76,59 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
     return `₹${formattedPrice}`;
   };
 
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        setShowShareMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle sharing to various platforms
   const handleShare = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (navigator.share) {
-      navigator.share({
-        title: title,
-        text: `Check out this product: ${title}`,
-        url: `${window.location.origin}/product/${id}`,
-      }).catch((error) => console.log('Error sharing:', error));
-    } else {
-      // Fallback - copy link to clipboard
-      const url = `${window.location.origin}/product/${id}`;
-      navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
-    }
+    setShowShareMenu(!showShareMenu);
+  };
+
+  const shareToFacebook = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToTwitter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this product: ${title}`)}&url=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToLinkedin = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const copyLink = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/product/${id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    setShowShareMenu(false);
   };
 
   return (
@@ -90,32 +137,97 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden">
           {images && images.length > 0 ? (
-            <Image
-              src={imageUrl}
-              alt={title || "Product"}
-              fill
-              placeholder="blur"
-              blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
-              className="object-cover transition-all duration-500 ease-in-out hover:scale-105"
-            />
+            <Link href={`/product/${id}`}>
+              <Image
+                src={imageUrl}
+                alt={title || "Product"}
+                fill
+                placeholder="blur"
+                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+                className="object-cover transition-all duration-500 ease-in-out hover:scale-105"
+              />
+            </Link>
           ) : (
             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
               <span className="text-gray-400">No image</span>
             </div>
           )}
-
-          {/* Share button */}
-          <button
-            onClick={handleShare}
-            className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center"
-          >
-            <Share2 className="w-4 h-4 text-gray-600" />
-          </button>
           
-          {/* Heart button */}
-          <button className="absolute bottom-2 right-2 z-10 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
-            <Heart className="w-4 h-4 text-gray-600" />
-          </button>
+          {/* Action buttons container - now at the bottom */}
+          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
+            {/* Wishlist button */}
+            <button className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors">
+              <Heart className="w-4 h-4 text-[#6B2F1A]" />
+            </button>
+            
+            {/* Share button */}
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                onClick={handleShare}
+                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+              >
+                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+              </button>
+              
+              {/* Share dropdown menu */}
+              <AnimatePresence>
+                {showShareMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
+                  >
+                    <div className="p-2">
+                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        Share this product
+                      </div>
+                      
+                      <button 
+                        onClick={shareToFacebook}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Facebook size={15} className="mr-2 text-blue-600" />
+                        Facebook
+                      </button>
+                      
+                      <button 
+                        onClick={shareToTwitter}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Twitter size={15} className="mr-2 text-blue-400" />
+                        Twitter
+                      </button>
+                      
+                      <button 
+                        onClick={shareToLinkedin}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Linkedin size={15} className="mr-2 text-blue-700" />
+                        LinkedIn
+                      </button>
+                      
+                      <button 
+                        onClick={copyLink}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        {copied ? (
+                          <Check size={15} className="mr-2 text-green-500" />
+                        ) : (
+                          <Copy size={15} className="mr-2 text-gray-500" />
+                        )}
+                        {copied ? "Copied!" : "Copy Link"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
         
         {/* Content Container */}

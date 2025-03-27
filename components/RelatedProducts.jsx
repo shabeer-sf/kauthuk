@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingCart, ChevronRight, Eye, Loader2 } from "lucide-react";
+import { ShoppingCart, ChevronRight, Eye, Loader2, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/providers/CartProvider";
 import { getProducts } from "@/actions/product";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { toast } from "sonner";
 
 // Import Swiper styles
 import "swiper/css";
@@ -58,7 +59,7 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
       <div className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
               Related Products
             </h2>
             <div className="animate-pulse bg-gray-200 h-4 w-16 rounded"></div>
@@ -88,16 +89,17 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
   }
 
   return (
-    <div className="py-12 bg-gray-50">
+    <div className="py-12 bg-[#F9F4F0]">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
             More Products You May Like
           </h2>
           {subcategoryId && (
             <Link
               href={`/subcategory/${subcategoryId}`}
-              className="flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
+              className="flex items-center text-sm font-medium text-[#6B2F1A] hover:text-[#5A2814]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               View All <ChevronRight className="h-4 w-4 ml-1" />
             </Link>
@@ -139,7 +141,7 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
                 slidesPerView: 2.8,
               },
             }}
-            className="pb-12"
+            className="pb-12 kauthuk-swiper"
           >
             {products.map((product) => (
               <SwiperSlide key={product.id}>
@@ -147,6 +149,17 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
               </SwiperSlide>
             ))}
           </Swiper>
+
+          {/* Custom styles for Swiper pagination */}
+          <style jsx global>{`
+            .kauthuk-swiper .swiper-pagination-bullet {
+              background: #6B2F1A;
+              opacity: 0.3;
+            }
+            .kauthuk-swiper .swiper-pagination-bullet-active {
+              opacity: 1;
+            }
+          `}</style>
         </div>
       </div>
     </div>
@@ -156,6 +169,8 @@ const RelatedProducts = ({ subcategoryId, productId, limit = 8 }) => {
 const RelatedProductCard = ({ product }) => {
   const { addToCart, formatPrice, currency } = useCart();
   const [isHovered, setIsHovered] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Safely handle image URLs
   const imageUrl =
@@ -194,8 +209,30 @@ const RelatedProductCard = ({ product }) => {
       };
 
       addToCart(cartItem);
+      toast.success("Added to cart");
     } else {
-      toast("Product Out of Stock");
+      toast.error("Product Out of Stock");
+    }
+  };
+
+  // Handle sharing function
+  const handleShare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (navigator.share) {
+      navigator.share({
+        title: product.title,
+        text: `Check out this product: ${product.title}`,
+        url: `${window.location.origin}/product/${product.id}`,
+      }).catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback - copy link to clipboard
+      const url = `${window.location.origin}/product/${product.id}`;
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -257,7 +294,7 @@ const RelatedProductCard = ({ product }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
+              <Badge className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm">
                 -{discountPercentage}%
               </Badge>
             </div>
@@ -268,12 +305,29 @@ const RelatedProductCard = ({ product }) => {
             <Badge
               className={`px-2 py-1 font-medium shadow-sm ${
                 inStock
-                  ? "bg-green-100 text-green-800"
+                  ? "bg-[#fee3d8] text-[#6B2F1A]"
                   : "bg-red-100 text-red-800"
               }`}
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               {inStock ? "In Stock" : "Out of Stock"}
             </Badge>
+          </div>
+
+          {/* Action buttons at bottom */}
+          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
+            {/* Wishlist button */}
+            <button className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors">
+              <Heart className="w-4 h-4 text-[#6B2F1A]" />
+            </button>
+            
+            {/* Share button */}
+            <button
+              onClick={handleShare}
+              className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+            >
+              <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+            </button>
           </div>
 
           {/* Action buttons overlay */}
@@ -283,24 +337,42 @@ const RelatedProductCard = ({ product }) => {
             }`}
           >
             <Link href={`/product/${product?.id}`}>
-              <button className="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors shadow-md">
+              <button className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
                 <Eye className="w-5 h-5" />
               </button>
             </Link>
+            
+            {inStock && (
+              <button 
+                onClick={handleAddToCart}
+                className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
+              >
+                <ShoppingCart className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
 
         <div className="p-5">
-          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
+          <h3 
+            className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
             {product?.title || "Product Name"}
           </h3>
 
           <div className="flex items-baseline gap-2">
-            <p className="text-xl font-bold text-indigo-600">
+            <p 
+              className="text-xl font-bold text-[#6B2F1A]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
             </p>
             {hasDiscount && (
-              <p className="text-sm text-gray-500 line-through">
+              <p 
+                className="text-sm text-gray-500 line-through"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 ₹{parseFloat(product?.base_price || 0).toLocaleString()}
               </p>
             )}
@@ -310,7 +382,8 @@ const RelatedProductCard = ({ product }) => {
             <Link href={`/product/${product?.id}`} className="flex-1">
               <button
                 type="button"
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 View Details
               </button>

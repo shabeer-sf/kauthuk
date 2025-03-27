@@ -65,6 +65,9 @@ import {
   DollarSign,
   IndianRupee,
   AlertCircle,
+  Copy,
+  Check,
+  Linkedin,
 } from "lucide-react";
 
 // Server Actions
@@ -83,6 +86,8 @@ const ProductDetails = () => {
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [productImages, setProductImages] = useState([]);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
   const pathname = usePathname();
   const { addToCart } = useCart();
 
@@ -301,7 +306,40 @@ const ProductDetails = () => {
   const fullUrl =
     typeof window !== "undefined" ? `${window.location.origin}${pathname}` : "";
 
-  // Helper function to share on social media
+  // Share functions
+  const handleShareClick = () => {
+    setShowShareMenu(!showShareMenu);
+  };
+
+  const shareToFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToTwitter = () => {
+    const title = product?.title || "";
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(fullUrl)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToLinkedin = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const copyLink = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
+      toast.success("Link copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+    setShowShareMenu(false);
+  };
+
   const handleShare = (platform) => {
     const title = product?.title || "";
     const url = fullUrl;
@@ -309,19 +347,17 @@ const ProductDetails = () => {
     let shareUrl;
     switch (platform) {
       case "facebook":
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          url
-        )}`;
+        shareToFacebook();
         break;
       case "twitter":
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-          title
-        )}&url=${encodeURIComponent(url)}`;
+        shareToTwitter();
         break;
-      case "whatsapp":
-        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          `${title} ${url}`
-        )}`;
+      case "linkedin":
+        shareToLinkedin();
+        break;
+      case "instagram":
+        // Instagram doesn't have a direct share URL, but we can copy the link
+        copyLink();
         break;
       default:
         // Use Web Share API if available
@@ -335,15 +371,8 @@ const ProductDetails = () => {
           return;
         }
         // Fallback: copy to clipboard
-        if (typeof navigator !== "undefined" && navigator.clipboard) {
-          navigator.clipboard.writeText(url);
-          toast.success("Link copied to clipboard");
-        }
+        copyLink();
         return;
-    }
-
-    if (typeof window !== "undefined") {
-      window.open(shareUrl, "_blank", "width=600,height=400");
     }
   };
 
@@ -365,12 +394,13 @@ const ProductDetails = () => {
         {/* Breadcrumb */}
         <div className="mb-6">
           <Breadcrumb className="text-xs text-gray-500">
-            <BreadcrumbList className="text-xs">
+            <BreadcrumbList className="text-xs" style={{ fontFamily: "Poppins, sans-serif" }}>
               {product.SubCategory?.Category && (
                 <>
                   <BreadcrumbItem>
                     <BreadcrumbLink
                       href={`/category/${product.SubCategory.Category.id}`}
+                      className="text-[#6B2F1A]/70 hover:text-[#6B2F1A]"
                     >
                       {product.SubCategory.Category.catName}
                     </BreadcrumbLink>
@@ -383,6 +413,7 @@ const ProductDetails = () => {
                   <BreadcrumbItem>
                     <BreadcrumbLink
                       href={`/subcategory/${product.SubCategory.id}`}
+                      className="text-[#6B2F1A]/70 hover:text-[#6B2F1A]"
                     >
                       {product.SubCategory.subcategory}
                     </BreadcrumbLink>
@@ -391,7 +422,7 @@ const ProductDetails = () => {
                 </>
               )}
               <BreadcrumbItem>
-                <BreadcrumbLink className="text-gray-700 font-medium">
+                <BreadcrumbLink className="text-[#6B2F1A] font-medium">
                   {product.title}
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -404,7 +435,7 @@ const ProductDetails = () => {
           {/* Product image gallery section */}
           <div className="space-y-4">
             {/* Main image with zoom */}
-            <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-lg border border-gray-200">
+            <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-lg border border-[#6B2F1A]/10">
               <div
                 className="w-full h-full relative cursor-zoom-in"
                 onMouseEnter={() => setIsZoomed(true)}
@@ -446,7 +477,7 @@ const ProductDetails = () => {
                       size="sm"
                       className={`w-2.5 h-2.5 rounded-full p-0 ${
                         currentImageIndex === index
-                          ? "bg-indigo-600"
+                          ? "bg-[#6B2F1A]"
                           : "bg-gray-300 hover:bg-gray-400"
                       }`}
                       onClick={() => handleImageChange(index)}
@@ -464,7 +495,7 @@ const ProductDetails = () => {
                     key={index}
                     className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                       currentImageIndex === index
-                        ? "border-indigo-600"
+                        ? "border-[#6B2F1A]"
                         : "border-transparent hover:border-gray-300"
                     }`}
                     onClick={() => handleImageChange(index)}
@@ -488,26 +519,80 @@ const ProductDetails = () => {
             {/* Title and badges */}
             <div>
               <div className="flex justify-between items-start">
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 
+                  className="text-3xl font-bold text-[#6B2F1A]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
                   {product.title}
                 </h1>
 
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 relative">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="rounded-full"
-                          onClick={() => handleShare()}
+                          className="rounded-full hover:bg-[#fee3d8] text-[#6B2F1A]"
+                          onClick={handleShareClick}
                         >
-                          <Share2 className="h-5 w-5 text-gray-500" />
+                          <Share2 className="h-5 w-5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Share Product</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  
+                  {/* Share menu */}
+                  {showShareMenu && (
+                    <div className="absolute right-0 top-full mt-2 bg-white rounded-md shadow-lg z-50 w-48 border border-gray-100 overflow-hidden">
+                      <div className="p-2">
+                        <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+                          Share this product
+                        </div>
+                        
+                        <button 
+                          onClick={shareToFacebook}
+                          className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
+                          <Facebook size={15} className="mr-2 text-blue-600" />
+                          Facebook
+                        </button>
+                        
+                        <button 
+                          onClick={shareToTwitter}
+                          className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
+                          <Twitter size={15} className="mr-2 text-blue-400" />
+                          Twitter
+                        </button>
+                        
+                        <button 
+                          onClick={shareToLinkedin}
+                          className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
+                          <Linkedin size={15} className="mr-2 text-blue-700" />
+                          LinkedIn
+                        </button>
+                        
+                        <button 
+                          onClick={copyLink}
+                          className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
+                          {copied ? (
+                            <Check size={15} className="mr-2 text-green-500" />
+                          ) : (
+                            <Copy size={15} className="mr-2 text-gray-500" />
+                          )}
+                          {copied ? "Copied!" : "Copy Link"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -516,18 +601,22 @@ const ProductDetails = () => {
                   variant={
                     product.status === "active" ? "default" : "secondary"
                   }
+                  className={product.status === "active" ? "bg-[#6B2F1A] hover:bg-[#5A2814]" : ""}
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   {product.status === "active" ? "Active" : "Inactive"}
                 </Badge>
 
                 {product.hasVariants && (
-                  <Badge variant="outline" className="flex items-center gap-1">
+                  <Badge 
+                    variant="outline" 
+                    className="flex items-center gap-1 border-[#6B2F1A]/30 text-[#6B2F1A]"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     <Layers className="h-3 w-3" />
                     <span>Multiple Variants</span>
                   </Badge>
                 )}
-
-                
               </div>
             </div>
 
@@ -535,28 +624,18 @@ const ProductDetails = () => {
             <div className="flex flex-col">
               <div className="flex items-end gap-2">
                 <div className="flex items-center">
-                  <IndianRupee className="h-6 w-6 text-gray-700" />
-                  <span className="text-3xl font-bold text-gray-900">
+                  <IndianRupee className="h-6 w-6 text-[#6B2F1A]" />
+                  <span 
+                    className="text-3xl font-bold text-[#6B2F1A]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
                     {formatPrice(currentPrice)}
                   </span>
                 </div>
-
-                {/* <div className="flex items-center text-gray-500 mb-1">
-                  <DollarSign className="h-4 w-4" />
-                  <span className="text-lg">
-                    {formatPrice(currentPriceDollars)}
-                  </span>
-                </div> */}
               </div>
 
-              {/* {product.tax && (
-                <p className="text-sm text-gray-500 mt-1">
-                  + {product.tax}% tax
-                </p>
-              )} */}
-
               {/* Stock status */}
-              <div className="mt-2 flex items-center">
+              <div className="mt-2 flex items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
                 {currentStockStatus === "yes" && currentStock > 0 ? (
                   <>
                     <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
@@ -578,11 +657,16 @@ const ProductDetails = () => {
 
             {/* Social sharing buttons */}
             <div className="flex items-center gap-2 pt-2">
-              <span className="text-sm text-gray-500">Share:</span>
+              <span 
+                className="text-sm text-gray-500"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Share:
+              </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-8 w-8 p-0"
+                className="rounded-full h-8 w-8 p-0 border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                 onClick={() => handleShare("facebook")}
               >
                 <Facebook className="h-4 w-4 text-blue-600" />
@@ -590,7 +674,7 @@ const ProductDetails = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-8 w-8 p-0"
+                className="rounded-full h-8 w-8 p-0 border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                 onClick={() => handleShare("twitter")}
               >
                 <Twitter className="h-4 w-4 text-blue-400" />
@@ -598,26 +682,34 @@ const ProductDetails = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-8 w-8 p-0"
+                className="rounded-full h-8 w-8 p-0 border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                 onClick={() => handleShare()}
               >
                 <Instagram className="h-4 w-4 text-pink-600" />
               </Button>
             </div>
 
-            <Separator />
+            <Separator className="bg-[#6B2F1A]/10" />
 
             {/* Variant selection */}
             {product.hasVariants && product.ProductAttributes && (
               <div className="space-y-4">
-                <h3 className="font-semibold">Choose Options</h3>
+                <h3 
+                  className="font-semibold text-[#6B2F1A]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  Choose Options
+                </h3>
 
                 {product.ProductAttributes.filter(
                   (attr) => attr.Attribute && attr.Attribute.is_variant
                 ).map((attr) => (
                   <div key={attr.id} className="space-y-2">
                     <div className="flex justify-between">
-                      <label className="text-sm text-gray-700">
+                      <label 
+                        className="text-sm text-gray-700"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {attr.Attribute.display_name}
                         {attr.is_required && (
                           <span className="text-red-500 ml-1">*</span>
@@ -625,7 +717,10 @@ const ProductDetails = () => {
                       </label>
 
                       {attr.Attribute.affects_price && (
-                        <span className="text-xs text-indigo-600">
+                        <span 
+                          className="text-xs text-[#6B2F1A]"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           Price may vary
                         </span>
                       )}
@@ -652,7 +747,7 @@ const ProductDetails = () => {
                                       type="button"
                                       className={`w-8 h-8 rounded-full transition-all ${
                                         isSelected
-                                          ? "ring-2 ring-offset-2 ring-indigo-600"
+                                          ? "ring-2 ring-offset-2 ring-[#6B2F1A]"
                                           : "ring-1 ring-gray-200"
                                       }`}
                                       style={{ backgroundColor: colorCode }}
@@ -664,7 +759,7 @@ const ProductDetails = () => {
                                       }
                                     />
                                   </TooltipTrigger>
-                                  <TooltipContent>
+                                  <TooltipContent style={{ fontFamily: "Poppins, sans-serif" }}>
                                     {attrValue.AttributeValue.display_value}
                                   </TooltipContent>
                                 </Tooltip>
@@ -681,9 +776,10 @@ const ProductDetails = () => {
                                 variant={isSelected ? "default" : "outline"}
                                 className={`min-w-[3rem] ${
                                   isSelected
-                                    ? "bg-indigo-600 hover:bg-indigo-700"
-                                    : ""
+                                    ? "bg-[#6B2F1A] hover:bg-[#5A2814]"
+                                    : "border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                                 }`}
+                                style={{ fontFamily: "Poppins, sans-serif" }}
                                 onClick={() =>
                                   handleAttributeChange(
                                     attr.attribute_id.toString(),
@@ -704,9 +800,10 @@ const ProductDetails = () => {
                               variant={isSelected ? "default" : "outline"}
                               className={
                                 isSelected
-                                  ? "bg-indigo-600 hover:bg-indigo-700"
-                                  : ""
+                                  ? "bg-[#6B2F1A] hover:bg-[#5A2814]"
+                                  : "border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                               }
+                              style={{ fontFamily: "Poppins, sans-serif" }}
                               onClick={() =>
                                 handleAttributeChange(
                                   attr.attribute_id.toString(),
@@ -730,13 +827,21 @@ const ProductDetails = () => {
                 (attr) => attr.Attribute && !attr.Attribute.is_variant
               ).length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="font-semibold">Product Options</h3>
+                  <h3 
+                    className="font-semibold text-[#6B2F1A]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    Product Options
+                  </h3>
 
                   {product.ProductAttributes.filter(
                     (attr) => attr.Attribute && !attr.Attribute.is_variant
                   ).map((attr) => (
                     <div key={attr.id} className="space-y-2">
-                      <label className="text-sm text-gray-700">
+                      <label 
+                        className="text-sm text-gray-700"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {attr.Attribute.display_name}
                         {attr.is_required && (
                           <span className="text-red-500 ml-1">*</span>
@@ -744,7 +849,10 @@ const ProductDetails = () => {
                       </label>
 
                       <Select>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger 
+                          className="w-full border-[#6B2F1A]/20 focus:ring-[#6B2F1A]"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           <SelectValue
                             placeholder={`Select ${attr.Attribute.display_name}`}
                           />
@@ -757,6 +865,7 @@ const ProductDetails = () => {
                                   <SelectItem
                                     key={attrValue.id}
                                     value={attrValue.attribute_value_id.toString()}
+                                    style={{ fontFamily: "Poppins, sans-serif" }}
                                   >
                                     {attrValue.AttributeValue.display_value}
                                     {attrValue.price_adjustment_rupees &&
@@ -773,7 +882,12 @@ const ProductDetails = () => {
 
             {/* Quantity selector */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-700">Quantity</label>
+              <label 
+                className="text-sm text-gray-700"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Quantity
+              </label>
               <div className="flex items-center">
                 <Button
                   variant="outline"
@@ -781,12 +895,17 @@ const ProductDetails = () => {
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={quantity <= 1}
-                  className="h-9 w-9 rounded-r-none"
+                  className="h-9 w-9 rounded-r-none border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A]"
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <div className="h-9 px-4 flex items-center justify-center border-y border-gray-200 min-w-[3rem]">
-                  <span className="text-gray-900 font-medium">{quantity}</span>
+                <div className="h-9 px-4 flex items-center justify-center border-y border-[#6B2F1A]/20 min-w-[3rem]">
+                  <span 
+                    className="text-gray-900 font-medium"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    {quantity}
+                  </span>
                 </div>
                 <Button
                   variant="outline"
@@ -801,13 +920,16 @@ const ProductDetails = () => {
                     quantity >= (product.quantity_limit || 10) ||
                     quantity >= currentStock
                   }
-                  className="h-9 w-9 rounded-l-none"
+                  className="h-9 w-9 rounded-l-none border-[#6B2F1A]/20 hover:bg-[#fee3d8] hover:text-[#6B2F1A]"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
 
                 {product.quantity_limit && (
-                  <div className="ml-3 text-xs text-gray-500 flex items-center">
+                  <div 
+                    className="ml-3 text-xs text-gray-500 flex items-center"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     <Info className="h-3 w-3 mr-1" />
                     Limit: {product.quantity_limit} per order
                   </div>
@@ -821,7 +943,8 @@ const ProductDetails = () => {
                 onClick={handleAddToCart}
                 type="button"
                 disabled={currentStockStatus === "no" || currentStock <= 0}
-                className="flex-1 h-12 bg-indigo-600 hover:bg-indigo-700"
+                className="flex-1 h-12 bg-[#6B2F1A] hover:bg-[#5A2814] disabled:bg-[#6B2F1A]/50"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
@@ -831,24 +954,24 @@ const ProductDetails = () => {
             {/* Shipping and returns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="flex items-start">
-                <Truck className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" />
+                <Truck className="h-5 w-5 text-[#6B2F1A] mr-2 mt-0.5" />
                 <div>
-                  <p className="font-medium text-gray-900">Shipping</p>
-                  <p className="text-sm text-gray-500">
+                  <p 
+                    className="font-medium text-gray-900"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    Shipping
+                  </p>
+                  <p 
+                    className="text-sm text-gray-500"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     {product.free_shipping === "yes"
                       ? "Free shipping"
                       : "Standard shipping rates apply"}
                   </p>
                 </div>
               </div>
-
-              {/* <div className="flex items-start">
-                <RotateCcw className="h-5 w-5 text-indigo-600 mr-2 mt-0.5" />
-                <div>
-                  <p className="font-medium text-gray-900">Returns</p>
-                  <p className="text-sm text-gray-500">30-day easy returns</p>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
@@ -859,7 +982,8 @@ const ProductDetails = () => {
             <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 mb-6">
               <TabsTrigger
                 value="description"
-                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:shadow-none py-3"
+                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#6B2F1A] data-[state=active]:shadow-none py-3 data-[state=active]:text-[#6B2F1A]"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 Description
               </TabsTrigger>
@@ -867,7 +991,8 @@ const ProductDetails = () => {
               {product.highlights && (
                 <TabsTrigger
                   value="highlights"
-                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:shadow-none py-3"
+                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#6B2F1A] data-[state=active]:shadow-none py-3 data-[state=active]:text-[#6B2F1A]"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   Highlights
                 </TabsTrigger>
@@ -876,7 +1001,8 @@ const ProductDetails = () => {
               {product.terms_condition && (
                 <TabsTrigger
                   value="terms"
-                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:shadow-none py-3"
+                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#6B2F1A] data-[state=active]:shadow-none py-3 data-[state=active]:text-[#6B2F1A]"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   Terms & Conditions
                 </TabsTrigger>
@@ -887,7 +1013,8 @@ const ProductDetails = () => {
                 product.ProductVariants.length > 0 && (
                   <TabsTrigger
                     value="variants"
-                    className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:shadow-none py-3"
+                    className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#6B2F1A] data-[state=active]:shadow-none py-3 data-[state=active]:text-[#6B2F1A]"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     Variants
                   </TabsTrigger>
@@ -895,9 +1022,12 @@ const ProductDetails = () => {
             </TabsList>
 
             <TabsContent value="description" className="mt-0">
-              <Card>
+              <Card className="border-[#6B2F1A]/10">
                 <CardContent className="p-6">
-                  <div className="prose max-w-none">
+                  <div 
+                    className="prose max-w-none"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     <div
                       dangerouslySetInnerHTML={{
                         __html: product.description || "",
@@ -910,9 +1040,12 @@ const ProductDetails = () => {
 
             {product.highlights && (
               <TabsContent value="highlights" className="mt-0">
-                <Card>
+                <Card className="border-[#6B2F1A]/10">
                   <CardContent className="p-6">
-                    <div className="prose max-w-none">
+                    <div 
+                      className="prose max-w-none"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       <div
                         dangerouslySetInnerHTML={{
                           __html: product.highlights || "",
@@ -926,9 +1059,12 @@ const ProductDetails = () => {
 
             {product.terms_condition && (
               <TabsContent value="terms" className="mt-0">
-                <Card>
+                <Card className="border-[#6B2F1A]/10">
                   <CardContent className="p-6">
-                    <div className="prose max-w-none">
+                    <div 
+                      className="prose max-w-none"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       <div
                         dangerouslySetInnerHTML={{
                           __html: product.terms_condition || "",
@@ -944,13 +1080,13 @@ const ProductDetails = () => {
               product.ProductVariants &&
               product.ProductVariants.length > 0 && (
                 <TabsContent value="variants" className="mt-0">
-                  <Card>
+                  <Card className="border-[#6B2F1A]/10">
                     <CardContent className="p-6">
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[600px] border-collapse">
+                        <table className="w-full min-w-[600px] border-collapse" style={{ fontFamily: "Poppins, sans-serif" }}>
                           <thead>
-                            <tr className="border-b">
-                              <th className="text-left p-2 font-medium text-gray-600">
+                            <tr className="border-b border-[#6B2F1A]/10">
+                              <th className="text-left p-2 font-medium text-[#6B2F1A]">
                                 SKU
                               </th>
                               {product.ProductAttributes &&
@@ -960,32 +1096,35 @@ const ProductDetails = () => {
                                 ).map((attr) => (
                                   <th
                                     key={attr.id}
-                                    className="text-left p-2 font-medium text-gray-600"
+                                    className="text-left p-2 font-medium text-[#6B2F1A]"
                                   >
                                     {attr.Attribute.display_name}
                                   </th>
                                 ))}
-                              <th className="text-left p-2 font-medium text-gray-600">
+                              <th className="text-left p-2 font-medium text-[#6B2F1A]">
                                 Price (₹)
                               </th>
-                              <th className="text-left p-2 font-medium text-gray-600">
+                              <th className="text-left p-2 font-medium text-[#6B2F1A]">
                                 Stock
                               </th>
-                              <th className="text-left p-2 font-medium text-gray-600"></th>
+                              <th className="text-left p-2 font-medium text-[#6B2F1A]"></th>
                             </tr>
                           </thead>
                           <tbody>
                             {product.ProductVariants.map((variant) => (
                               <tr
                                 key={variant.id}
-                                className="border-b hover:bg-gray-50"
+                                className="border-b border-[#6B2F1A]/10 hover:bg-[#fee3d8]/20"
                               >
                                 <td className="p-2">
                                   <div className="font-medium">
                                     {variant.sku}
                                   </div>
                                   {variant.is_default && (
-                                    <Badge variant="outline" className="mt-1">
+                                    <Badge 
+                                      variant="outline" 
+                                      className="mt-1 border-[#6B2F1A]/20 text-[#6B2F1A]"
+                                    >
                                       Default
                                     </Badge>
                                   )}
@@ -1030,7 +1169,7 @@ const ProductDetails = () => {
                                   {variant.stock_status === "yes" ? (
                                     <Badge
                                       variant="outline"
-                                      className="bg-green-50 text-green-700 border-green-200"
+                                      className="bg-[#fee3d8] text-[#6B2F1A] border-[#6B2F1A]/20"
                                     >
                                       In Stock ({variant.stock_count})
                                     </Badge>
@@ -1053,6 +1192,7 @@ const ProductDetails = () => {
                                       variant.stock_status === "no" ||
                                       variant.stock_count <= 0
                                     }
+                                    className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                                     onClick={() => {
                                       // Find the attribute IDs and values for this variant
                                       const attributeSelections = {};
@@ -1107,9 +1247,14 @@ const ProductDetails = () => {
         {/* Extra product information accordions (for mobile-friendly view) */}
         <div className="mt-12 lg:hidden">
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="description">
-              <AccordionTrigger>Description</AccordionTrigger>
-              <AccordionContent>
+            <AccordionItem value="description" className="border-[#6B2F1A]/10">
+              <AccordionTrigger 
+                className="text-[#6B2F1A] hover:text-[#5A2814]"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                Description
+              </AccordionTrigger>
+              <AccordionContent style={{ fontFamily: "Poppins, sans-serif" }}>
                 <div className="prose max-w-none">
                   <div
                     dangerouslySetInnerHTML={{
@@ -1121,9 +1266,14 @@ const ProductDetails = () => {
             </AccordionItem>
 
             {product.highlights && (
-              <AccordionItem value="highlights">
-                <AccordionTrigger>Highlights</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="highlights" className="border-[#6B2F1A]/10">
+                <AccordionTrigger 
+                  className="text-[#6B2F1A] hover:text-[#5A2814]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  Highlights
+                </AccordionTrigger>
+                <AccordionContent style={{ fontFamily: "Poppins, sans-serif" }}>
                   <div className="prose max-w-none">
                     <div
                       dangerouslySetInnerHTML={{
@@ -1136,9 +1286,14 @@ const ProductDetails = () => {
             )}
 
             {product.terms_condition && (
-              <AccordionItem value="terms">
-                <AccordionTrigger>Terms & Conditions</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="terms" className="border-[#6B2F1A]/10">
+                <AccordionTrigger 
+                  className="text-[#6B2F1A] hover:text-[#5A2814]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  Terms & Conditions
+                </AccordionTrigger>
+                <AccordionContent style={{ fontFamily: "Poppins, sans-serif" }}>
                   <div className="prose max-w-none">
                     <div
                       dangerouslySetInnerHTML={{
@@ -1154,33 +1309,55 @@ const ProductDetails = () => {
 
         {/* Trust badges */}
         <div className="mt-12 mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center py-8 border-y border-gray-200">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center py-8 border-y border-[#6B2F1A]/10">
             <div className="flex flex-col items-center">
-              <Shield className="h-8 w-8 text-indigo-600 mb-2" />
-              <h3 className="font-medium">Secure Payment</h3>
-              <p className="text-sm text-gray-500">100% secure payment</p>
+              <Shield className="h-8 w-8 text-[#6B2F1A] mb-2" />
+              <h3 
+                className="font-medium"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                Secure Payment
+              </h3>
+              <p 
+                className="text-sm text-gray-500"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                100% secure payment
+              </p>
             </div>
 
             <div className="flex flex-col items-center">
-              <Truck className="h-8 w-8 text-indigo-600 mb-2" />
-              <h3 className="font-medium">Fast Shipping</h3>
-              <p className="text-sm text-gray-500">
+              <Truck className="h-8 w-8 text-[#6B2F1A] mb-2" />
+              <h3 
+                className="font-medium"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                Fast Shipping
+              </h3>
+              <p 
+                className="text-sm text-gray-500"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {product.free_shipping === "yes"
                   ? "Free shipping option"
                   : "Quick delivery"}
               </p>
             </div>
 
-            {/* <div className="flex flex-col items-center">
-              <RotateCcw className="h-8 w-8 text-indigo-600 mb-2" />
-              <h3 className="font-medium">Easy Returns</h3>
-              <p className="text-sm text-gray-500">30-day return policy</p>
-            </div> */}
-
             <div className="flex flex-col items-center">
-              <Sparkles className="h-8 w-8 text-indigo-600 mb-2" />
-              <h3 className="font-medium">Quality Guaranteed</h3>
-              <p className="text-sm text-gray-500">Satisfaction guaranteed</p>
+              <Sparkles className="h-8 w-8 text-[#6B2F1A] mb-2" />
+              <h3 
+                className="font-medium"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                Quality Guaranteed
+              </h3>
+              <p 
+                className="text-sm text-gray-500"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Satisfaction guaranteed
+              </p>
             </div>
           </div>
         </div>

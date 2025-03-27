@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ShoppingCart, Eye, Star, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, Eye, Star, Heart, Share2, Check, Copy, Facebook, Twitter, Linkedin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -31,6 +31,9 @@ const toBase64 = (str) =>
 
 const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareMenuRef = useRef(null);
 
   // Safely handle image URLs
   const imageUrl =
@@ -49,6 +52,20 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
   // Determine if product is in stock
   const inStock = product?.stock_status === "yes" && product?.stock_count > 0;
 
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        setShowShareMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -64,6 +81,48 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
     e.preventDefault();
     e.stopPropagation();
     toast.success("Added to wishlist!");
+  };
+
+  // Handle sharing to various platforms
+  const handleShare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowShareMenu(!showShareMenu);
+  };
+
+  const shareToFacebook = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/product/${product.id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToTwitter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this product: ${product.title}`)}&url=${encodeURIComponent(`${window.location.origin}/product/${product.id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const shareToLinkedin = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/product/${product.id}`)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+    setShowShareMenu(false);
+  };
+
+  const copyLink = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/product/${product.id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success("Link copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+    setShowShareMenu(false);
   };
 
   const truncateDescription = (text, maxLength = 80) => {
@@ -103,7 +162,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
+              <Badge className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                 -{discountPercentage}%
               </Badge>
             </div>
@@ -114,13 +173,92 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             <Badge
               className={`px-2 py-1 font-medium shadow-sm ${
                 inStock
-                  ? "bg-green-100 text-green-800"
+                  ? "bg-[#fee3d8] text-[#6B2F1A]"
                   : "bg-red-100 text-red-800"
               }`}
               style={{ fontFamily: "Poppins, sans-serif" }}
             >
               {inStock ? "In Stock" : "Out of Stock"}
             </Badge>
+          </div>
+
+          {/* Action buttons at bottom right */}
+          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
+            {/* Wishlist button */}
+            <button
+              onClick={handleAddToWishlist}
+              className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+            >
+              <Heart className="w-4 h-4 text-[#6B2F1A]" />
+            </button>
+            
+            {/* Share button */}
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                onClick={handleShare}
+                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+              >
+                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+              </button>
+              
+              {/* Share dropdown menu */}
+              <AnimatePresence>
+                {showShareMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
+                  >
+                    <div className="p-2">
+                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        Share this product
+                      </div>
+                      
+                      <button 
+                        onClick={shareToFacebook}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Facebook size={15} className="mr-2 text-blue-600" />
+                        Facebook
+                      </button>
+                      
+                      <button 
+                        onClick={shareToTwitter}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Twitter size={15} className="mr-2 text-blue-400" />
+                        Twitter
+                      </button>
+                      
+                      <button 
+                        onClick={shareToLinkedin}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Linkedin size={15} className="mr-2 text-blue-700" />
+                        LinkedIn
+                      </button>
+                      
+                      <button 
+                        onClick={copyLink}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        {copied ? (
+                          <Check size={15} className="mr-2 text-green-500" />
+                        ) : (
+                          <Copy size={15} className="mr-2 text-gray-500" />
+                        )}
+                        {copied ? "Copied!" : "Copy Link"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Action buttons overlay */}
@@ -134,20 +272,14 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                 <Eye className="w-5 h-5" />
               </button>
             </Link>
-            {/* <button
-              onClick={handleAddToWishlist}
-              className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
-            >
-              <Heart className="w-5 h-5" />
-            </button> */}
-            {inStock && (
+            {/* {inStock && (
               <button
                 onClick={handleAddToCart}
                 className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
               >
                 <ShoppingCart className="w-5 h-5" />
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -162,7 +294,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           <div className="flex items-baseline gap-2">
             <p 
               className="text-xl font-bold text-[#6B2F1A]" 
-              style={{ fontFamily: "Playfair Display, serif" }}
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
             </p>
@@ -223,7 +355,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
               <Badge 
-                className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm"
+                className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm"
                 style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 -{discountPercentage}%
@@ -231,26 +363,104 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             </div>
           )}
 
+          {/* Action buttons at bottom right */}
+          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
+            {/* Wishlist button */}
+            <button
+              onClick={handleAddToWishlist}
+              className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+            >
+              <Heart className="w-4 h-4 text-[#6B2F1A]" />
+            </button>
+            
+            {/* Share button */}
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                onClick={handleShare}
+                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+              >
+                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+              </button>
+              
+              {/* Share dropdown menu */}
+              <AnimatePresence>
+                {showShareMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
+                  >
+                    <div className="p-2">
+                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        Share this product
+                      </div>
+                      
+                      <button 
+                        onClick={shareToFacebook}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Facebook size={15} className="mr-2 text-blue-600" />
+                        Facebook
+                      </button>
+                      
+                      <button 
+                        onClick={shareToTwitter}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Twitter size={15} className="mr-2 text-blue-400" />
+                        Twitter
+                      </button>
+                      
+                      <button 
+                        onClick={shareToLinkedin}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        <Linkedin size={15} className="mr-2 text-blue-700" />
+                        LinkedIn
+                      </button>
+                      
+                      <button 
+                        onClick={copyLink}
+                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
+                        {copied ? (
+                          <Check size={15} className="mr-2 text-green-500" />
+                        ) : (
+                          <Copy size={15} className="mr-2 text-gray-500" />
+                        )}
+                        {copied ? "Copied!" : "Copy Link"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
           {/* Action buttons overlay */}
           <div
             className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-2 transition-opacity duration-300 ${
               isHovered ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* <button
-              onClick={handleAddToWishlist}
-              className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
-            >
-              <Heart className="w-4 h-4" />
-            </button> */}
-            {inStock && (
+            <Link href={`/product/${product?.id}`}>
+              <button className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
+                <Eye className="w-4 h-4" />
+              </button>
+            </Link>
+            {/* {inStock && (
               <button
                 onClick={handleAddToCart}
                 className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
               >
                 <ShoppingCart className="w-4 h-4" />
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -260,7 +470,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               <Badge
                 className={`px-2 py-1 font-medium shadow-sm ${
                   inStock
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-[#fee3d8] text-[#6B2F1A]"
                     : "bg-red-100 text-red-800"
                 }`}
                 style={{ fontFamily: "Poppins, sans-serif" }}
@@ -290,7 +500,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             <div className="flex items-baseline gap-2">
               <p 
                 className="text-2xl font-bold text-[#6B2F1A]" 
-                style={{ fontFamily: "Playfair Display, serif" }}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
               </p>
