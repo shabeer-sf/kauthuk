@@ -233,7 +233,7 @@ const Header = () => {
           </Link>
 
           {/* Main Navigation - Desktop */}
-          <div className="flex-1">
+          <div className="flex-1 max-md:hidden">
           <CategoryList />
 
           </div>
