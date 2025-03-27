@@ -63,7 +63,7 @@ const SiteContentPage = () => {
 
           // Set page title
           if (data.title) {
-            document.title = `${data.title} | Your Website Name`;
+            document.title = `${data.title} | Kauthuk`;
           }
         }
       } catch (err) {
@@ -93,19 +93,19 @@ const SiteContentPage = () => {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-12">
         <div className="animate-pulse space-y-8">
-          <Skeleton className="h-8 w-3/4 bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-          <Skeleton className="h-4 w-1/2 bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
+          <Skeleton className="h-8 w-3/4 bg-[#fee3d8] rounded-lg" />
+          <Skeleton className="h-4 w-1/2 bg-[#fee3d8] rounded-lg" />
           <div className="space-y-4">
-            <Skeleton className="h-4 w-full bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-            <Skeleton className="h-4 w-full bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-            <Skeleton className="h-4 w-11/12 bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-            <Skeleton className="h-4 w-3/4 bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
+            <Skeleton className="h-4 w-full bg-[#fee3d8] rounded-lg" />
+            <Skeleton className="h-4 w-full bg-[#fee3d8] rounded-lg" />
+            <Skeleton className="h-4 w-11/12 bg-[#fee3d8] rounded-lg" />
+            <Skeleton className="h-4 w-3/4 bg-[#fee3d8] rounded-lg" />
           </div>
-          <Skeleton className="h-64 w-full bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
+          <Skeleton className="h-64 w-full bg-[#fee3d8] rounded-lg" />
           <div className="space-y-4">
-            <Skeleton className="h-4 w-full bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-            <Skeleton className="h-4 w-full bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
-            <Skeleton className="h-4 w-11/12 bg-blue-100 dark:bg-blue-900/40 rounded-lg" />
+            <Skeleton className="h-4 w-full bg-[#fee3d8] rounded-lg" />
+            <Skeleton className="h-4 w-full bg-[#fee3d8] rounded-lg" />
+            <Skeleton className="h-4 w-11/12 bg-[#fee3d8] rounded-lg" />
           </div>
         </div>
       </div>
@@ -115,17 +115,17 @@ const SiteContentPage = () => {
   if (error) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-12">
-        <Card className="border-red-100 dark:border-red-900/30 overflow-hidden">
-          <CardHeader className="bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-900/30">
-            <CardTitle className="text-red-700 dark:text-red-400">
+        <Card className="border-[#6B2F1A]/20 overflow-hidden">
+          <CardHeader className="bg-[#fee3d8]/50 border-b border-[#6B2F1A]/20">
+            <CardTitle className="text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
               Content Not Found
             </CardTitle>
-            <CardDescription>
+            <CardDescription style={{ fontFamily: "Poppins, sans-serif" }}>
               We couldn't find the content you're looking for.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 flex flex-col items-center text-center">
-            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 mb-4">
+            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#fee3d8]/50 text-[#6B2F1A] mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -141,13 +141,13 @@ const SiteContentPage = () => {
                 />
               </svg>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-gray-600 mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>
               {error === "Page identifier is missing"
                 ? "No page identifier was provided in the URL. Please specify a valid page."
                 : "The requested content could not be found or may have been removed."}
             </p>
             <Link href="/">
-              <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500">
+              <Button className="bg-[#6B2F1A] hover:bg-[#5A2814] text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
                 <HomeIcon size={16} className="mr-2" />
                 Return to Home
               </Button>
@@ -159,15 +159,16 @@ const SiteContentPage = () => {
   }
 
   return (
-    <div className=" bg-slate-50 dark:bg-slate-900 pt-8 pb-16">
+    <div className="bg-[#F9F4F0] pt-8 pb-16">
       <div className="container max-w-7xl mx-auto px-4">
         {/* Breadcrumb */}
-        <Breadcrumb className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+        <Breadcrumb className="mb-8 text-sm text-gray-500">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink
                 href="/"
-                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="flex items-center gap-1 text-[#6B2F1A] hover:text-[#5A2814]"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 <HomeIcon size={14} />
                 Home
@@ -177,7 +178,7 @@ const SiteContentPage = () => {
               <ChevronRight size={12} />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbLink className="text-slate-700 dark:text-slate-300">
+              <BreadcrumbLink className="text-gray-700" style={{ fontFamily: "Poppins, sans-serif" }}>
                 {content?.title || pageId}
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -185,14 +186,14 @@ const SiteContentPage = () => {
         </Breadcrumb>
 
         {/* Content Card */}
-        <Card className="border-gray-400 dark:border-blue-900/30 shadow-md overflow-hidden">
-          <CardHeader className="bg-white dark:bg-slate-800 p-8 border-b border-gray-400 dark:border-blue-900/30">
+        <Card className="border-[#6B2F1A]/10 shadow-md overflow-hidden">
+          <CardHeader className="bg-white p-8 border-b border-[#6B2F1A]/10">
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle className="text-3xl font-bold text-slate-800 dark:text-white mb-3">
+                <CardTitle className="text-3xl font-bold text-[#6B2F1A] mb-3" style={{ fontFamily: "Playfair Display, serif" }}>
                   {content?.title}
                 </CardTitle>
-                <CardDescription className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                <CardDescription className="flex items-center gap-2 text-sm text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <Clock size={14} />
                   <span>
                     Last updated:{" "}
@@ -204,7 +205,8 @@ const SiteContentPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleShare}
-                className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8]/50"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 <Share2 size={16} className="mr-1" />
                 Share
@@ -213,8 +215,28 @@ const SiteContentPage = () => {
           </CardHeader>
 
           <CardContent className="p-8">
-            <div className="prose dark:prose-invert prose-blue max-w-none prose-img:rounded-xl prose-headings:text-slate-800 dark:prose-headings:text-slate-200 prose-p:text-slate-600 dark:prose-p:text-slate-300">
-              <ReactMarkdown>{content?.content}</ReactMarkdown>
+            <div 
+              className="prose max-w-none prose-img:rounded-xl prose-headings:text-[#6B2F1A] prose-p:text-gray-700"
+              style={{ 
+                fontFamily: "Poppins, sans-serif",
+                "--tw-prose-headings": "#6B2F1A",
+                "--tw-prose-links": "#6B2F1A"
+              }}
+            >
+              <ReactMarkdown 
+                components={{
+                  h1: ({node, ...props}) => <h1 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  h2: ({node, ...props}) => <h2 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  h3: ({node, ...props}) => <h3 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  h4: ({node, ...props}) => <h4 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  h5: ({node, ...props}) => <h5 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  h6: ({node, ...props}) => <h6 style={{ fontFamily: "Playfair Display, serif" }} {...props} />,
+                  p: ({node, ...props}) => <p style={{ fontFamily: "Poppins, sans-serif" }} {...props} />,
+                  a: ({node, ...props}) => <a className="text-[#6B2F1A] hover:text-[#5A2814]" {...props} />,
+                }}
+              >
+                {content?.content}
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>
@@ -224,7 +246,8 @@ const SiteContentPage = () => {
           <Link href="/">
             <Button
               variant="outline"
-              className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+              className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8]/50"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               <ArrowLeft size={16} className="mr-2" />
               Back to Home

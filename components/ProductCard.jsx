@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Eye, Star } from "lucide-react";
+import { ShoppingCart, Eye, Star, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -54,9 +54,16 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
     e.stopPropagation();
     if (onAddToCart && inStock) {
       onAddToCart(product);
+      toast.success("Added to cart successfully!");
     } else if (!inStock) {
-      toast("Product Out of Stock");
+      toast.error("Product Out of Stock");
     }
+  };
+
+  const handleAddToWishlist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast.success("Added to wishlist!");
   };
 
   const truncateDescription = (text, maxLength = 80) => {
@@ -75,7 +82,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       layout
     >
       <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-1"
+        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 ease-out border border-[#6B2F1A]/10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -96,7 +103,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
+              <Badge className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                 -{discountPercentage}%
               </Badge>
             </div>
@@ -110,6 +117,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
               }`}
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               {inStock ? "In Stock" : "Out of Stock"}
             </Badge>
@@ -122,24 +130,47 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             }`}
           >
             <Link href={`/product/${product?.id}`}>
-              <button className="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors shadow-md">
+              <button className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
                 <Eye className="w-5 h-5" />
               </button>
             </Link>
+            {/* <button
+              onClick={handleAddToWishlist}
+              className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
+            >
+              <Heart className="w-5 h-5" />
+            </button> */}
+            {inStock && (
+              <button
+                onClick={handleAddToCart}
+                className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
+              >
+                <ShoppingCart className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
 
         <div className="p-5">
-          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
+          <h3 
+            className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors" 
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
             {product?.title || "Product Name"}
           </h3>
 
           <div className="flex items-baseline gap-2">
-            <p className="text-xl font-bold text-indigo-600">
+            <p 
+              className="text-xl font-bold text-[#6B2F1A]" 
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
               ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
             </p>
             {hasDiscount && (
-              <p className="text-sm text-gray-500 line-through">
+              <p 
+                className="text-sm text-gray-500 line-through" 
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 ₹{parseFloat(product?.base_price || 0).toLocaleString()}
               </p>
             )}
@@ -149,7 +180,8 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             <Link href={`/product/${product?.id}`} className="flex-1">
               <button
                 type="button"
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 View Details
               </button>
@@ -169,7 +201,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       layout
     >
       <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 p-4 flex flex-col md:flex-row gap-6"
+        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 p-4 flex flex-col md:flex-row gap-6 border border-[#6B2F1A]/10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -190,11 +222,36 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
+              <Badge 
+                className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 -{discountPercentage}%
               </Badge>
             </div>
           )}
+
+          {/* Action buttons overlay */}
+          <div
+            className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-2 transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {/* <button
+              onClick={handleAddToWishlist}
+              className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
+            >
+              <Heart className="w-4 h-4" />
+            </button> */}
+            {inStock && (
+              <button
+                onClick={handleAddToCart}
+                className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
+              >
+                <ShoppingCart className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col">
@@ -206,23 +263,42 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 {inStock ? "In Stock" : "Out of Stock"}
               </Badge>
             </div>
 
-            <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+            <h3 
+              className="text-xl font-medium text-gray-900 mb-2 group-hover:text-[#6B2F1A] transition-colors" 
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
               {product?.title || "Product Name"}
             </h3>
+            
+            {product?.description && (
+              <p 
+                className="text-gray-600 line-clamp-2 mb-2" 
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                {truncateDescription(product.description, 120)}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-bold text-indigo-600">
+              <p 
+                className="text-2xl font-bold text-[#6B2F1A]" 
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
                 ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
               </p>
               {hasDiscount && (
-                <p className="text-sm text-gray-500 line-through">
+                <p 
+                  className="text-sm text-gray-500 line-through" 
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   ₹{parseFloat(product?.base_price || 0).toLocaleString()}
                 </p>
               )}
@@ -232,7 +308,8 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               <Link href={`/product/${product?.id}`}>
                 <button
                   type="button"
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors"
+                  className="px-6 py-2 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg transition-colors"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   View Details
                 </button>

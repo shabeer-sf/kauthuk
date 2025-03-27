@@ -74,14 +74,14 @@ const toBase64 = (str) =>
 // Product card component
 const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
   const [isHovered, setIsHovered] = useState(false);
-  console.log("product?.ProductImages", product?.ProductImages);
+  
   // Safely handle image URLs
   const imageUrl =
     product?.ProductImages && product.ProductImages.length > 0
       ? `https://greenglow.in/kauthuk_test/${product.ProductImages[0].image_path}`
       : "/assets/images/placeholder.png";
 
-  // Calculate discount if applicable (should come from the API in a real app)
+  // Calculate discount if applicable
   const hasDiscount = product?.base_price > product?.price_rupees;
   const discountPercentage = hasDiscount
     ? Math.round(
@@ -118,7 +118,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       layout
     >
       <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-1"
+        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 ease-out border border-[#6B2F1A]/10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -139,7 +139,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
+              <Badge className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                 -{discountPercentage}%
               </Badge>
             </div>
@@ -153,6 +153,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
               }`}
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               {inStock ? "In Stock" : "Out of Stock"}
             </Badge>
@@ -165,7 +166,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             }`}
           >
             <Link href={`/product/${product?.id}`}>
-              <button className="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-colors shadow-md">
+              <button className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
                 <Eye className="w-5 h-5" />
               </button>
             </Link>
@@ -173,16 +174,16 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         </div>
 
         <div className="p-5">
-          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">
+          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors" style={{ fontFamily: "Playfair Display, serif" }}>
             {product?.title || "Product Name"}
           </h3>
 
           <div className="flex items-baseline gap-2">
-            <p className="text-xl font-bold text-indigo-600">
+            <p className="text-xl font-bold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
               ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
             </p>
             {hasDiscount && (
-              <p className="text-sm text-gray-500 line-through">
+              <p className="text-sm text-gray-500 line-through" style={{ fontFamily: "Poppins, sans-serif" }}>
                 ₹{parseFloat(product?.base_price || 0).toLocaleString()}
               </p>
             )}
@@ -192,7 +193,8 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
             <Link href={`/product/${product?.id}`} className="flex-1">
               <button
                 type="button"
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 px-4 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 View Details
               </button>
@@ -201,7 +203,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               type="button"
               className={`p-2.5 ${
                 inStock
-                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  ? "bg-[#fee3d8]/70 hover:bg-[#fee3d8] text-[#6B2F1A]"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
               } rounded-lg transition-colors`}
               onClick={handleAddToCart}
@@ -224,11 +226,10 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       layout
     >
       <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 p-4 flex flex-col md:flex-row gap-6"
+        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 p-4 flex flex-col md:flex-row gap-6 border border-[#6B2F1A]/10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {console.log("imageUrl", imageUrl)}
         <div className="relative w-full md:w-1/4 aspect-square md:aspect-auto overflow-hidden rounded-lg">
           <Image
             src={imageUrl}
@@ -246,7 +247,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-red-500 text-white font-bold shadow-sm">
+              <Badge className="px-2 py-1 bg-[#b38d4a] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                 -{discountPercentage}%
               </Badge>
             </div>
@@ -262,39 +263,38 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 {inStock ? "In Stock" : "Out of Stock"}
               </Badge>
             </div>
 
-            <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+            <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:text-[#6B2F1A] transition-colors" style={{ fontFamily: "Playfair Display, serif" }}>
               {product?.title || "Product Name"}
             </h3>
-
-          
 
             {/* Additional product details */}
             <div className="hidden md:grid grid-cols-2 gap-x-6 gap-y-2 mb-4">
               {product?.weight && (
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                   <span>Weight: {product.weight} kg</span>
                 </div>
               )}
               {product?.hasVariants && (
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                   <span>Multiple variants available</span>
                 </div>
               )}
               {product?.SubCategory && (
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                   <span>Category: {product.SubCategory.subcategory}</span>
                 </div>
               )}
               {product?.free_shipping === "yes" && (
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                   <span>Free Shipping</span>
                 </div>
@@ -304,11 +304,11 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-bold text-indigo-600">
+              <p className="text-2xl font-bold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                 ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
               </p>
               {hasDiscount && (
-                <p className="text-sm text-gray-500 line-through">
+                <p className="text-sm text-gray-500 line-through" style={{ fontFamily: "Poppins, sans-serif" }}>
                   ₹{parseFloat(product?.base_price || 0).toLocaleString()}
                 </p>
               )}
@@ -319,9 +319,9 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
                 type="button"
                 className={`px-4 py-2 ${
                   inStock
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    ? "bg-[#fee3d8]/70 hover:bg-[#fee3d8] text-[#6B2F1A]"
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                } rounded-full transition-colors`}
+                } rounded-lg transition-colors`}
                 onClick={handleAddToCart}
                 disabled={!inStock}
               >
@@ -330,7 +330,8 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               <Link href={`/product/${product?.id}`}>
                 <button
                   type="button"
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors"
+                  className="px-6 py-2 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg transition-colors"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   View Details
                 </button>
@@ -415,13 +416,13 @@ const FilterSidebar = ({
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent className="w-full max-w-md sm:max-w-lg overflow-y-auto">
           <SheetHeader className="mb-6">
-            <SheetTitle className="text-2xl">Filters</SheetTitle>
+            <SheetTitle className="text-2xl text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Filters</SheetTitle>
           </SheetHeader>
 
           <div className="space-y-6">
             {/* Price Range */}
             <div>
-              <h3 className="font-medium text-lg mb-4">Price Range</h3>
+              <h3 className="font-medium text-lg mb-4 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Price Range</h3>
               <Slider
                 value={priceRange}
                 max={50000}
@@ -430,20 +431,20 @@ const FilterSidebar = ({
                 className="mb-2"
               />
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                   ₹{priceRange[0].toLocaleString()}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                   ₹{priceRange[1].toLocaleString()}
                 </span>
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-[#6B2F1A]/10" />
 
             {/* Category Selection */}
             <div>
-              <h3 className="font-medium text-lg mb-4">Categories</h3>
+              <h3 className="font-medium text-lg mb-4 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Categories</h3>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                 {categories && categories.length > 0 ? (
                   categories.map((category) => (
@@ -454,29 +455,30 @@ const FilterSidebar = ({
                         onCheckedChange={(checked) =>
                           handleCategoryChange(category.catName, checked)
                         }
-                        className="mr-2"
+                        className="mr-2 border-[#6B2F1A]/50 data-[state=checked]:bg-[#6B2F1A] data-[state=checked]:border-[#6B2F1A]"
                       />
                       <Label
                         htmlFor={`category-${category.id}`}
                         className="text-gray-700"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         {category.catName}
                       </Label>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-gray-500 text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     No categories available
                   </p>
                 )}
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-[#6B2F1A]/10" />
 
             {/* Availability */}
             <div>
-              <h3 className="font-medium text-lg mb-4">Availability</h3>
+              <h3 className="font-medium text-lg mb-4 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Availability</h3>
               <RadioGroup
                 value={selectedAvailability}
                 onValueChange={setSelectedAvailability}
@@ -489,8 +491,12 @@ const FilterSidebar = ({
                     <RadioGroupItem
                       value={option.value}
                       id={`availability-${option.value}`}
+                      className="border-[#6B2F1A]/50 text-[#6B2F1A] data-[state=checked]:border-[#6B2F1A] data-[state=checked]:text-[#6B2F1A]"
                     />
-                    <Label htmlFor={`availability-${option.value}`}>
+                    <Label 
+                      htmlFor={`availability-${option.value}`}
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       {option.label}
                     </Label>
                   </div>
@@ -503,14 +509,16 @@ const FilterSidebar = ({
             <button
               type="button"
               onClick={resetFilters}
-              className="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="flex-1 py-2.5 border border-[#6B2F1A]/30 rounded-lg text-[#6B2F1A] hover:bg-[#fee3d8]/50"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Reset
             </button>
             <button
               type="button"
               onClick={applyFilters}
-              className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="flex-1 py-2.5 bg-[#6B2F1A] text-white rounded-lg hover:bg-[#5A2814]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Apply Filters
             </button>
@@ -520,8 +528,8 @@ const FilterSidebar = ({
 
       {/* Desktop sidebar */}
       <div className="hidden md:block w-full sticky top-24">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h3 className="font-bold text-xl mb-6">Filters</h3>
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-[#6B2F1A]/10">
+          <h3 className="font-bold text-xl mb-6 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Filters</h3>
 
           <Accordion
             type="multiple"
@@ -530,7 +538,7 @@ const FilterSidebar = ({
           >
             {/* Price Range */}
             <AccordionItem value="price" className="border-b-0">
-              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline">
+              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                 Price Range
               </AccordionTrigger>
               <AccordionContent>
@@ -542,10 +550,10 @@ const FilterSidebar = ({
                   className="mb-2"
                 />
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                     ₹{priceRange[0].toLocaleString()}
                   </span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                     ₹{priceRange[1].toLocaleString()}
                   </span>
                 </div>
@@ -554,7 +562,7 @@ const FilterSidebar = ({
 
             {/* Category Selection */}
             <AccordionItem value="category" className="border-b-0">
-              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline">
+              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                 Categories
               </AccordionTrigger>
               <AccordionContent>
@@ -570,18 +578,19 @@ const FilterSidebar = ({
                           onCheckedChange={(checked) =>
                             handleCategoryChange(category.catName, checked)
                           }
-                          className="mr-2"
+                          className="mr-2 border-[#6B2F1A]/50 data-[state=checked]:bg-[#6B2F1A] data-[state=checked]:border-[#6B2F1A]"
                         />
                         <Label
                           htmlFor={`desktop-category-${category.id}`}
                           className="text-gray-700"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         >
                           {category.catName}
                         </Label>
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-gray-500 text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                       No categories available
                     </p>
                   )}
@@ -591,7 +600,7 @@ const FilterSidebar = ({
 
             {/* Availability */}
             <AccordionItem value="availability" className="border-b-0">
-              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline">
+              <AccordionTrigger className="py-2 text-base font-medium hover:no-underline text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                 Availability
               </AccordionTrigger>
               <AccordionContent>
@@ -607,8 +616,12 @@ const FilterSidebar = ({
                       <RadioGroupItem
                         value={option.value}
                         id={`desktop-availability-${option.value}`}
+                        className="border-[#6B2F1A]/50 text-[#6B2F1A] data-[state=checked]:border-[#6B2F1A] data-[state=checked]:text-[#6B2F1A]"
                       />
-                      <Label htmlFor={`desktop-availability-${option.value}`}>
+                      <Label 
+                        htmlFor={`desktop-availability-${option.value}`}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {option.label}
                       </Label>
                     </div>
@@ -622,14 +635,16 @@ const FilterSidebar = ({
             <button
               type="button"
               onClick={resetFilters}
-              className="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="flex-1 py-2.5 border border-[#6B2F1A]/30 rounded-lg text-[#6B2F1A] hover:bg-[#fee3d8]/50"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Reset
             </button>
             <button
               type="button"
               onClick={applyFilters}
-              className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="flex-1 py-2.5 bg-[#6B2F1A] text-white rounded-lg hover:bg-[#5A2814]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Apply
             </button>
@@ -670,14 +685,15 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
-      <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+      <span className="text-sm font-medium text-gray-700" style={{ fontFamily: "Poppins, sans-serif" }}>Active Filters:</span>
 
       {/* Category filters */}
       {filters.categories?.map((category) => (
         <Badge
           key={category}
           variant="outline"
-          className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200"
+          className="flex items-center gap-1 bg-[#fee3d8]/50 text-[#6B2F1A] border-[#6B2F1A]/20 hover:bg-[#fee3d8]"
+          style={{ fontFamily: "Poppins, sans-serif" }}
         >
           {category}
           <button type="button" onClick={() => onRemove("category", category)}>
@@ -691,7 +707,8 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
         (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 50000) && (
           <Badge
             variant="outline"
-            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200"
+            className="flex items-center gap-1 bg-[#fee3d8]/50 text-[#6B2F1A] border-[#6B2F1A]/20 hover:bg-[#fee3d8]"
+            style={{ fontFamily: "Poppins, sans-serif" }}
           >
             ₹{filters.priceRange[0].toLocaleString()} - ₹
             {filters.priceRange[1].toLocaleString()}
@@ -705,7 +722,8 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
       {availabilityLabel && (
         <Badge
           variant="outline"
-          className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200"
+          className="flex items-center gap-1 bg-[#fee3d8]/50 text-[#6B2F1A] border-[#6B2F1A]/20 hover:bg-[#fee3d8]"
+          style={{ fontFamily: "Poppins, sans-serif" }}
         >
           {availabilityLabel}
           <button type="button" onClick={() => onRemove("availability")}>
@@ -717,7 +735,8 @@ const ActiveFilters = ({ filters, onRemove, onClearAll }) => {
       <button
         type="button"
         onClick={onClearAll}
-        className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+        className="text-sm text-[#6B2F1A] hover:text-[#5A2814] font-medium"
+        style={{ fontFamily: "Poppins, sans-serif" }}
       >
         Clear All
       </button>
@@ -747,12 +766,12 @@ function SearchParamsHandler({ onParamsChange }) {
 
   return null;
 }
+
 // Main product listing component
 const ProductListingPage = () => {
   const router = useRouter();
 
   // State variables
-
   const [urlParams, setUrlParams] = useState({
     query: "",
     categoryParam: "",
@@ -867,6 +886,7 @@ const ProductListingPage = () => {
 
     fetchCategories();
   }, []);
+  
   // Update sort option and URL when sort changes
   useEffect(() => {
     if (sortOption !== urlParams.sortParam) {
@@ -1027,6 +1047,7 @@ const ProductListingPage = () => {
     e.preventDefault();
     updateURLParams({ q: searchQuery, page: 1 });
   };
+  
   // Handle clearing search
   const handleClearSearch = () => {
     setSearchQuery("");
@@ -1092,12 +1113,12 @@ const ProductListingPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-[#F9F4F0] min-h-screen">
       <Suspense fallback={null}>
         <SearchParamsHandler onParamsChange={handleUrlParamsChange} />
       </Suspense>
       {/* Search and page header */}
-      <div className="bg-gradient-to-b from-white to-gray-50 py-8 border-b border-gray-200">
+      <div className="bg-gradient-to-b from-white to-[#F9F4F0] py-8 border-b border-[#6B2F1A]/10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <form
@@ -1110,7 +1131,8 @@ const ProductListingPage = () => {
                 value={searchQuery || ""}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for products, brands and more..."
-                className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-12 py-3 bg-white border border-[#6B2F1A]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6B2F1A] focus:border-transparent transition-all"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               />
               {searchQuery && (
                 <button
@@ -1123,16 +1145,17 @@ const ProductListingPage = () => {
               )}
               <button
                 type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 text-sm font-medium"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-[#fee3d8] text-[#6B2F1A] rounded-md hover:bg-[#fee3d8]/80 text-sm font-medium"
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 Search
               </button>
             </form>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-[#6B2F1A] mb-2" style={{ fontFamily: "Playfair Display, serif" }}>
               {getPageTitle()}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
               {filteredProducts.length} products found
             </p>
           </div>
@@ -1157,10 +1180,11 @@ const ProductListingPage = () => {
             <div className="flex items-center justify-between mb-6">
               <button
                 type="button"
-                className="md:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50"
+                className="md:hidden flex items-center gap-2 px-4 py-2 bg-white border border-[#6B2F1A]/20 rounded-lg shadow-sm hover:bg-[#fee3d8]/30"
                 onClick={() => setIsMobileFilterOpen(true)}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
-                <SlidersHorizontal className="h-5 w-5" />
+                <SlidersHorizontal className="h-5 w-5 text-[#6B2F1A]" />
                 Filters
               </button>
 
@@ -1170,7 +1194,7 @@ const ProductListingPage = () => {
                     type="button"
                     className={`p-2 rounded-md ${
                       layout === "grid"
-                        ? "bg-indigo-100 text-indigo-700"
+                        ? "bg-[#fee3d8] text-[#6B2F1A]"
                         : "bg-white text-gray-600"
                     }`}
                     onClick={() => setLayout("grid")}
@@ -1181,7 +1205,7 @@ const ProductListingPage = () => {
                     type="button"
                     className={`p-2 rounded-md ${
                       layout === "list"
-                        ? "bg-indigo-100 text-indigo-700"
+                        ? "bg-[#fee3d8] text-[#6B2F1A]"
                         : "bg-white text-gray-600"
                     }`}
                     onClick={() => setLayout("list")}
@@ -1195,18 +1219,18 @@ const ProductListingPage = () => {
                   value={sortOption}
                   onValueChange={setSortOption}
                 >
-                  <SelectTrigger className="w-[180px] bg-white">
-                    <SelectValue placeholder="Sort by" />
+                  <SelectTrigger className="w-[180px] bg-white border-[#6B2F1A]/20 focus:ring-[#6B2F1A]">
+                    <SelectValue placeholder="Sort by" style={{ fontFamily: "Poppins, sans-serif" }} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="latest">Latest</SelectItem>
-                    <SelectItem value="price_low">
+                    <SelectItem value="latest" style={{ fontFamily: "Poppins, sans-serif" }}>Latest</SelectItem>
+                    <SelectItem value="price_low" style={{ fontFamily: "Poppins, sans-serif" }}>
                       Price: Low to High
                     </SelectItem>
-                    <SelectItem value="price_high">
+                    <SelectItem value="price_high" style={{ fontFamily: "Poppins, sans-serif" }}>
                       Price: High to Low
                     </SelectItem>
-                    <SelectItem value="popular">Popularity</SelectItem>
+                    <SelectItem value="popular" style={{ fontFamily: "Poppins, sans-serif" }}>Popularity</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1222,37 +1246,39 @@ const ProductListingPage = () => {
             {/* Products grid/list */}
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-4" />
-                <p className="text-gray-500 text-lg animate-pulse">
+                <Loader2 className="h-12 w-12 animate-spin text-[#6B2F1A] mb-4" />
+                <p className="text-gray-500 text-lg animate-pulse" style={{ fontFamily: "Poppins, sans-serif" }}>
                   Loading products...
                 </p>
               </div>
             ) : error ? (
-              <div className="bg-red-50 rounded-xl p-6 text-center">
-                <p className="text-red-500 font-medium text-lg mb-2">
+              <div className="bg-[#fee3d8]/30 rounded-xl p-6 text-center border border-[#6B2F1A]/20">
+                <p className="text-[#6B2F1A] font-medium text-lg mb-2" style={{ fontFamily: "Playfair Display, serif" }}>
                   Oops! Something went wrong
                 </p>
-                <p className="text-gray-600">{error}</p>
+                <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>{error}</p>
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
-                  className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="mt-4 px-6 py-2 bg-[#6B2F1A] text-white rounded-lg hover:bg-[#5A2814] transition-colors"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   Try Again
                 </button>
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="bg-gray-50 rounded-xl p-10 text-center">
-                <p className="text-gray-600 font-medium text-xl mb-3">
+              <div className="bg-[#F9F4F0] rounded-xl p-10 text-center border border-[#6B2F1A]/20">
+                <p className="text-[#6B2F1A] font-medium text-xl mb-3" style={{ fontFamily: "Playfair Display, serif" }}>
                   No products found
                 </p>
-                <p className="text-gray-500 mb-6">
+                <p className="text-gray-500 mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>
                   Try adjusting your search or filter criteria
                 </p>
                 <button
                   type="button"
                   onClick={handleClearAllFilters}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="px-6 py-2 bg-[#6B2F1A] text-white rounded-lg hover:bg-[#5A2814] transition-colors"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   Clear All Filters
                 </button>
@@ -1285,10 +1311,10 @@ const ProductListingPage = () => {
                 <nav className="flex items-center gap-1">
                   <button
                     type="button"
-                    className={`w-10 h-10 flex items-center justify-center rounded-md border border-gray-200 bg-white ${
+                    className={`w-10 h-10 flex items-center justify-center rounded-md border border-[#6B2F1A]/20 bg-white ${
                       currentPage === 1
                         ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-[#fee3d8]/30 text-[#6B2F1A]"
                     }`}
                     onClick={() =>
                       currentPage > 1 && setCurrentPage(currentPage - 1)
@@ -1301,7 +1327,7 @@ const ProductListingPage = () => {
                   {getPaginationArray().map((page, index) => (
                     <React.Fragment key={index}>
                       {page === "..." ? (
-                        <span className="w-10 h-10 flex items-center justify-center text-gray-500">
+                        <span className="w-10 h-10 flex items-center justify-center text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
                           ...
                         </span>
                       ) : (
@@ -1309,12 +1335,13 @@ const ProductListingPage = () => {
                           type="button"
                           className={`w-10 h-10 flex items-center justify-center rounded-md ${
                             page === currentPage
-                              ? "bg-indigo-600 text-white"
-                              : "border border-gray-200 bg-white hover:bg-gray-50"
+                              ? "bg-[#6B2F1A] text-white"
+                              : "border border-[#6B2F1A]/20 bg-white hover:bg-[#fee3d8]/30 text-[#6B2F1A]"
                           }`}
                           onClick={() =>
                             typeof page === "number" && setCurrentPage(page)
                           }
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         >
                           {page}
                         </button>
@@ -1324,10 +1351,10 @@ const ProductListingPage = () => {
 
                   <button
                     type="button"
-                    className={`w-10 h-10 flex items-center justify-center rounded-md border border-gray-200 bg-white ${
+                    className={`w-10 h-10 flex items-center justify-center rounded-md border border-[#6B2F1A]/20 bg-white ${
                       currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-[#fee3d8]/30 text-[#6B2F1A]"
                     }`}
                     onClick={() =>
                       currentPage < totalPages &&

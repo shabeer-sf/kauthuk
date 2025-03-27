@@ -7,7 +7,8 @@ import {
   MessageSquare,
   X,
   Send,
-  RefreshCw
+  RefreshCw,
+  CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -125,7 +126,8 @@ const QuickContact = () => {
       <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-40">
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-l-lg shadow-lg transition-all duration-300"
+          className="flex items-center gap-2 bg-[#6B2F1A] hover:bg-[#5A2814] text-white py-2 px-3 rounded-l-lg shadow-lg transition-all duration-300"
+          style={{ fontFamily: "Poppins, sans-serif" }}
         >
           <MessageSquare size={20} />
           <span className="text-sm font-medium">Quick Contact</span>
@@ -147,15 +149,20 @@ const QuickContact = () => {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+              className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal header */}
-              <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
-                <h3 className="font-semibold text-lg">Quick Contact</h3>
+              <div className="bg-[#6B2F1A] text-white px-6 py-4 flex items-center justify-between">
+                <h3 
+                  className="font-semibold text-lg" 
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  Quick Contact
+                </h3>
                 <button
                   onClick={() => !isSubmitting && setIsOpen(false)}
-                  className="text-white hover:text-blue-100 focus:outline-none"
+                  className="text-white hover:text-[#fee3d8] focus:outline-none"
                   disabled={isSubmitting}
                 >
                   <X size={20} />
@@ -170,12 +177,19 @@ const QuickContact = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30 rounded-lg p-4 text-center"
+                      className="bg-[#fee3d8]/30 border border-[#6B2F1A]/20 rounded-lg p-4 text-center"
                     >
-                      <h4 className="font-semibold text-green-800 dark:text-green-300 text-lg mb-2">
+                      <CheckCircle className="h-10 w-10 text-[#6B2F1A] mx-auto mb-3" />
+                      <h4 
+                        className="font-semibold text-[#6B2F1A] text-lg mb-2"
+                        style={{ fontFamily: "Playfair Display, serif" }}
+                      >
                         Thank you!
                       </h4>
-                      <p className="text-green-700 dark:text-green-400">
+                      <p 
+                        className="text-gray-700"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         Your message has been sent successfully. We'll get back to you soon.
                       </p>
                     </motion.div>
@@ -187,13 +201,20 @@ const QuickContact = () => {
                       onSubmit={handleSubmit}
                       className="space-y-4"
                     >
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                      <p 
+                        className="text-gray-600 text-sm mb-4"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         Have a quick question? Send us a message and we'll get back to you as soon as possible.
                       </p>
 
                       {/* Name field */}
                       <div>
-                        <label htmlFor="quick-name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        <label 
+                          htmlFor="quick-name" 
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           Name <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -205,18 +226,28 @@ const QuickContact = () => {
                           placeholder="Your name"
                           className={`w-full px-3 py-2 rounded-md border ${
                             errors.name
-                              ? "border-red-300 dark:border-red-600"
-                              : "border-slate-300 dark:border-slate-600"
-                          } bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                              ? "border-red-300"
+                              : "border-[#6B2F1A]/20"
+                          } bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#6B2F1A]`}
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         />
                         {errors.name && (
-                          <p className="mt-1 text-xs text-red-500">{errors.name}</p>
+                          <p 
+                            className="mt-1 text-xs text-red-500"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            {errors.name}
+                          </p>
                         )}
                       </div>
 
                       {/* Email field */}
                       <div>
-                        <label htmlFor="quick-email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        <label 
+                          htmlFor="quick-email" 
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           Email <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -228,18 +259,28 @@ const QuickContact = () => {
                           placeholder="Your email"
                           className={`w-full px-3 py-2 rounded-md border ${
                             errors.email
-                              ? "border-red-300 dark:border-red-600"
-                              : "border-slate-300 dark:border-slate-600"
-                          } bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                              ? "border-red-300"
+                              : "border-[#6B2F1A]/20"
+                          } bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#6B2F1A]`}
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         />
                         {errors.email && (
-                          <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+                          <p 
+                            className="mt-1 text-xs text-red-500"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            {errors.email}
+                          </p>
                         )}
                       </div>
 
                       {/* Phone field (optional) */}
                       <div>
-                        <label htmlFor="quick-phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        <label 
+                          htmlFor="quick-phone" 
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           Phone (optional)
                         </label>
                         <input
@@ -249,13 +290,18 @@ const QuickContact = () => {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="Your phone number"
-                          className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 rounded-md border border-[#6B2F1A]/20 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#6B2F1A]"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         />
                       </div>
 
                       {/* Message field */}
                       <div>
-                        <label htmlFor="quick-message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        <label 
+                          htmlFor="quick-message" 
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           Message <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -267,25 +313,36 @@ const QuickContact = () => {
                           rows={3}
                           className={`w-full px-3 py-2 rounded-md border ${
                             errors.message
-                              ? "border-red-300 dark:border-red-600"
-                              : "border-slate-300 dark:border-slate-600"
-                          } bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none`}
+                              ? "border-red-300"
+                              : "border-[#6B2F1A]/20"
+                          } bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#6B2F1A] resize-none`}
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         />
                         {errors.message && (
-                          <p className="mt-1 text-xs text-red-500">{errors.message}</p>
+                          <p 
+                            className="mt-1 text-xs text-red-500"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            {errors.message}
+                          </p>
                         )}
                       </div>
 
                       {/* Captcha field */}
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <label htmlFor="quick-captcha" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <label 
+                            htmlFor="quick-captcha" 
+                            className="block text-sm font-medium text-gray-700"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
                             Captcha <span className="text-red-500">*</span>
                           </label>
                           <button
                             type="button"
                             onClick={refreshCaptcha}
-                            className="text-xs flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                            className="text-xs flex items-center gap-1 text-[#6B2F1A] hover:text-[#5A2814]"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
                           >
                             <RefreshCw size={10} />
                             Refresh
@@ -293,10 +350,10 @@ const QuickContact = () => {
                         </div>
 
                         <div className="flex items-center space-x-3 mb-2">
-                          <div className="relative bg-slate-100 dark:bg-slate-700 rounded-md p-2 text-center min-w-[120px] select-none">
+                          <div className="relative bg-[#fee3d8]/50 rounded-md p-2 text-center min-w-[120px] select-none">
                             <div className="relative">
                               <div 
-                                className="text-base font-mono tracking-widest font-semibold text-slate-800 dark:text-slate-200 select-none"
+                                className="text-base font-mono tracking-widest font-semibold text-[#6B2F1A] select-none"
                                 style={{
                                   transform: "skewX(-15deg)",
                                   textShadow: "1px 1px 0 rgba(0,0,0,0.1)",
@@ -308,8 +365,8 @@ const QuickContact = () => {
                               {/* Decorative lines */}
                               <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
                                 <div className="opacity-20">
-                                  <div className="absolute left-0 top-1/2 w-full h-px bg-blue-600 dark:bg-blue-400 rotate-3"></div>
-                                  <div className="absolute left-0 bottom-1/4 w-full h-px bg-blue-600 dark:bg-blue-400 -rotate-2"></div>
+                                  <div className="absolute left-0 top-1/2 w-full h-px bg-[#6B2F1A] rotate-3"></div>
+                                  <div className="absolute left-0 bottom-1/4 w-full h-px bg-[#6B2F1A] -rotate-2"></div>
                                 </div>
                               </div>
                             </div>
@@ -324,13 +381,19 @@ const QuickContact = () => {
                             placeholder="Enter captcha"
                             className={`flex-1 px-3 py-2 rounded-md border ${
                               errors.captcha
-                                ? "border-red-300 dark:border-red-600"
-                                : "border-slate-300 dark:border-slate-600"
-                            } bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                ? "border-red-300"
+                                : "border-[#6B2F1A]/20"
+                            } bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#6B2F1A]`}
+                            style={{ fontFamily: "Poppins, sans-serif" }}
                           />
                         </div>
                         {errors.captcha && (
-                          <p className="mt-1 text-xs text-red-500">{errors.captcha}</p>
+                          <p 
+                            className="mt-1 text-xs text-red-500"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            {errors.captcha}
+                          </p>
                         )}
                       </div>
 
@@ -339,7 +402,8 @@ const QuickContact = () => {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md font-medium flex items-center justify-center transition-colors"
+                          className="w-full px-4 py-2 bg-[#6B2F1A] hover:bg-[#5A2814] disabled:bg-[#6B2F1A]/50 text-white rounded-md font-medium flex items-center justify-center transition-colors"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         >
                           {isSubmitting ? (
                             <>

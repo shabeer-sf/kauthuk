@@ -79,20 +79,20 @@ const ProductCart = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-16">
+      <div className="min-h-screen bg-[#F9F4F0] py-16">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-md mx-auto">
             <div className="flex justify-center mb-6">
               <div className="p-6 bg-white rounded-full shadow-sm">
-                <ShoppingCart className="h-12 w-12 text-gray-400" />
+                <ShoppingCart className="h-12 w-12 text-[#6B2F1A]" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
-            <p className="text-gray-600 mb-8">
+            <h1 className="text-3xl font-bold mb-4" style={{ fontFamily: "Playfair Display, serif" }}>Your cart is empty</h1>
+            <p className="text-gray-600 mb-8" style={{ fontFamily: "Poppins, sans-serif" }}>
               Looks like you haven't added any products to your cart yet.
             </p>
             <Link href="/products">
-              <Button className="px-8 py-6 text-lg bg-indigo-600 hover:bg-indigo-700">
+              <Button className="px-8 py-6 text-lg bg-[#6B2F1A] hover:bg-[#5A2814]" style={{ fontFamily: "Poppins, sans-serif" }}>
                 <ChevronLeft className="h-5 w-5 mr-2" />
                 Continue Shopping
               </Button>
@@ -104,19 +104,20 @@ const ProductCart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F9F4F0]">
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Shopping Cart</h1>
+          <h1 className="text-3xl font-bold mb-2 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Shopping Cart</h1>
           <div className="flex justify-between items-center">
-            <p className="text-gray-500">Review and modify your items before checkout</p>
+            <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>Review and modify your items before checkout</p>
             <div className="flex gap-2 items-center">
               <Button
                 variant="outline"
                 size="sm"
-                className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                className="text-[#6B2F1A] border-[#6B2F1A]/20 hover:bg-[#fee3d8]"
                 onClick={toggleCurrency}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 {currency === 'INR' ? (
                   <><IndianRupee className="h-4 w-4 mr-1" /> INR</>
@@ -131,6 +132,7 @@ const ProductCart = () => {
                     variant="ghost"
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     Clear Cart
@@ -138,16 +140,17 @@ const ProductCart = () => {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Clear your shopping cart?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogTitle style={{ fontFamily: "Playfair Display, serif" }}>Clear your shopping cart?</AlertDialogTitle>
+                    <AlertDialogDescription style={{ fontFamily: "Poppins, sans-serif" }}>
                       This will remove all items from your cart. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel style={{ fontFamily: "Poppins, sans-serif" }}>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-red-600 hover:bg-red-700"
                       onClick={clearCart}
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     >
                       Clear Cart
                     </AlertDialogAction>
@@ -162,7 +165,7 @@ const ProductCart = () => {
           {/* Products List */}
           <div className="lg:col-span-2 space-y-6">
             {cart.map((item, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-[#6B2F1A]/10">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row gap-6">
                     <div className="relative group">
@@ -176,20 +179,20 @@ const ProductCart = () => {
                           />
                         </div>
                       ) : (
-                        <div className="w-40 h-40 bg-gray-200 rounded-xl flex items-center justify-center">
-                          <ShoppingBag className="h-10 w-10 text-gray-400" />
+                        <div className="w-40 h-40 bg-[#fee3d8] rounded-xl flex items-center justify-center">
+                          <ShoppingBag className="h-10 w-10 text-[#6B2F1A]" />
                         </div>
                       )}
                     </div>
                     
                     <div className="flex-1 space-y-2">
                       <div>
-                        <h3 className="text-xl font-semibold">{item.title}</h3>
+                        <h3 className="text-xl font-semibold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>{item.title}</h3>
                         
                         {/* Show variant info if available */}
                         {item.variant && (
                           <div className="mt-1 flex flex-wrap gap-1">
-                            <Badge variant="outline" className="flex items-center gap-1 bg-indigo-50 text-indigo-700 border-indigo-200">
+                            <Badge variant="outline" className="flex items-center gap-1 bg-[#fee3d8] text-[#6B2F1A] border-[#6B2F1A]/20">
                               <Layers className="h-3 w-3" />
                               Variant
                             </Badge>
@@ -203,28 +206,28 @@ const ProductCart = () => {
                         
                         {/* SKU if available */}
                         {item.variant?.sku && (
-                          <p className="text-gray-500 text-xs mt-1">
+                          <p className="text-gray-500 text-xs mt-1" style={{ fontFamily: "Poppins, sans-serif" }}>
                             SKU: {item.variant.sku}
                           </p>
                         )}
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                        <div className="flex items-center bg-[#fee3d8]/50 rounded-lg p-1">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hover:bg-white rounded-md transition-colors"
+                            className="hover:bg-white rounded-md transition-colors text-[#6B2F1A]"
                             onClick={() => updateQuantity(index, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          <span className="w-12 text-center font-medium">{item.quantity}</span>
+                          <span className="w-12 text-center font-medium" style={{ fontFamily: "Poppins, sans-serif" }}>{item.quantity}</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hover:bg-white rounded-md transition-colors"
+                            className="hover:bg-white rounded-md transition-colors text-[#6B2F1A]"
                             onClick={() => updateQuantity(index, item.quantity + 1)}
                             disabled={item.maxStock && item.quantity >= item.maxStock}
                           >
@@ -237,6 +240,7 @@ const ProductCart = () => {
                           size="sm"
                           className="text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                           onClick={() => removeFromCart(index)}
+                          style={{ fontFamily: "Poppins, sans-serif" }}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Remove
@@ -244,7 +248,7 @@ const ProductCart = () => {
                       </div>
                       
                       {item.maxStock && item.quantity >= item.maxStock && (
-                        <div className="flex items-start gap-1 text-amber-600 text-xs">
+                        <div className="flex items-start gap-1 text-amber-600 text-xs" style={{ fontFamily: "Poppins, sans-serif" }}>
                           <AlertCircle className="h-4 w-4 shrink-0" />
                           <span>Maximum available quantity reached</span>
                         </div>
@@ -252,14 +256,14 @@ const ProductCart = () => {
                     </div>
                     
                     <div className="text-right">
-                      <p className="text-2xl font-semibold">
+                      <p className="text-2xl font-semibold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                         {currency === 'INR' ? (
                           <>{formatPrice(item.price * item.quantity)}</>
                         ) : (
                           <>{formatPrice(item.priceDollars * item.quantity)}</>
                         )}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
                         {currency === 'INR' ? (
                           <>{formatPrice(item.price)} each</>
                         ) : (
@@ -275,7 +279,11 @@ const ProductCart = () => {
             {/* Continue Shopping Button */}
             <div className="flex justify-start">
               <Link href="/products">
-                <Button variant="outline" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 border-[#6B2F1A] text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#5A2814]"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   <ChevronLeft className="h-4 w-4" />
                   Continue Shopping
                 </Button>
@@ -285,9 +293,9 @@ const ProductCart = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-8">
+            <Card className="sticky top-8 border-[#6B2F1A]/10">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                   <ShoppingBag className="h-5 w-5" />
                   Order Summary
                 </CardTitle>
@@ -295,17 +303,17 @@ const ProductCart = () => {
               <CardContent className="space-y-6">
                 {/* Price Breakdown */}
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <span className="text-gray-600">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
                   
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <span className="text-gray-600">Shipping</span>
                     <span className="text-green-600">Free</span>
                   </div>
                   
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center text-gray-600">
@@ -320,9 +328,9 @@ const ProductCart = () => {
                     <span>{formatPrice(tax)}</span>
                   </div>
                   
-                  <Separator className="my-4" />
+                  <Separator className="my-4 bg-[#6B2F1A]/10" />
                   
-                  <div className="flex justify-between text-lg font-semibold">
+                  <div className="flex justify-between text-lg font-semibold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
                     <span>Total</span>
                     <span>{formatPrice(total)}</span>
                   </div>
@@ -331,15 +339,17 @@ const ProductCart = () => {
                 {/* Shipping & Payment info */}
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="shipping">
-                    <AccordionTrigger className="text-sm py-2">Shipping Information</AccordionTrigger>
+                    <AccordionTrigger className="text-sm py-2 text-[#6B2F1A]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      Shipping Information
+                    </AccordionTrigger>
                     <AccordionContent>
-                      <div className="text-sm space-y-2 text-gray-600">
+                      <div className="text-sm space-y-2 text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                         <p className="flex items-center gap-2">
-                          <Truck className="h-4 w-4 text-indigo-600" />
+                          <Truck className="h-4 w-4 text-[#6B2F1A]" />
                           Free standard shipping (5-7 business days)
                         </p>
                         <p className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-indigo-600" />
+                          <Shield className="h-4 w-4 text-[#6B2F1A]" />
                           All items are securely packed and insured
                         </p>
                       </div>
@@ -347,20 +357,22 @@ const ProductCart = () => {
                   </AccordionItem>
                   
                   <AccordionItem value="payment">
-                    <AccordionTrigger className="text-sm py-2">Payment Methods</AccordionTrigger>
+                    <AccordionTrigger className="text-sm py-2 text-[#6B2F1A]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      Payment Methods
+                    </AccordionTrigger>
                     <AccordionContent>
-                      <div className="text-sm space-y-2 text-gray-600">
+                      <div className="text-sm space-y-2 text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                         <p className="flex items-center gap-2">
-                          <CreditCard className="h-4 w-4 text-indigo-600" />
+                          <CreditCard className="h-4 w-4 text-[#6B2F1A]" />
                           Credit/Debit Cards
                         </p>
                         <p className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-indigo-600" />
+                          <DollarSign className="h-4 w-4 text-[#6B2F1A]" />
                           UPI/Net Banking
                         </p>
                         {cart.some(item => item.codAvailable) && (
                           <p className="flex items-center gap-2">
-                            <ShoppingBag className="h-4 w-4 text-indigo-600" />
+                            <ShoppingBag className="h-4 w-4 text-[#6B2F1A]" />
                             Cash on Delivery
                           </p>
                         )}
@@ -369,7 +381,7 @@ const ProductCart = () => {
                   </AccordionItem>
                 </Accordion>
                 
-                <div className="bg-indigo-50 p-4 rounded-lg text-sm text-indigo-700 flex items-start gap-2">
+                <div className="bg-[#fee3d8] p-4 rounded-lg text-sm text-[#6B2F1A] flex items-start gap-2" style={{ fontFamily: "Poppins, sans-serif" }}>
                   <Lock className="h-4 w-4 shrink-0 mt-0.5" />
                   <p>
                     Your transaction is secured with 256-bit SSL encryption
@@ -377,13 +389,16 @@ const ProductCart = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button className="w-full h-12 text-lg font-medium bg-indigo-600 hover:bg-indigo-700 gap-2">
+                <Button 
+                  className="w-full h-12 text-lg font-medium bg-[#6B2F1A] hover:bg-[#5A2814] gap-2" 
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   <Link href="/checkout" className="flex items-center gap-2 w-full justify-center">
                     Proceed to Checkout
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </Button>
-                <p className="text-xs text-center text-gray-500">
+                <p className="text-xs text-center text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
                   Secure checkout powered by RazorPay
                 </p>
               </CardFooter>

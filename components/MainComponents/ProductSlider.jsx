@@ -299,7 +299,7 @@ const ProductSlider = ({
           
           <Swiper
             modules={[Navigation, Autoplay, Pagination, EffectCards, EffectCoverflow]}
-            spaceBetween={16}
+            spaceBetween={25}
             slidesPerView={2}
             navigation={{
               prevEl: prevRef.current,
