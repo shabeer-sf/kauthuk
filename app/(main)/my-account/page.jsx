@@ -116,15 +116,13 @@ const MyAccount = () => {
       } catch (error) {
         console.error("Error fetching user data:", error);
         toast.error("An unexpected error occurred while loading your profile");
-
-        
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserData();
-  }, [toast]);
+  }, []);
 
   // Fetch states when country changes
   useEffect(() => {
@@ -167,21 +165,14 @@ const MyAccount = () => {
         toast.success("Your profile has been updated");
       } else {
         toast.error(result?.error || "Failed to update profile");
-
-      
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("An unexpected error occurred",);
-
-     
+      toast.error("An unexpected error occurred");
     } finally {
       setUpdating(false);
     }
   };
-
-  // Handle profile picture update
-  
 
   // Open address dialog for adding a new address
   const handleAddAddress = () => {
@@ -264,12 +255,10 @@ const MyAccount = () => {
       }
 
       if (result && result.success) {
-        toast({
-          title: "Success",
-          description: editingAddress
-            ? "Address updated successfully"
-            : "Address added successfully",
-        });
+        toast.success(editingAddress
+          ? "Address updated successfully"
+          : "Address added successfully"
+        );
 
         // Refresh user data to get updated addresses
         const profileData = await getUserProfile();
@@ -284,19 +273,11 @@ const MyAccount = () => {
 
         setIsAddressDialogOpen(false);
       } else {
-        toast({
-          title: "Error",
-          description: result?.error || "Failed to save address",
-          variant: "destructive",
-        });
+        toast.error(result?.error || "Failed to save address");
       }
     } catch (error) {
       console.error("Error saving address:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred");
     } finally {
       setUpdating(false);
     }
@@ -313,10 +294,7 @@ const MyAccount = () => {
       const result = await deleteDeliveryAddress(formData);
 
       if (result && result.success) {
-        toast({
-          title: "Success",
-          description: "Address deleted successfully",
-        });
+        toast.success("Address deleted successfully");
 
         // Update local state to remove the deleted address
         setAddresses(addresses.filter((addr) => addr.id !== addressId));
@@ -332,19 +310,11 @@ const MyAccount = () => {
           );
         }
       } else {
-        toast({
-          title: "Error",
-          description: result?.error || "Failed to delete address",
-          variant: "destructive",
-        });
+        toast.error(result?.error || "Failed to delete address");
       }
     } catch (error) {
       console.error("Error deleting address:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred");
     } finally {
       setUpdating(false);
     }
@@ -355,10 +325,10 @@ const MyAccount = () => {
 
     const colors = {
       delivered: "bg-green-100 text-green-800",
-      shipped: "bg-blue-100 text-blue-800",
+      shipped: "bg-[#fee3d8] text-[#6B2F1A]", // Changed to match Kauthuk colors
       processing: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-purple-100 text-purple-800",
-      placed: "bg-orange-100 text-orange-800",
+      confirmed: "bg-[#fee3d8] text-[#6B2F1A]", // Changed to match Kauthuk colors
+      placed: "bg-[#fee3d8] text-[#6B2F1A]", // Changed to match Kauthuk colors
       cancelled: "bg-red-100 text-red-800",
       returned: "bg-pink-100 text-pink-800",
     };
@@ -367,10 +337,13 @@ const MyAccount = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F9F4F0] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-gray-900 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">
+          <Loader2 className="h-12 w-12 animate-spin text-[#6B2F1A] mx-auto mb-4" />
+          <h3 
+            className="text-lg font-medium text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
             Loading your account...
           </h3>
         </div>
@@ -390,7 +363,7 @@ const MyAccount = () => {
   const DashboardView = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <Card className="bg-gradient-to-br from-[#6B2F1A] to-[#5A2814] text-white border-[#6B2F1A]/10">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -399,24 +372,19 @@ const MyAccount = () => {
                   alt={userData?.name || "User"}
                   className="w-20 h-20 rounded-full border-2 border-white object-cover"
                 />
-                {/* <label htmlFor="avatar-upload-dashboard" className="absolute -bottom-2 -right-2 cursor-pointer">
-                  <div className="bg-white text-gray-900 rounded-full w-8 h-8 flex items-center justify-center shadow-md">
-                    <Camera className="h-4 w-4" />
-                  </div>
-                  <input 
-                    id="avatar-upload-dashboard" 
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleProfilePictureUpdate}
-                  />
-                </label> */}
+                {/* Avatar upload functionality removed as per comment */}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">
+                <h2 
+                  className="text-2xl font-bold"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
                   {userData?.name || defaultUserData.name}
                 </h2>
-                <p className="text-gray-300">
+                <p 
+                  className="text-[#fee3d8]"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   Member since{" "}
                   {userData?.memberSince || defaultUserData.memberSince}
                 </p>
@@ -425,17 +393,40 @@ const MyAccount = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#6B2F1A]/10">
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
+            <h3 
+              className="text-lg font-semibold mb-4 text-[#6B2F1A]"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              Quick Stats
+            </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-500">Total Orders</p>
-                <p className="text-2xl font-bold">{orders.length}</p>
+              <div className="bg-[#F9F4F0] p-4 rounded-lg">
+                <p 
+                  className="text-gray-500"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  Total Orders
+                </p>
+                <p 
+                  className="text-2xl font-bold text-[#6B2F1A]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  {orders.length}
+                </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-500">Active Orders</p>
-                <p className="text-2xl font-bold">
+              <div className="bg-[#F9F4F0] p-4 rounded-lg">
+                <p 
+                  className="text-gray-500"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  Active Orders
+                </p>
+                <p 
+                  className="text-2xl font-bold text-[#6B2F1A]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
                   {
                     orders.filter((o) => {
                       const status = o?.status?.toLowerCase() || "";
@@ -451,9 +442,14 @@ const MyAccount = () => {
         </Card>
       </div>
 
-      <Card>
+      <Card className="border-[#6B2F1A]/10">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Recent Activity
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {orders.length > 0 ? (
@@ -461,13 +457,19 @@ const MyAccount = () => {
               {orders.slice(0, 2).map((order) => (
                 <div
                   key={order.id || "order-" + Math.random()}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-[#F9F4F0] rounded-lg"
                 >
                   <div>
-                    <p className="font-medium">
+                    <p 
+                      className="font-medium text-[#6B2F1A]"
+                      style={{ fontFamily: "Playfair Display, serif" }}
+                    >
                       {order.orderId || `Order #${order.id}`}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p 
+                      className="text-sm text-gray-500"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       {order.date || "Recent order"}
                     </p>
                   </div>
@@ -479,17 +481,33 @@ const MyAccount = () => {
             </div>
           ) : (
             <div className="text-center p-4">
-              <p className="text-gray-500">No orders yet</p>
+              <p 
+                className="text-gray-500"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                No orders yet
+              </p>
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Address quick view */}
-      <Card>
+      <Card className="border-[#6B2F1A]/10">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Delivery Addresses</CardTitle>
-          <Button variant="outline" size="sm" onClick={handleAddAddress}>
+          <CardTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Delivery Addresses
+          </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleAddAddress}
+            className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+            style={{ fontFamily: "Poppins, sans-serif" }}
+          >
             <PlusCircle className="h-4 w-4 mr-2" />
             Add New
           </Button>
@@ -500,28 +518,47 @@ const MyAccount = () => {
               {addresses.slice(0, 1).map((address) => (
                 <div
                   key={address.id || "address-" + Math.random()}
-                  className="p-4 bg-gray-50 rounded-lg relative"
+                  className="p-4 bg-[#F9F4F0] rounded-lg relative"
                 >
                   {address.is_default && (
-                    <Badge className="absolute top-2 right-2 bg-indigo-100 text-indigo-800">
+                    <Badge className="absolute top-2 right-2 bg-[#fee3d8] text-[#6B2F1A] border-[#6B2F1A]/20">
                       Default
                     </Badge>
                   )}
-                  <p className="font-medium">{address.name || "Address"}</p>
-                  <p className="text-gray-600 mt-1">{address.address || ""}</p>
-                  <p className="text-gray-600">
+                  <p 
+                    className="font-medium text-[#6B2F1A]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {address.name || "Address"}
+                  </p>
+                  <p 
+                    className="text-gray-600 mt-1"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    {address.address || ""}
+                  </p>
+                  <p 
+                    className="text-gray-600"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     {address.city || ""}
                     {address.city && address.pin ? ", " : ""}
                     {address.pin || ""}
                   </p>
-                  <p className="text-gray-600 mt-1">{address.phone || ""}</p>
+                  <p 
+                    className="text-gray-600 mt-1"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    {address.phone || ""}
+                  </p>
                 </div>
               ))}
               {addresses.length > 1 && (
                 <Button
                   variant="link"
-                  className="text-indigo-600"
+                  className="text-[#6B2F1A]"
                   onClick={() => setActiveTab("addresses")}
+                  style={{ fontFamily: "Poppins, sans-serif" }}
                 >
                   View all addresses
                 </Button>
@@ -529,8 +566,19 @@ const MyAccount = () => {
             </div>
           ) : (
             <div className="text-center p-4">
-              <p className="text-gray-500 mb-2">No addresses saved</p>
-              <Button variant="outline" size="sm" onClick={handleAddAddress}>
+              <p 
+                className="text-gray-500 mb-2"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                No addresses saved
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAddAddress}
+                className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 Add Address
               </Button>
             </div>
@@ -542,9 +590,14 @@ const MyAccount = () => {
 
   const OrdersView = () => (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-[#6B2F1A]/10">
         <CardHeader>
-          <CardTitle>My Orders</CardTitle>
+          <CardTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            My Orders
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {orders.length > 0 ? (
@@ -552,30 +605,44 @@ const MyAccount = () => {
               {orders.map((order) => (
                 <div
                   key={order.id || "order-" + Math.random()}
-                  className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-[#F9F4F0] rounded-lg hover:bg-[#fee3d8]/30 transition-colors"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-semibold">
+                      <h3 
+                        className="font-semibold text-[#6B2F1A]"
+                        style={{ fontFamily: "Playfair Display, serif" }}
+                      >
                         {order.orderId || `Order #${order.id}`}
                       </h3>
                       <Badge className={getStatusColor(order.status)}>
                         {order.status || "Processing"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p 
+                      className="text-sm text-gray-500"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       Ordered on {order.date || "recent date"} •{" "}
                       {order.items || 0} items
                     </p>
                   </div>
                   <div className="flex items-center gap-4 mt-4 md:mt-0">
-                    <p className="font-semibold">
+                    <p 
+                      className="font-semibold text-[#6B2F1A]"
+                      style={{ fontFamily: "Playfair Display, serif" }}
+                    >
                       {order.currency === "USD" ? "$" : "₹"}
                       {typeof order.total === "number"
                         ? order.total.toFixed(2)
                         : "0.00"}
                     </p>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       View Details
                     </Button>
                   </div>
@@ -583,15 +650,26 @@ const MyAccount = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center p-6 bg-gray-50 rounded-lg">
-              <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">
+            <div className="text-center p-6 bg-[#F9F4F0] rounded-lg">
+              <Package className="h-12 w-12 text-[#6B2F1A]/50 mx-auto mb-3" />
+              <h3 
+                className="text-lg font-medium text-[#6B2F1A] mb-1"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
                 No orders yet
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p 
+                className="text-gray-500 mb-4"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 When you place orders, they will appear here.
               </p>
-              <Button>Start Shopping</Button>
+              <Button 
+                className="bg-[#6B2F1A] hover:bg-[#5A2814]"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Start Shopping
+              </Button>
             </div>
           )}
         </CardContent>
@@ -601,10 +679,19 @@ const MyAccount = () => {
 
   const AddressesView = () => (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-[#6B2F1A]/10">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>My Addresses</CardTitle>
-          <Button onClick={handleAddAddress}>
+          <CardTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            My Addresses
+          </CardTitle>
+          <Button 
+            onClick={handleAddAddress}
+            className="bg-[#6B2F1A] hover:bg-[#5A2814]"
+            style={{ fontFamily: "Poppins, sans-serif" }}
+          >
             <PlusCircle className="h-4 w-4 mr-2" />
             Add New Address
           </Button>
@@ -615,26 +702,40 @@ const MyAccount = () => {
               {addresses.map((address) => (
                 <div
                   key={address.id || "address-" + Math.random()}
-                  className="p-4 bg-gray-50 rounded-lg border border-gray-200 relative"
+                  className="p-4 bg-[#F9F4F0] rounded-lg border border-[#6B2F1A]/10 relative"
                 >
                   {address.is_default && (
-                    <Badge className="absolute top-2 right-2 bg-indigo-100 text-indigo-800">
+                    <Badge className="absolute top-2 right-2 bg-[#fee3d8] text-[#6B2F1A] border-[#6B2F1A]/20">
                       Default
                     </Badge>
                   )}
                   <div className="flex items-start mb-2">
-                    <HomeIcon className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
+                    <HomeIcon className="h-5 w-5 text-[#6B2F1A] mr-2 mt-0.5" />
                     <div>
-                      <p className="font-medium">{address.name || "Address"}</p>
-                      <p className="text-gray-600 mt-1">
+                      <p 
+                        className="font-medium text-[#6B2F1A]"
+                        style={{ fontFamily: "Playfair Display, serif" }}
+                      >
+                        {address.name || "Address"}
+                      </p>
+                      <p 
+                        className="text-gray-600 mt-1"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {address.address || ""}
                       </p>
-                      <p className="text-gray-600">
+                      <p 
+                        className="text-gray-600"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {address.city || ""}
                         {address.city && address.pin ? ", " : ""}
                         {address.pin || ""}
                       </p>
-                      <p className="text-gray-600 mt-1">
+                      <p 
+                        className="text-gray-600 mt-1"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {address.phone || ""}
                       </p>
                     </div>
@@ -644,6 +745,8 @@ const MyAccount = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditAddress(address)}
+                      className="text-[#6B2F1A] hover:bg-[#fee3d8]"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
@@ -654,6 +757,7 @@ const MyAccount = () => {
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => handleDeleteAddress(address.id)}
                       disabled={updating}
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
@@ -663,15 +767,27 @@ const MyAccount = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center p-6 bg-gray-50 rounded-lg">
-              <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">
+            <div className="text-center p-6 bg-[#F9F4F0] rounded-lg">
+              <MapPin className="h-12 w-12 text-[#6B2F1A]/50 mx-auto mb-3" />
+              <h3 
+                className="text-lg font-medium text-[#6B2F1A] mb-1"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
                 No addresses saved
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p 
+                className="text-gray-500 mb-4"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 Add a delivery address to speed up your checkout process.
               </p>
-              <Button onClick={handleAddAddress}>Add New Address</Button>
+              <Button 
+                onClick={handleAddAddress}
+                className="bg-[#6B2F1A] hover:bg-[#5A2814]"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Add New Address
+              </Button>
             </div>
           )}
         </CardContent>
@@ -681,9 +797,14 @@ const MyAccount = () => {
 
   const ProfileView = () => (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-[#6B2F1A]/10">
         <CardHeader>
-          <CardTitle>Edit Profile</CardTitle>
+          <CardTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Edit Profile
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={handleProfileUpdate} className="space-y-6">
@@ -693,7 +814,7 @@ const MyAccount = () => {
                   <img
                     src={userData?.avatar || defaultUserData.avatar}
                     alt={userData?.name || "User"}
-                    className="w-32 h-32 rounded-full border-4 border-gray-100 object-cover"
+                    className="w-32 h-32 rounded-full border-4 border-[#fee3d8] object-cover"
                   />
                   
                 </div>
@@ -702,38 +823,50 @@ const MyAccount = () => {
               <div className="flex-1 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label 
+                      className="text-sm font-medium text-gray-700"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       Full Name
                     </label>
                     <input
                       type="text"
                       name="name"
-                      className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2"
+                      className="mt-1 w-full rounded-md border border-[#6B2F1A]/20 px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]"
                       defaultValue={userData?.name || defaultUserData.name}
                       required
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label 
+                      className="text-sm font-medium text-gray-700"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       Email
                     </label>
                     <input
                       type="email"
                       name="email"
-                      className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2"
+                      className="mt-1 w-full rounded-md border border-[#6B2F1A]/20 px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]"
                       defaultValue={userData?.email || defaultUserData.email}
                       required
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label 
+                      className="text-sm font-medium text-gray-700"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
                       Phone
                     </label>
                     <input
                       type="tel"
                       name="mobile"
-                      className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2"
+                      className="mt-1 w-full rounded-md border border-[#6B2F1A]/20 px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]"
                       defaultValue={userData?.mobile || defaultUserData.mobile}
+                      style={{ fontFamily: "Poppins, sans-serif" }}
                     />
                   </div>
                 </div>
@@ -743,10 +876,17 @@ const MyAccount = () => {
                     type="button"
                     variant="outline"
                     onClick={() => window.location.reload()}
+                    className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={updating}>
+                  <Button 
+                    type="submit" 
+                    disabled={updating}
+                    className="bg-[#6B2F1A] hover:bg-[#5A2814]"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     {updating ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -763,8 +903,8 @@ const MyAccount = () => {
         </CardContent>
       </Card>
 
-      <Alert>
-        <AlertDescription>
+      <Alert className="border-[#6B2F1A]/20 bg-[#fee3d8]/20">
+        <AlertDescription style={{ fontFamily: "Poppins, sans-serif" }}>
           Your information is securely stored and will never be shared with
           third parties.
         </AlertDescription>
@@ -777,45 +917,64 @@ const MyAccount = () => {
     <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle 
+            className="text-[#6B2F1A]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
             {editingAddress ? "Edit Address" : "Add New Address"}
           </DialogTitle>
         </DialogHeader>
 
         <form action={handleAddressSubmit} className="space-y-4 mt-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label 
+              className="text-sm font-medium text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               Full Name
             </label>
             <input
               type="text"
               name="name"
               className={`mt-1 w-full rounded-md border ${
-                addressFormErrors.name ? "border-red-300" : "border-gray-300"
-              } px-4 py-2`}
+                addressFormErrors.name ? "border-red-300" : "border-[#6B2F1A]/20"
+              } px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
               defaultValue={editingAddress?.name || ""}
               required
+              style={{ fontFamily: "Poppins, sans-serif" }}
             />
             {addressFormErrors.name && (
-              <p className="text-sm text-red-500 mt-1">
+              <p 
+                className="text-sm text-red-500 mt-1"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {addressFormErrors.name}
               </p>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Address</label>
+            <label 
+              className="text-sm font-medium text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              Address
+            </label>
             <textarea
               name="address"
               rows="2"
               className={`mt-1 w-full rounded-md border ${
-                addressFormErrors.address ? "border-red-300" : "border-gray-300"
-              } px-4 py-2`}
+                addressFormErrors.address ? "border-red-300" : "border-[#6B2F1A]/20"
+              } px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
               defaultValue={editingAddress?.address || ""}
               required
+              style={{ fontFamily: "Poppins, sans-serif" }}
             />
             {addressFormErrors.address && (
-              <p className="text-sm text-red-500 mt-1">
+              <p 
+                className="text-sm text-red-500 mt-1"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {addressFormErrors.address}
               </p>
             )}
@@ -823,37 +982,53 @@ const MyAccount = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">City</label>
+              <label 
+                className="text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                City
+              </label>
               <input
                 type="text"
                 name="city"
                 className={`mt-1 w-full rounded-md border ${
-                  addressFormErrors.city ? "border-red-300" : "border-gray-300"
-                } px-4 py-2`}
+                  addressFormErrors.city ? "border-red-300" : "border-[#6B2F1A]/20"
+                } px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
                 defaultValue={editingAddress?.city || ""}
                 required
+                style={{ fontFamily: "Poppins, sans-serif" }}
               />
               {addressFormErrors.city && (
-                <p className="text-sm text-red-500 mt-1">
+                <p 
+                  className="text-sm text-red-500 mt-1"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   {addressFormErrors.city}
                 </p>
               )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label 
+                className="text-sm font-medium text-gray-700"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 PIN/ZIP Code
               </label>
               <input
                 type="text"
                 name="pin"
                 className={`mt-1 w-full rounded-md border ${
-                  addressFormErrors.pin ? "border-red-300" : "border-gray-300"
-                } px-4 py-2`}
+                  addressFormErrors.pin ? "border-red-300" : "border-[#6B2F1A]/20"
+                } px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
                 defaultValue={editingAddress?.pin || ""}
                 required
+                style={{ fontFamily: "Poppins, sans-serif" }}
               />
               {addressFormErrors.pin && (
-                <p className="text-sm text-red-500 mt-1">
+                <p 
+                  className="text-sm text-red-500 mt-1"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
                   {addressFormErrors.pin}
                 </p>
               )}
@@ -861,7 +1036,12 @@ const MyAccount = () => {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Country</label>
+            <label 
+              className="text-sm font-medium text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              Country
+            </label>
             <Select
               name="country_id"
               defaultValue={editingAddress?.country_id?.toString() || ""}
@@ -871,28 +1051,39 @@ const MyAccount = () => {
                 className={`${
                   addressFormErrors.country_id
                     ? "border-red-300"
-                    : "border-gray-300"
-                }`}
+                    : "border-[#6B2F1A]/20"
+                } focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 <SelectValue placeholder="Select a country" />
               </SelectTrigger>
               <SelectContent>
                 {countries.map((country) => (
-                  <SelectItem key={country.id} value={country.id.toString()}>
+                  <SelectItem 
+                    key={country.id} 
+                    value={country.id.toString()}
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     {country.country_enName}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {addressFormErrors.country_id && (
-              <p className="text-sm text-red-500 mt-1">
+              <p 
+                className="text-sm text-red-500 mt-1"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {addressFormErrors.country_id}
               </p>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label 
+              className="text-sm font-medium text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               State/Province
             </label>
             <Select
@@ -904,8 +1095,9 @@ const MyAccount = () => {
                 className={`${
                   addressFormErrors.state_id
                     ? "border-red-300"
-                    : "border-gray-300"
-                }`}
+                    : "border-[#6B2F1A]/20"
+                } focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
+                style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 <SelectValue
                   placeholder={
@@ -917,34 +1109,48 @@ const MyAccount = () => {
               </SelectTrigger>
               <SelectContent>
                 {states.map((state) => (
-                  <SelectItem key={state.id} value={state.id.toString()}>
+                  <SelectItem 
+                    key={state.id} 
+                    value={state.id.toString()}
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     {state.state_en}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {addressFormErrors.state_id && (
-              <p className="text-sm text-red-500 mt-1">
+              <p 
+                className="text-sm text-red-500 mt-1"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {addressFormErrors.state_id}
               </p>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label 
+              className="text-sm font-medium text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               Phone Number
             </label>
             <input
               type="tel"
               name="phone"
               className={`mt-1 w-full rounded-md border ${
-                addressFormErrors.phone ? "border-red-300" : "border-gray-300"
-              } px-4 py-2`}
+                addressFormErrors.phone ? "border-red-300" : "border-[#6B2F1A]/20"
+              } px-4 py-2 focus:ring-[#6B2F1A] focus:border-[#6B2F1A]`}
               defaultValue={editingAddress?.phone || ""}
               required
+              style={{ fontFamily: "Poppins, sans-serif" }}
             />
             {addressFormErrors.phone && (
-              <p className="text-sm text-red-500 mt-1">
+              <p 
+                className="text-sm text-red-500 mt-1"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 {addressFormErrors.phone}
               </p>
             )}
@@ -955,12 +1161,13 @@ const MyAccount = () => {
               id="default-address"
               name="is_default"
               type="checkbox"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              className="h-4 w-4 text-[#6B2F1A] focus:ring-[#6B2F1A] border-[#6B2F1A]/20 rounded"
               defaultChecked={editingAddress?.is_default || false}
             />
             <label
               htmlFor="default-address"
               className="ml-2 block text-sm text-gray-700"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Set as default address
             </label>
@@ -971,11 +1178,17 @@ const MyAccount = () => {
               type="button"
               variant="outline"
               onClick={() => setIsAddressDialogOpen(false)}
-              className="mr-2"
+              className="mr-2 border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+              style={{ fontFamily: "Poppins, sans-serif" }}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={updating}>
+            <Button 
+              type="submit" 
+              disabled={updating}
+              className="bg-[#6B2F1A] hover:bg-[#5A2814]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               {updating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1001,32 +1214,34 @@ const MyAccount = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F9F4F0]">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 space-y-4">
-            <Card>
+            <Card className="border-[#6B2F1A]/10">
               <CardContent className="p-4">
                 {tabs.map((tab) => (
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? "default" : "ghost"}
                     className={`w-full justify-start gap-2 mb-2 ${
-                      activeTab === tab.id ? "bg-gray-900 text-white" : ""
+                      activeTab === tab.id ? "bg-[#6B2F1A] text-white hover:bg-[#5A2814]" : "text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A]"
                     }`}
                     onClick={() => setActiveTab(tab.id)}
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     <tab.icon className="h-4 w-4" />
                     {tab.label}
                   </Button>
                 ))}
-                <Separator className="my-4" />
+                <Separator className="my-4 bg-[#6B2F1A]/10" />
                 <form action={logoutUser}>
                   <Button
                     type="submit"
                     variant="ghost"
                     className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     <LogOut className="h-4 w-4" />
                     Logout
