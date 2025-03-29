@@ -276,19 +276,7 @@ const CategoryPage = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "Playfair Display, serif" }}>{category?.catName || "Category"}</h1>
-              <p className="text-white/80 max-w-xl" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Explore our collection of {category?.catName || "products"} crafted with sustainable materials 
-                and traditional artisanship. Perfect for your home and special occasions.
-              </p>
-              <div className="flex items-center mt-4">
-                <Badge variant="outline" className="bg-white/10 text-white border-white/20 backdrop-blur-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
-                  {productCount} Products
-                </Badge>
-                <span className="mx-2 text-white/40">•</span>
-                <Badge variant="outline" className="bg-white/10 text-white border-white/20 backdrop-blur-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
-                  {subcategories.length} Subcategories
-                </Badge>
-              </div>
+              
             </div>
             
             <div className="flex flex-wrap gap-2">

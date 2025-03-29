@@ -14,11 +14,13 @@ datasource db {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  catName   String   @unique @db.VarChar(100)
-  showHome  Statuses @default(active)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int         @id @default(autoincrement())
+  catName     String      @unique @db.VarChar(100)
+  showHome    Statuses    @default(active)
+  description String?     @db.Text
+  image       String?     @db.VarChar(255)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   SubCategory SubCategory[]
 }
@@ -27,6 +29,8 @@ model SubCategory {
   id          Int      @id @default(autoincrement())
   cat_id      Int
   subcategory String   @db.VarChar(100)
+  description String?  @db.Text
+  image       String?  @db.VarChar(255)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -221,8 +225,6 @@ model Slider {
   updatedAt DateTime @updatedAt
 }
 
-// Add these models to your Prisma schema
-
 // Menu model to represent each menu item in the sidebar
 model Menu {
   id           Int       @id @default(autoincrement())
@@ -281,16 +283,19 @@ enum AdminEnum {
   staff
 }
 
-// Newsletter model
+// Enhanced Newsletter model
 model Newsletter {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique(map: "newsletter_email") @db.VarChar(191)
-  status    Statuses @default(active)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  email      String   @unique(map: "newsletter_email") @db.VarChar(191)
+  name       String?  @db.VarChar(255)
+  subscribed Boolean  @default(true)
+  source     String?  @db.VarChar(100) // Where the subscription came from (footer, popup, etc.)
+  status     Statuses @default(active)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
-// User model
+// User model with enhanced contact information
 model User {
   id              Int      @id @default(autoincrement())
   name            String   @db.VarChar(255)
@@ -298,7 +303,10 @@ model User {
   password        String   @db.VarChar(255)
   mobile          String?  @db.VarChar(20)
   mobile_verified YesNo    @default(no)
+  profile_picture String?  @db.VarChar(255) // User profile image
   status          Statuses @default(active)
+  newsletter_opt_in Boolean @default(false)  // Whether user has opted in to newsletter
+  last_login      DateTime? 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -306,6 +314,28 @@ model User {
   BillingAddresses  BillingAddress[]
   Orders            Order[]
   UserSession       UserSession?
+}
+
+// Company Contact Information model
+model CompanyContact {
+  id           Int     @id @default(autoincrement())
+  address_line1 String  @db.Text
+  address_line2 String? @db.Text
+  city         String  @db.VarChar(100)
+  state        String  @db.VarChar(100)
+  postal_code  String  @db.VarChar(20)
+  country      String  @db.VarChar(100)
+  email        String  @db.VarChar(191)
+  phone        String  @db.VarChar(20)
+  alt_phone    String? @db.VarChar(20)
+  whatsapp     String? @db.VarChar(20)
+  facebook_url String? @db.VarChar(255)
+  instagram_url String? @db.VarChar(255)
+  twitter_url  String? @db.VarChar(255)
+  youtube_url  String? @db.VarChar(255)
+  map_embed_url String? @db.Text
+  map_latitude  String? @db.VarChar(50)
+  map_longitude String? @db.VarChar(50)
 }
 
 // Country model (for addresses)
@@ -326,7 +356,6 @@ model Country {
 }
 
 // States model (for addresses)
-// States model (for addresses)
 model States {
   id         Int      @id @default(autoincrement())
   country_id Int
@@ -342,18 +371,22 @@ model States {
   @@index([country_id])
 }
 
-// Delivery Address model
+// Enhanced Delivery Address model
 model DeliveryAddress {
   id         Int      @id @default(autoincrement())
   user_id    Int
   name       String   @db.VarChar(255)
   address    String   @db.Text
+  apartment  String?  @db.VarChar(255) // Apt, Suite, etc.
   city       String   @db.VarChar(100)
   country_id Int
   state_id   Int
   pin        String   @db.VarChar(20)
   phone      String   @db.VarChar(20)
+  alt_phone  String?  @db.VarChar(20) // Alternative phone
+  landmarks  String?  @db.VarChar(255) // Nearby landmarks for delivery
   is_default Boolean  @default(false)
+  address_type String? @db.VarChar(50) // Home, Office, etc.
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -362,17 +395,22 @@ model DeliveryAddress {
   States  States  @relation(fields: [state_id], references: [id], map: "DeliveryAddress_state_id_fkey")
 }
 
-// Billing Address model
+// Enhanced Billing Address model
 model BillingAddress {
   id         Int      @id @default(autoincrement())
   user_id    Int
   name       String   @db.VarChar(255)
   address    String   @db.Text
+  apartment  String?  @db.VarChar(255) // Apt, Suite, etc.
   city       String   @db.VarChar(100)
   country_id Int
   state_id   Int
   pin        String   @db.VarChar(20)
   phone      String   @db.VarChar(20)
+  alt_phone  String?  @db.VarChar(20) // Alternative phone
+  company_name String? @db.VarChar(255) // For business billing
+  gstin      String?  @db.VarChar(50) // GST Number for Indian businesses
+  tax_id     String?  @db.VarChar(50) // Tax ID for international businesses
   is_default Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -389,6 +427,7 @@ model Testimonial {
   location    String   @db.VarChar(255)
   description String   @db.Text
   rating      Int?     @default(5)
+  image       String?  @db.VarChar(255) // Profile picture of testimonial giver
   status      Statuses @default(active)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -445,6 +484,28 @@ model ShippingDetail {
   updatedAt     DateTime       @updatedAt
 
   Order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+// Contact Form Submissions model
+model ContactSubmission {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  email      String   @db.VarChar(255)
+  phone      String?  @db.VarChar(20)
+  subject    String?  @db.VarChar(255)
+  message    String   @db.Text
+  status     ContactStatus @default(new)
+  responded  Boolean  @default(false)
+  response   String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum ContactStatus {
+  new
+  read
+  responded
+  archived
 }
 
 // Additional enums

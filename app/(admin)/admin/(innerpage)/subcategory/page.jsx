@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -84,6 +85,9 @@ import {
   LayoutList,
   PanelRight,
   HomeIcon,
+  Upload,
+  FileImage,
+  Image,
 } from "lucide-react";
 
 // Hooks and Utilities
@@ -117,9 +121,13 @@ const SubcategoryPage = () => {
     id: null,
     title: "",
     cat_id: "",
+    description: "",
+    image: null,
   });
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [editImagePreview, setEditImagePreview] = useState(null);
 
   const itemsPerPage = 15;
   const router = useRouter();
@@ -131,6 +139,7 @@ const SubcategoryPage = () => {
     control,
     reset,
     setValue,
+    watch,
   } = useForm({
     resolver: zodResolver(SubcategorySchema),
   });
@@ -191,6 +200,7 @@ const SubcategoryPage = () => {
       toast.success("Subcategory created successfully");
       setShowCreateModal(false);
       reset();
+      setImagePreview(null);
       fetchSubcategories();
     }
   }, [subcategory]);
@@ -199,9 +209,23 @@ const SubcategoryPage = () => {
     if (updatedSubcategory) {
       toast.success("Subcategory updated successfully");
       setShowEditModal(false);
+      setEditImagePreview(null);
       fetchSubcategories();
     }
   }, [updatedSubcategory]);
+
+  // Watch for image changes in create form
+  const watchImage = watch("image");
+  useEffect(() => {
+    if (watchImage && watchImage[0]) {
+      const file = watchImage[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [watchImage]);
 
   const onSubmitCreate = async (data) => {
     await createSubcategoryFN(data);
@@ -209,7 +233,18 @@ const SubcategoryPage = () => {
 
   const onSubmitUpdate = async (e) => {
     e.preventDefault();
-    await updateSubcategoryFN(formData);
+    // Convert FormData for server action
+    const formDataObj = new FormData();
+    formDataObj.append("id", formData.id);
+    formDataObj.append("title", formData.title);
+    formDataObj.append("cat_id", formData.cat_id);
+    formDataObj.append("description", formData.description || "");
+    
+    if (formData.image && formData.image[0]) {
+      formDataObj.append("image", formData.image[0]);
+    }
+    
+    await updateSubcategoryFN(formDataObj);
   };
 
   const handleReset = () => {
@@ -246,8 +281,23 @@ const SubcategoryPage = () => {
       id: item.id,
       title: item.subcategory,
       cat_id: item.cat_id,
+      description: item.description || "",
+      image: null,
     });
+    setEditImagePreview(item.image ? `/kauthuk_test/subcategories/${item.image}` : null);
     setShowEditModal(true);
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setFormData({ ...formData, image: e.target.files });
+    }
   };
 
   const renderSkeletons = () => {
@@ -479,7 +529,29 @@ const SubcategoryPage = () => {
                       </td>
                       
                       <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
-                        <div className="font-medium text-slate-700 dark:text-slate-300">{item.subcategory}</div>
+                        <div className="flex items-center">
+                          {item.image && (
+                            <div className="h-10 w-10 mr-3 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+                              <img 
+                                src={`/kauthuk_test/subcategories/${item.image}`} 
+                                alt={item.subcategory}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = "/placeholder-image.jpg";
+                                }}
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <div className="font-medium text-slate-700 dark:text-slate-300">{item.subcategory}</div>
+                            {item.description && (
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                {item.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       
                       <td className="p-4 border-b border-gray-400 dark:border-blue-900/30">
@@ -549,6 +621,24 @@ const SubcategoryPage = () => {
                 key={item.id} 
                 className="border-gray-400 dark:border-blue-900/30 hover:shadow-md hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-shadow overflow-hidden"
               >
+                <div className="h-36 overflow-hidden bg-gray-100 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
+                  {item.image ? (
+                    <img 
+                      src={`/kauthuk_test/subcategories/${item.image}`} 
+                      alt={item.subcategory}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder-image.jpg";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <FileImage size={48} className="text-gray-300 dark:text-gray-600" />
+                    </div>
+                  )}
+                </div>
+                
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                     {item.subcategory}
@@ -561,6 +651,11 @@ const SubcategoryPage = () => {
                 </CardHeader>
                 
                 <CardContent className="p-4 pt-0">
+                  {item.description && (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2">
+                      {item.description}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                     Created {new Date(item.createdAt).toLocaleDateString()}
                   </p>
@@ -716,6 +811,58 @@ const SubcategoryPage = () => {
               )}
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-slate-700 dark:text-slate-300">Description (Optional)</Label>
+              <Textarea
+                id="description"
+                placeholder="Enter subcategory description"
+                {...register("description")}
+                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                rows={3}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="image" className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <Upload size={14} />
+                Subcategory Image (Optional)
+              </Label>
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg p-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      {...register("image")}
+                      className="border-0 p-0"
+                    />
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                      Supported formats: JPG, PNG. Maximum size: 2MB.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Image preview */}
+                <div className="w-full md:w-1/3">
+                  <div className="border border-blue-200 dark:border-blue-900/50 rounded-lg aspect-video overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center text-slate-400 dark:text-slate-600">
+                        <FileImage size={40} className="mb-2" />
+                        <span className="text-xs">Image preview</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <DialogFooter className="mt-4">
               <DialogClose asChild>
                 <Button 
@@ -813,6 +960,62 @@ const SubcategoryPage = () => {
               )}
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="edit-description" className="text-slate-700 dark:text-slate-300">Description (Optional)</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500"
+                rows={3}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-image" className="text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <Upload size={14} />
+                Subcategory Image
+              </Label>
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg p-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
+                    <Input
+                      id="edit-image"
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={handleEditImageChange}
+                      className="border-0 p-0"
+                    />
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                      Leave empty to keep current image. Supported formats: JPG, PNG.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Image preview */}
+                <div className="w-full md:w-1/3">
+                  <div className="border border-blue-200 dark:border-blue-900/50 rounded-lg aspect-video overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                    {editImagePreview ? (
+                      <img
+                        src={editImagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/placeholder-image.jpg";
+                        }}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center text-slate-400 dark:text-slate-600">
+                        <FileImage size={40} className="mb-2" />
+                        <span className="text-xs">No image</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <DialogFooter className="mt-4">
               <DialogClose asChild>
                 <Button 
@@ -835,7 +1038,7 @@ const SubcategoryPage = () => {
                   </>
                 ) : (
                   <>
-                    <Pencil size={16} className="mr-1" />
+                   <Pencil size={16} className="mr-1" />
                     Update Subcategory
                   </>
                 )}

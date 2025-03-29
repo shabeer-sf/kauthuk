@@ -27,7 +27,7 @@ export default function MainLayout({ children }) {
           <Header />
           {/* Add CategoryList component below Header */}
           {/* <CategoryList /> */}
-          <div className="w-full px-3 min-h-screen">
+          <div className="w-full min-h-screen">
             {children}
           </div>
           <Footer />

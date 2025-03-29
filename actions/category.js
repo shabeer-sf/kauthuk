@@ -2,8 +2,17 @@
 
 import { db } from "@/lib/prisma";
 import { cache } from "react";
+import os from "os";
+import fs from "fs/promises";
+import path from "path";
+import * as ftp from "basic-ftp";
+
+const localTempDir = os.tmpdir();
 
 export async function createCategory(data) {
+  const ftpClient = new ftp.Client();
+  ftpClient.ftp.verbose = true;
+
   try {
     if (!data || !data.title) {
       throw new Error("Category title is required");
@@ -13,8 +22,63 @@ export async function createCategory(data) {
     const category = await db.category.create({
       data: {
         catName: data.title.trim(),
+        description: data.description || null,
       },
     });
+
+    // Handle image upload if present
+    if (data.image && data.image.length > 0) {
+      const image = data.image[0];
+
+      // Add current timestamp to the image filename
+      const timestamp = Date.now();
+      const newImageName = `category_${timestamp}_${image.name}`;
+
+      // Temporary save location on the server
+      const tempImagePath = path.join(localTempDir, newImageName);
+
+      // Convert ArrayBuffer to Buffer before writing to the file system
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      // Save the uploaded file temporarily
+      await fs.writeFile(tempImagePath, buffer);
+
+      console.log("Temporary category image saved at:", tempImagePath);
+
+      // Connect to FTP server
+      await ftpClient.access({
+        host: "ftp.greenglow.in", 
+        port: 21,
+        user: "u737108297.kauthuktest",
+        password: "Test_kauthuk#123",
+      });
+
+      console.log("Connected to FTP server");
+
+      // Upload image to FTP server in the 'public_html/kauthuk_test/categories' directory
+      // Create directory if it doesn't exist
+      try {
+        await ftpClient.ensureDir("/kauthuk_test/categories");
+      } catch (error) {
+        console.warn("Directory may already exist:", error.message);
+      }
+
+      const remoteFilePath = `/kauthuk_test/categories/${newImageName}`;
+      await ftpClient.uploadFrom(tempImagePath, remoteFilePath);
+
+      console.log("Category image uploaded successfully to:", remoteFilePath);
+
+      // Update category entry with image path
+      await db.category.update({
+        where: { id: category.id },
+        data: { image: newImageName },
+      });
+
+      console.log("Category updated with image path");
+
+      // Remove local temporary file
+      await fs.unlink(tempImagePath);
+    }
 
     return category;
   } catch (error) {
@@ -24,8 +88,11 @@ export async function createCategory(data) {
 
     console.error("Error creating category:", error);
     throw new Error("Failed to create the category. Please try again.");
+  } finally {
+    ftpClient.close();
   }
 }
+
 
 export async function getCategories({
   page = 1,
@@ -69,6 +136,7 @@ export async function getCategories({
   }
 }
 
+
 export async function getCategories2() {
   try {
     // Fetch all categories without pagination or filtering
@@ -84,22 +152,107 @@ export async function getCategories2() {
 }
 
 export async function updateCategory(data) {
+  const ftpClient = new ftp.Client();
+  ftpClient.ftp.verbose = true;
+  
+  console.log("data", data);
+  
   try {
-    if (!data || !data.id || !data.title || typeof data.title !== "string") {
-      throw new Error("Invalid input. 'id' and valid 'title' are required.");
+    // When receiving FormData, we need to use get() to access values
+    const id = data.get ? data.get('id') : data.id;
+    const title = data.get ? data.get('title') : data.title;
+    const description = data.get ? data.get('description') : data.description;
+    
+    // Check if we have the required data
+    if (!id || !title) {
+      throw new Error("Invalid input. 'id' and 'title' are required.");
     }
 
-    const id = parseInt(data.id);
-    if (isNaN(id)) {
+    const categoryId = parseInt(id);
+    if (isNaN(categoryId)) {
       throw new Error("Invalid category ID format.");
+    }
+
+    // Fetch existing category
+    const existingCategory = await db.category.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!existingCategory) {
+      throw new Error("Category not found");
+    }
+
+    // Prepare update data
+    const updateData = {
+      catName: title.toString().trim(),
+      description: description ? description.toString() : existingCategory.description,
+    };
+
+    // Handle image upload if present
+    // For FormData, we use the get method to retrieve the file
+    const image = data.get ? data.get('image') : (data.image && data.image.length > 0 ? data.image[0] : null);
+    
+    if (image && image instanceof File) {
+      // Add current timestamp to the image filename
+      const timestamp = Date.now();
+      const newImageName = `category_${timestamp}_${image.name}`;
+
+      // Temporary save location on the server
+      const tempImagePath = path.join(localTempDir, newImageName);
+
+      // Convert ArrayBuffer to Buffer before writing to the file system
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      // Save the uploaded file temporarily
+      await fs.writeFile(tempImagePath, buffer);
+
+      console.log("Temporary category image saved at:", tempImagePath);
+
+      // Connect to FTP server
+      await ftpClient.access({
+        host: "ftp.greenglow.in", 
+        port: 21,
+        user: "u737108297.kauthuktest",
+        password: "Test_kauthuk#123",
+      });
+
+      console.log("Connected to FTP server");
+
+      // Ensure directory exists
+      try {
+        await ftpClient.ensureDir("/kauthuk_test/categories");
+      } catch (error) {
+        console.warn("Directory may already exist:", error.message);
+      }
+
+      // Upload image to FTP server
+      const remoteFilePath = `/kauthuk_test/categories/${newImageName}`;
+      await ftpClient.uploadFrom(tempImagePath, remoteFilePath);
+
+      console.log("Category image uploaded successfully to:", remoteFilePath);
+
+      // Update image path in update data
+      updateData.image = newImageName;
+
+      // Remove local temporary file
+      await fs.unlink(tempImagePath);
+
+      // Delete the old image from FTP if it exists
+      if (existingCategory.image) {
+        const oldRemoteFilePath = `/kauthuk_test/categories/${existingCategory.image}`;
+        try {
+          await ftpClient.remove(oldRemoteFilePath);
+          console.log("Old category image removed from FTP server:", oldRemoteFilePath);
+        } catch (err) {
+          console.warn("Failed to remove old category image from FTP server:", err);
+        }
+      }
     }
 
     // Update the category
     const updatedCategory = await db.category.update({
-      where: { id },
-      data: {
-        catName: data.title.trim(),
-      },
+      where: { id: categoryId },
+      data: updateData,
     });
 
     return updatedCategory;
@@ -116,8 +269,11 @@ export async function updateCategory(data) {
 
     console.error("Error updating category:", error);
     throw new Error("Failed to update the category. Please try again.");
+  } finally {
+    ftpClient.close();
   }
 }
+
 
 export async function toggleCategory(id) {
   try {
@@ -150,11 +306,6 @@ export async function toggleCategory(id) {
 
     return toggleData;
   } catch (error) {
-    // Handle unique constraint error
-    if (error.code === "P2002" && error.meta?.target?.includes("catName")) {
-      throw new Error("Category with this name already exists.");
-    }
-
     // Handle record not found error
     if (error.code === "P2025") {
       throw new Error("Category not found.");
@@ -165,7 +316,11 @@ export async function toggleCategory(id) {
   }
 }
 
+
 export async function deleteCategoryById(id) {
+  const ftpClient = new ftp.Client();
+  ftpClient.ftp.verbose = true;
+
   try {
     if (!id) {
       throw new Error("Category ID is required");
@@ -187,7 +342,41 @@ export async function deleteCategoryById(id) {
       throw new Error("Cannot delete category with existing subcategories. Please delete subcategories first.");
     }
 
-    // Delete the category by its unique ID
+    // Fetch the category to check if it has an associated image
+    const category = await db.category.findUnique({
+      where: { id: categoryId },
+      select: { image: true },
+    });
+
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    // Delete the image from FTP if it exists
+    if (category.image) {
+      await ftpClient.access({
+        host: "ftp.greenglow.in",
+        port: 21,
+        user: "u737108297.kauthuktest",
+        password: "Test_kauthuk#123",
+      });
+
+      console.log("Connected to FTP server");
+
+      // Delete the image
+      const remoteFilePath = `/kauthuk_test/categories/${category.image}`;
+      try {
+        await ftpClient.remove(remoteFilePath);
+        console.log("Category image deleted from FTP:", remoteFilePath);
+      } catch (ftpError) {
+        console.warn(
+          "Error deleting category image or file not found:",
+          ftpError.message
+        );
+      }
+    }
+
+    // Delete the category from the database
     const deletedCategory = await db.category.delete({
       where: {
         id: categoryId,
@@ -209,6 +398,8 @@ export async function deleteCategoryById(id) {
     
     console.error("Error deleting category:", error);
     throw new Error("Failed to delete the category. Please try again.");
+  } finally {
+    ftpClient.close();
   }
 }
 

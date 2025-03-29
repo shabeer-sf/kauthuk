@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getCompanyContact } from '@/actions/contact';
 
 const FooterLinkGroup = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +44,28 @@ const FooterLinkGroup = ({ title, children }) => {
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [companyContact, setCompanyContact] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch company contact info
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await getCompanyContact();
+        if (response.success && response.contact) {
+          setCompanyContact(response.contact);
+        }
+      } catch (error) {
+        console.error("Failed to load company contact information", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchContactInfo();
+  }, []);
+
+  /* Newsletter functionality is commented out
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -65,6 +88,7 @@ const Footer = () => {
       }, 3000);
     }, 1000);
   };
+  */
 
   return (
     <footer className="bg-[#6B2F1A] text-white">
@@ -94,7 +118,7 @@ const Footer = () => {
               We're dedicated to providing high-quality handcrafted products that celebrate the rich cultural heritage of India.
             </p>
             
-            {/* Newsletter */}
+            {/* Newsletter - commented out 
             <div className="mb-6">
               <h3 className="text-base font-semibold mb-3" style={{ fontFamily: 'Playfair Display, serif' }}>
                 Subscribe to our newsletter
@@ -126,38 +150,57 @@ const Footer = () => {
                 <p className="text-green-400 text-sm mt-2">Thank you for subscribing!</p>
               )}
             </div>
+            */}
             
-            {/* Social icons */}
-            <div className="flex flex-wrap gap-3">
-              <a 
-                href="#" 
-                aria-label="Facebook" 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <Facebook size={16} />
-              </a>
-              <a 
-                href="#" 
-                aria-label="Instagram" 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <Instagram size={16} />
-              </a>
-              <a 
-                href="#" 
-                aria-label="Twitter" 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <Twitter size={16} />
-              </a>
-              <a 
-                href="#" 
-                aria-label="YouTube" 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <Youtube size={16} />
-              </a>
-            </div>
+            {/* Social icons - made dynamic */}
+            {companyContact && (
+              <div className="flex flex-wrap gap-3">
+                {companyContact.facebook_url && (
+                  <a 
+                    href={companyContact.facebook_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook" 
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <Facebook size={16} />
+                  </a>
+                )}
+                {companyContact.instagram_url && (
+                  <a 
+                    href={companyContact.instagram_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram" 
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <Instagram size={16} />
+                  </a>
+                )}
+                {companyContact.twitter_url && (
+                  <a 
+                    href={companyContact.twitter_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Twitter" 
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <Twitter size={16} />
+                  </a>
+                )}
+                {companyContact.youtube_url && (
+                  <a 
+                    href={companyContact.youtube_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube" 
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <Youtube size={16} />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Links columns */}
@@ -229,34 +272,53 @@ const Footer = () => {
                 </FooterLinkGroup>
               </div>
 
-              {/* Contact */}
+              {/* Contact - made dynamic */}
               <div className="md:border-0 md:pb-0">
                 <FooterLinkGroup title="Contact Us">
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <MapPin size={16} className="mt-1 mr-2 flex-shrink-0" />
-                      <p className="text-white/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        123 Commerce Street<br/>
-                        Business City, 12345
-                      </p>
+                  {loading ? (
+                    <div className="space-y-3 animate-pulse">
+                      <div className="h-4 bg-white/30 rounded w-3/4"></div>
+                      <div className="h-4 bg-white/30 rounded w-2/3"></div>
+                      <div className="h-4 bg-white/30 rounded w-1/2"></div>
                     </div>
-                    <div className="flex items-center">
-                      <Phone size={16} className="mr-2 flex-shrink-0" />
-                      <p className="text-white/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        +1 (555) 123-4567
-                      </p>
+                  ) : companyContact ? (
+                    <div className="space-y-3">
+                      <div className="flex items-start">
+                        <MapPin size={16} className="mt-1 mr-2 flex-shrink-0" />
+                        <p className="text-white/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          {companyContact.address_line1}
+                          {companyContact.address_line2 && <><br/>{companyContact.address_line2}</>}<br/>
+                          {companyContact.city}, {companyContact.state} {companyContact.postal_code}<br/>
+                          {companyContact.country}
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <Phone size={16} className="mr-2 flex-shrink-0" />
+                        <p className="text-white/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          {companyContact.phone}
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <Mail size={16} className="mr-2 flex-shrink-0" />
+                        <a 
+                          href={`mailto:${companyContact.email}`} 
+                          className="text-white/80 hover:text-white transition-colors"
+                          style={{ fontFamily: 'Poppins, sans-serif' }}
+                        >
+                          {companyContact.email}
+                        </a>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <Mail size={16} className="mr-2 flex-shrink-0" />
-                      <a 
-                        href="mailto:contact@kauthuk.com" 
-                        className="text-white/80 hover:text-white transition-colors"
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
-                      >
-                        contact@kauthuk.com
-                      </a>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-start">
+                        <MapPin size={16} className="mt-1 mr-2 flex-shrink-0" />
+                        <p className="text-white/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          Contact information unavailable
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </FooterLinkGroup>
               </div>
             </div>
@@ -284,11 +346,7 @@ const Footer = () => {
               >
                 Terms of Service
               </Link>
-              <div className="flex items-center">
-                <span style={{ fontFamily: 'Poppins, sans-serif' }}>Made with</span>
-                <Heart size={14} className="mx-1 text-red-400" />
-                <span style={{ fontFamily: 'Poppins, sans-serif' }}>in India</span>
-              </div>
+              
             </div>
           </div>
         </div>

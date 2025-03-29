@@ -1,6 +1,7 @@
 "use client";
 
 import { generateCaptcha, submitEnquiry } from "@/actions/enquiry";
+import { getCompanyContact } from "@/actions/contact";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -16,6 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
     CheckCircle,
     Clock,
+    Loader,
     Mail,
     MapPin,
     Phone,
@@ -37,6 +39,8 @@ const ContactForm = () => {
   const [captchaText, setCaptchaText] = useState("");
   const [errors, setErrors] = useState({});
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [companyContact, setCompanyContact] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Generate captcha when component mounts
   const refreshCaptcha = useCallback(async () => {
@@ -48,7 +52,22 @@ const ContactForm = () => {
     }
   }, []);
 
+  // Fetch company contact info
   useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await getCompanyContact();
+        if (response.success && response.contact) {
+          setCompanyContact(response.contact);
+        }
+      } catch (error) {
+        console.error("Failed to load company contact information", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchContactInfo();
     refreshCaptcha();
   }, [refreshCaptcha]);
 
@@ -136,6 +155,34 @@ const ContactForm = () => {
     }
   };
 
+  // Function to render contact info skeleton during loading
+  const renderContactInfoSkeleton = () => (
+    <>
+      <div className="flex items-start animate-pulse">
+        <div className="w-10 h-10 rounded-full bg-[#fee3d8]/50 flex items-center justify-center mr-4 flex-shrink-0"></div>
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <div className="h-3 bg-gray-200 rounded w-32"></div>
+        </div>
+      </div>
+      <div className="flex items-start animate-pulse">
+        <div className="w-10 h-10 rounded-full bg-[#fee3d8]/50 flex items-center justify-center mr-4 flex-shrink-0"></div>
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <div className="h-3 bg-gray-200 rounded w-40"></div>
+        </div>
+      </div>
+      <div className="flex items-start animate-pulse">
+        <div className="w-10 h-10 rounded-full bg-[#fee3d8]/50 flex items-center justify-center mr-4 flex-shrink-0"></div>
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-gray-200 rounded w-32"></div>
+          <div className="h-3 bg-gray-200 rounded w-full"></div>
+          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <section className="py-8 bg-[#F9F4F0]">
       <div className="container mx-auto px-4">
@@ -162,51 +209,115 @@ const ContactForm = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
-                      <Phone size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
-                        Phone
-                      </h3>
-                      <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        91 8075727191
-                      </p>
-                    </div>
-                  </div>
+                  {loading ? (
+                    renderContactInfoSkeleton()
+                  ) : companyContact ? (
+                    <>
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <Phone size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Phone
+                          </h3>
+                          <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                            {companyContact.phone}
+                          </p>
+                          {companyContact.alt_phone && (
+                            <p className="text-gray-600 mt-1" style={{ fontFamily: "Poppins, sans-serif" }}>
+                              {companyContact.alt_phone}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
-                      <Mail size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
-                        Email
-                      </h3>
-                      <a 
-                        href="mailto:info@kauthuk.com" 
-                        className="text-gray-600 hover:text-[#6B2F1A] transition-colors"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        info@kauthuk.com
-                      </a>
-                    </div>
-                  </div>
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <Mail size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Email
+                          </h3>
+                          <a 
+                            href={`mailto:${companyContact.email}`} 
+                            className="text-gray-600 hover:text-[#6B2F1A] transition-colors"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            {companyContact.email}
+                          </a>
+                        </div>
+                      </div>
 
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
-                        Registered Office
-                      </h3>
-                      <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Kauthuk 19/316D, Brookwood Villas, Vymeethy, Tripunithura, Kochi -682301 Kerala, India
-                      </p>
-                    </div>
-                  </div>
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <MapPin size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Registered Office
+                          </h3>
+                          <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                            {companyContact.address_line1}
+                            {companyContact.address_line2 && <><br/>{companyContact.address_line2}</>}
+                            <br/>
+                            {companyContact.city}, {companyContact.state} {companyContact.postal_code}
+                            <br/>
+                            {companyContact.country}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <Phone size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Phone
+                          </h3>
+                          <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                            91 8075727191
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <Mail size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Email
+                          </h3>
+                          <a 
+                            href="mailto:info@kauthuk.com" 
+                            className="text-gray-600 hover:text-[#6B2F1A] transition-colors"
+                            style={{ fontFamily: "Poppins, sans-serif" }}
+                          >
+                            info@kauthuk.com
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start">
+                        <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
+                          <MapPin size={18} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1" style={{ fontFamily: "Playfair Display, serif" }}>
+                            Registered Office
+                          </h3>
+                          <p className="text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                            Kauthuk 19/316D, Brookwood Villas, Vymeethy, Tripunithura, Kochi -682301 Kerala, India
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div className="flex items-start">
                     <div className="w-10 h-10 rounded-full bg-[#fee3d8] flex items-center justify-center text-[#6B2F1A] mr-4 flex-shrink-0">
