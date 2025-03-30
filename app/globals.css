@@ -201,7 +201,40 @@ body {
 .category-heading {
   font-family: var(--font-playfair);
 }
+.playfair-italic {
+  font-family: var(--font-playfair);
+  font-style: italic;
+}
 
+.playfair-italic-light {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 300;
+}
+
+.playfair-italic-regular {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.playfair-italic-medium {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.playfair-italic-semibold {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.playfair-italic-bold {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 700;
+}
 /* Mobile menu styling enhancements */
 .mobile-menu-category {
   font-family: var(--font-playfair);

@@ -120,6 +120,7 @@ import {
   Star,
   Phone,
   Activity,
+  Building
 } from "lucide-react";
 
 // Hooks and Utilities
@@ -195,6 +196,7 @@ const MenuPage = () => {
     "Phone",
     "Menu",
     "Activity",
+    "Building"
   ]);
   const [parentMenus, setParentMenus] = useState([]);
 
@@ -273,6 +275,27 @@ const MenuPage = () => {
   }, [menu]);
 
   useEffect(() => {
+    if (showCreateModal) {
+      const loadParentMenus = async () => {
+        try {
+          const response = await getMenus({
+            limit: 100, // Get more items to ensure we have all potential parents
+          });
+          
+          // Filter out submenu items (shouldn't be parents)
+          const potentialParents = response.menus.filter(menu => !menu.is_submenu);
+          setParentMenus(potentialParents);
+        } catch (error) {
+          console.error("Failed to fetch potential parent menus:", error);
+          toast.error("Failed to load parent menu options");
+        }
+      };
+      
+      loadParentMenus();
+    }
+  }, [showCreateModal]);
+
+  useEffect(() => {
     if (updatedMenu) {
       toast.success("Menu updated successfully");
       setShowEditModal(false);
@@ -332,7 +355,7 @@ const MenuPage = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = async (item) => {
     setFormData({
       id: item.id,
       name: item.name,
@@ -344,6 +367,24 @@ const MenuPage = () => {
       is_submenu: item.is_submenu,
       is_header: item.is_header,
     });
+    
+    // Fetch all potential parent menus (excluding the current menu being edited)
+    try {
+      const response = await getMenus({
+        limit: 100, // Get more items to ensure we have all potential parents
+      });
+      
+      // Filter out the current menu (can't be its own parent) and any submenu items (shouldn't be parents)
+      const potentialParents = response.menus.filter(
+        (menu) => menu.id !== item.id && !menu.is_submenu
+      );
+      
+      setParentMenus(potentialParents);
+    } catch (error) {
+      console.error("Failed to fetch potential parent menus:", error);
+      toast.error("Failed to load parent menu options");
+    }
+    
     setShowEditModal(true);
   };
 
@@ -493,6 +534,8 @@ const MenuPage = () => {
         return <MenuIcon size={18} />;
       case "Activity":
         return <Activity size={18} />;
+      case "Building":
+        return <Building size={18} />;
       default:
         return <MenuIcon size={18} />;
     }

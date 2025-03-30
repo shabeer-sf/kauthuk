@@ -15,14 +15,13 @@ import {
   ChevronRight,
   Heart,
   Share2,
-  Loader2,
   Facebook,
   Twitter,
-  Instagram,
   Linkedin,
   Copy,
-  X,
-  Check
+  Check,
+  ChevronLeft,
+  ShoppingBag
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -132,116 +131,132 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
   };
 
   return (
-    <div className="h-full">
-      <div className="relative h-full flex flex-col border border-gray-200 rounded-md overflow-hidden">
+    <div 
+      className="h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setShowShareMenu(false);
+      }}
+    >
+      <div className="relative h-full flex flex-col overflow-hidden group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Product Tag - New */}
+        {index < 2 && (
+          <div className="absolute top-3 left-3 z-10 bg-[#6B2F1A] text-white text-xs font-poppins px-2 py-1 rounded">
+            New
+          </div>
+        )}
+        
         {/* Image Container */}
-        <div className="relative aspect-square overflow-hidden">
-          {images && images.length > 0 ? (
-            <Link href={`/product/${id}`}>
-              <Image
-                src={imageUrl}
-                alt={title || "Product"}
-                fill
-                placeholder="blur"
-                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
-                className="object-cover transition-all duration-500 ease-in-out hover:scale-105"
-              />
-            </Link>
-          ) : (
-            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-              <span className="text-gray-400">No image</span>
-            </div>
-          )}
+        <Link href={`/product/${id}`} className="block relative aspect-square overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={title || "Product"}
+            fill
+            placeholder="blur"
+            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+            className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+          />
           
-          {/* Action buttons container - now at the bottom */}
-          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
-            {/* Wishlist button */}
-            <button className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors">
-              <Heart className="w-4 h-4 text-[#6B2F1A]" />
-            </button>
-            
-            {/* Share button */}
-            <div className="relative" ref={shareMenuRef}>
-              <button
-                onClick={handleShare}
-                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
-              >
-                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
-              </button>
-              
-              {/* Share dropdown menu */}
-              <AnimatePresence>
-                {showShareMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
-                  >
-                    <div className="p-2">
-                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Share this product
-                      </div>
-                      
-                      <button 
-                        onClick={shareToFacebook}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Facebook size={15} className="mr-2 text-blue-600" />
-                        Facebook
-                      </button>
-                      
-                      <button 
-                        onClick={shareToTwitter}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Twitter size={15} className="mr-2 text-blue-400" />
-                        Twitter
-                      </button>
-                      
-                      <button 
-                        onClick={shareToLinkedin}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Linkedin size={15} className="mr-2 text-blue-700" />
-                        LinkedIn
-                      </button>
-                      
-                      <button 
-                        onClick={copyLink}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        {copied ? (
-                          <Check size={15} className="mr-2 text-green-500" />
-                        ) : (
-                          <Copy size={15} className="mr-2 text-gray-500" />
-                        )}
-                        {copied ? "Copied!" : "Copy Link"}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {/* Quick Shop Overlay - Appears on hover */}
+          <div className={`absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+            <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/90 px-4 py-2 rounded-full shadow-md">
+              <span className="font-poppins text-sm text-[#6B2F1A] font-medium flex items-center">
+                <ShoppingBag size={14} className="mr-1" />
+                Quick View
+              </span>
             </div>
           </div>
-        </div>
+        </Link>
         
         {/* Content Container */}
-        <div className="p-3 flex flex-col justify-between flex-grow">
-          <Link href={`/product/${id}`}>
-            <h3 className="text-base font-medium text-gray-800 line-clamp-2 min-h-[2.5rem]" style={{ fontFamily: "Playfair Display, serif" }}>
-              {title || "Product"}
-            </h3>
-          </Link>
+        <div className="p-4 flex flex-col flex-grow">
+          <div className="mb-2">
+            <Link href={`/product/${id}`}>
+              <h3 className="font-playfair text-base font-medium text-gray-800 line-clamp-2 hover:text-[#6B2F1A] transition-colors">
+                {title || "Product"}
+              </h3>
+            </Link>
+          </div>
           
           <div className="mt-auto">
-            <p className="text-lg font-semibold text-[#6B2F1A]" style={{ fontFamily: "Poppins, sans-serif" }}>
-              {formatPrice(price_rupees)}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="font-poppins text-lg font-semibold text-[#6B2F1A]">
+                {formatPrice(price_rupees)}
+              </p>
+              
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                {/* Wishlist button */}
+                <button className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors">
+                  <Heart className="w-4 h-4 text-[#6B2F1A]" />
+                </button>
+                
+                {/* Share button */}
+                <div className="relative" ref={shareMenuRef}>
+                  <button
+                    onClick={handleShare}
+                    className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+                  >
+                    <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+                  </button>
+                  
+                  {/* Share dropdown menu */}
+                  <AnimatePresence>
+                    {showShareMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 w-48 z-50"
+                      >
+                        <div className="p-2">
+                          <div className="px-2 py-1 text-xs font-medium text-gray-500 font-poppins">
+                            Share this product
+                          </div>
+                          
+                          <button 
+                            onClick={shareToFacebook}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Facebook size={15} className="mr-2 text-blue-600" />
+                            Facebook
+                          </button>
+                          
+                          <button 
+                            onClick={shareToTwitter}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Twitter size={15} className="mr-2 text-blue-400" />
+                            Twitter
+                          </button>
+                          
+                          <button 
+                            onClick={shareToLinkedin}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Linkedin size={15} className="mr-2 text-blue-700" />
+                            LinkedIn
+                          </button>
+                          
+                          <button 
+                            onClick={copyLink}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            {copied ? (
+                              <Check size={15} className="mr-2 text-green-500" />
+                            ) : (
+                              <Copy size={15} className="mr-2 text-gray-500" />
+                            )}
+                            {copied ? "Copied!" : "Copy Link"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -325,19 +340,23 @@ const ProductSlider = ({
   // Loading state
   if (loading) {
     return (
-      <section className="w-full py-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="animate-pulse">
-            <div className="h-8 w-48 bg-gray-200 rounded mb-6"></div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-md overflow-hidden">
-                  <div className="h-64 bg-gray-200"></div>
-                  <div className="h-4 bg-gray-200 rounded mt-3 w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded mt-2 w-1/2"></div>
+      <section className="w-full py-12">
+        <div className=" mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <div className="h-8 w-48 bg-gray-200 rounded-md animate-pulse"></div>
+            <div className="h-6 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-lg overflow-hidden bg-white shadow-sm animate-pulse">
+                <div className="aspect-square bg-gray-200"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-200 rounded-md w-3/4 mb-4"></div>
+                  <div className="h-6 bg-gray-200 rounded-md w-1/3 mt-2"></div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -347,10 +366,10 @@ const ProductSlider = ({
   // Error state
   if (error) {
     return (
-      <section className="w-full py-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "Playfair Display, serif" }}>{title}</h2>
-          <div className="text-center py-12 text-red-600">
+      <section className="w-full py-12">
+        <div className=" mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">{title}</h2>
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center font-poppins">
             {error}
           </div>
         </div>
@@ -361,10 +380,10 @@ const ProductSlider = ({
   // No products state
   if (products.length === 0) {
     return (
-      <section className="w-full py-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "Playfair Display, serif" }}>{title}</h2>
-          <div className="text-center py-12 text-gray-500">
+      <section className="w-full py-12">
+        <div className=" mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">{title}</h2>
+          <div className="bg-gray-50 text-gray-500 p-8 rounded-lg text-center font-poppins">
             No products available
           </div>
         </div>
@@ -373,16 +392,22 @@ const ProductSlider = ({
   }
 
   return (
-    <section className="w-full py-10">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800" style={{ fontFamily: "Playfair Display, serif" }}>
-            {title}
-          </h2>
+    <section className="w-full py-12 bg-[#FFFBF9]">
+      <div className=" mx-auto px-4">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-playfair font-bold text-gray-800">
+              {title}
+            </h2>
+            <div className="w-16 h-1 bg-[#6B2F1A]/30 mt-2"></div>
+          </div>
           
-          <Link href={viewAllLink} className="text-[#6B2F1A] font-medium flex items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
-            View All
-            <ChevronRight className="w-4 h-4 ml-1" />
+          <Link 
+            href={viewAllLink} 
+            className="group flex items-center font-poppins text-[#6B2F1A] font-medium text-sm hover:text-[#8B3F2A] transition-colors"
+          >
+            View All Products
+            <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
         
@@ -390,28 +415,24 @@ const ProductSlider = ({
           {/* Left arrow */}
           <button 
             ref={prevRef} 
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 transform -translate-x-4"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform -translate-x-5"
             aria-label="Previous products"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <ChevronLeft className="w-5 h-5" />
           </button>
           
           {/* Right arrow */}
           <button 
             ref={nextRef} 
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-100 transform translate-x-4"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform translate-x-5"
             aria-label="Next products"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+            <ChevronRight className="w-5 h-5" />
           </button>
           
           <Swiper
             modules={[Navigation, Autoplay, Pagination, EffectCards, EffectCoverflow]}
-            spaceBetween={25}
+            spaceBetween={20}
             slidesPerView={2}
             navigation={{
               prevEl: prevRef.current,
@@ -425,13 +446,16 @@ const ProductSlider = ({
             {...swiperEffect}
             breakpoints={{
               640: {
-                slidesPerView: 3,
+                slidesPerView: 2,
+                spaceBetween: 20,
               },
               768: {
                 slidesPerView: 3,
+                spaceBetween: 24,
               },
               1024: {
-                slidesPerView: 3,
+                slidesPerView: 4,
+                spaceBetween: 30,
               },
             }}
             onInit={(swiper) => {
@@ -440,10 +464,10 @@ const ProductSlider = ({
               swiper.navigation.init();
               swiper.navigation.update();
             }}
-            className="pb-6"
+            className="pb-10 pt-2"
           >
             {products.map((product, index) => (
-              <SwiperSlide key={product.id} className={swiperSlideClass}>
+              <SwiperSlide key={product.id} className={cn("h-full", swiperSlideClass)}>
                 <ProductCard
                   id={product.id}
                   title={product.title}

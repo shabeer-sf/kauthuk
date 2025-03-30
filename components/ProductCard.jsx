@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Eye, Star, Heart, Share2, Check, Copy, Facebook, Twitter, Linkedin } from "lucide-react";
+import { ShoppingCart, Eye, Star, Heart, Share2, Check, Copy, Facebook, Twitter, Linkedin, ShoppingBag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -139,185 +139,163 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       layout
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setShowShareMenu(false);
+      }}
     >
-      <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 ease-out border border-[#6B2F1A]/10"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="group h-full rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 flex flex-col">
+        {/* Product Image Container */}
         <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={product?.title || "Product Image"}
-            fill
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(
-              shimmer(700, 475)
-            )}`}
-            className={`object-cover transition-all duration-700 ease-in-out ${
-              isHovered ? "scale-110" : "scale-100"
-            }`}
-          />
+          <Link href={`/product/${product?.id}`} className="block w-full h-full">
+            <Image
+              src={imageUrl}
+              alt={product?.title || "Product Image"}
+              fill
+              placeholder="blur"
+              blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+              className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+            />
+          </Link>
 
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
+              <Badge className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm font-poppins">
                 -{discountPercentage}%
               </Badge>
             </div>
           )}
 
           {/* Stock status badge */}
-          <div className="absolute top-3 right-3 z-10">
-            <Badge
-              className={`px-2 py-1 font-medium shadow-sm ${
-                inStock
-                  ? "bg-[#fee3d8] text-[#6B2F1A]"
-                  : "bg-red-100 text-red-800"
-              }`}
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              {inStock ? "In Stock" : "Out of Stock"}
-            </Badge>
-          </div>
+          {!inStock && (
+            <div className="absolute top-3 right-3 z-10">
+              <Badge className="px-2 py-1 font-medium shadow-sm bg-red-100 text-red-700 font-poppins">
+                Out of Stock
+              </Badge>
+            </div>
+          )}
 
-          {/* Action buttons at bottom right */}
-          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
-            {/* Wishlist button */}
-            <button
-              onClick={handleAddToWishlist}
-              className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
-            >
-              <Heart className="w-4 h-4 text-[#6B2F1A]" />
-            </button>
-            
-            {/* Share button */}
-            <div className="relative" ref={shareMenuRef}>
-              <button
-                onClick={handleShare}
-                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
-              >
-                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
-              </button>
-              
-              {/* Share dropdown menu */}
-              <AnimatePresence>
-                {showShareMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
-                  >
-                    <div className="p-2">
-                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Share this product
-                      </div>
-                      
-                      <button 
-                        onClick={shareToFacebook}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Facebook size={15} className="mr-2 text-blue-600" />
-                        Facebook
-                      </button>
-                      
-                      <button 
-                        onClick={shareToTwitter}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Twitter size={15} className="mr-2 text-blue-400" />
-                        Twitter
-                      </button>
-                      
-                      <button 
-                        onClick={shareToLinkedin}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Linkedin size={15} className="mr-2 text-blue-700" />
-                        LinkedIn
-                      </button>
-                      
-                      <button 
-                        onClick={copyLink}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        {copied ? (
-                          <Check size={15} className="mr-2 text-green-500" />
-                        ) : (
-                          <Copy size={15} className="mr-2 text-gray-500" />
-                        )}
-                        {copied ? "Copied!" : "Copy Link"}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {/* Quick View Overlay - Appears on hover */}
+          <div className={`absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+            <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/90 px-4 py-2 rounded-full shadow-md">
+              <span className="font-poppins text-sm text-[#6B2F1A] font-medium flex items-center">
+                <Eye size={14} className="mr-1" />
+                Quick View
+              </span>
             </div>
           </div>
-
-          {/* Action buttons overlay */}
-          <div
-            className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-3 transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Link href={`/product/${product?.id}`}>
-              <button className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
-                <Eye className="w-5 h-5" />
-              </button>
-            </Link>
-            {/* {inStock && (
-              <button
-                onClick={handleAddToCart}
-                className="w-10 h-10 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
-              >
-                <ShoppingCart className="w-5 h-5" />
-              </button>
-            )} */}
-          </div>
         </div>
-
-        <div className="p-5">
-          <h3 
-            className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors" 
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
-            {product?.title || "Product Name"}
-          </h3>
-
-          <div className="flex items-baseline gap-2">
-            <p 
-              className="text-xl font-bold text-[#6B2F1A]" 
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
-            </p>
-            {hasDiscount && (
-              <p 
-                className="text-sm text-gray-500 line-through" 
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
-                ₹{parseFloat(product?.base_price || 0).toLocaleString()}
-              </p>
-            )}
-          </div>
-
-          <div className="mt-4 flex gap-2">
-            <Link href={`/product/${product?.id}`} className="flex-1">
-              <button
-                type="button"
-                className="w-full py-2.5 px-4 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
-                View Details
-              </button>
+        
+        {/* Content Container */}
+        <div className="p-4 flex flex-col flex-grow">
+          <div className="mb-2">
+            <Link href={`/product/${product?.id}`}>
+              <h3 className="font-playfair text-base font-medium text-gray-800 line-clamp-2 hover:text-[#6B2F1A] transition-colors">
+                {product?.title || "Product Name"}
+              </h3>
             </Link>
+          </div>
+          
+          <div className="mt-auto">
+            <div className="flex items-baseline gap-2 mb-3">
+              <p className="font-poppins text-lg font-semibold text-[#6B2F1A]">
+                ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
+              </p>
+              {hasDiscount && (
+                <p className="font-poppins text-sm text-gray-500 line-through">
+                  ₹{parseFloat(product?.base_price || 0).toLocaleString()}
+                </p>
+              )}
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Link href={`/product/${product?.id}`}>
+                <button
+                  type="button"
+                  className="py-2 px-3 bg-[#FFF5F1] hover:bg-[#fee3d8] text-[#6B2F1A] rounded-md font-poppins text-sm font-medium flex items-center transition-colors"
+                >
+                  <ShoppingBag size={14} className="mr-1.5" />
+                  View Details
+                </button>
+              </Link>
+              
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                {/* Wishlist button */}
+                <button 
+                  onClick={handleAddToWishlist}
+                  className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+                >
+                  <Heart className="w-4 h-4 text-[#6B2F1A]" />
+                </button>
+                
+                {/* Share button */}
+                <div className="relative" ref={shareMenuRef}>
+                  <button
+                    onClick={handleShare}
+                    className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+                  >
+                    <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+                  </button>
+                  
+                  {/* Share dropdown menu */}
+                  <AnimatePresence>
+                    {showShareMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 w-48 z-50"
+                      >
+                        <div className="p-2">
+                          <div className="px-2 py-1 text-xs font-medium text-gray-500 font-poppins">
+                            Share this product
+                          </div>
+                          
+                          <button 
+                            onClick={shareToFacebook}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Facebook size={15} className="mr-2 text-blue-600" />
+                            Facebook
+                          </button>
+                          
+                          <button 
+                            onClick={shareToTwitter}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Twitter size={15} className="mr-2 text-blue-400" />
+                            Twitter
+                          </button>
+                          
+                          <button 
+                            onClick={shareToLinkedin}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Linkedin size={15} className="mr-2 text-blue-700" />
+                            LinkedIn
+                          </button>
+                          
+                          <button 
+                            onClick={copyLink}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            {copied ? (
+                              <Check size={15} className="mr-2 text-green-500" />
+                            ) : (
+                              <Copy size={15} className="mr-2 text-gray-500" />
+                            )}
+                            {copied ? "Copied!" : "Copy Link"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -331,196 +309,169 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
       layout
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setShowShareMenu(false);
+      }}
     >
-      <div
-        className="group h-full rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-500 p-4 flex flex-col md:flex-row gap-6 border border-[#6B2F1A]/10"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className="relative w-full md:w-1/4 aspect-square md:aspect-auto overflow-hidden rounded-lg">
-          <Image
-            src={imageUrl}
-            alt={product?.title || "Product Image"}
-            fill
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(
-              shimmer(700, 475)
-            )}`}
-            className={`object-cover transition-all duration-700 ease-in-out ${
-              isHovered ? "scale-110" : "scale-100"
-            }`}
-          />
+      <div className="group h-full rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300 p-4 flex flex-col md:flex-row gap-6 border border-gray-200">
+        {/* Image Container */}
+        <div className="relative w-full md:w-64 aspect-square md:aspect-auto overflow-hidden rounded-lg">
+          <Link href={`/product/${product?.id}`} className="block w-full h-full">
+            <Image
+              src={imageUrl}
+              alt={product?.title || "Product Image"}
+              fill
+              placeholder="blur"
+              blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
+              className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+            />
+          </Link>
 
           {/* Discount badge */}
           {hasDiscount && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge 
-                className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm"
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
+              <Badge className="px-2 py-1 bg-[#6B2F1A] text-white font-bold shadow-sm font-poppins">
                 -{discountPercentage}%
               </Badge>
             </div>
           )}
 
-          {/* Action buttons at bottom right */}
-          <div className="absolute bottom-2 right-2 z-10 flex items-center space-x-2">
-            {/* Wishlist button */}
-            <button
-              onClick={handleAddToWishlist}
-              className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
-            >
-              <Heart className="w-4 h-4 text-[#6B2F1A]" />
-            </button>
-            
-            {/* Share button */}
-            <div className="relative" ref={shareMenuRef}>
-              <button
-                onClick={handleShare}
-                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
-              >
-                <Share2 className="w-4 h-4 text-[#6B2F1A]" />
-              </button>
-              
-              {/* Share dropdown menu */}
-              <AnimatePresence>
-                {showShareMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="absolute bottom-full right-0 mb-2 bg-white rounded-md shadow-lg overflow-hidden border border-gray-100 w-48"
-                  >
-                    <div className="p-2">
-                      <div className="px-2 py-1 text-xs font-medium text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Share this product
-                      </div>
-                      
-                      <button 
-                        onClick={shareToFacebook}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Facebook size={15} className="mr-2 text-blue-600" />
-                        Facebook
-                      </button>
-                      
-                      <button 
-                        onClick={shareToTwitter}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Twitter size={15} className="mr-2 text-blue-400" />
-                        Twitter
-                      </button>
-                      
-                      <button 
-                        onClick={shareToLinkedin}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        <Linkedin size={15} className="mr-2 text-blue-700" />
-                        LinkedIn
-                      </button>
-                      
-                      <button 
-                        onClick={copyLink}
-                        className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md"
-                        style={{ fontFamily: "Poppins, sans-serif" }}
-                      >
-                        {copied ? (
-                          <Check size={15} className="mr-2 text-green-500" />
-                        ) : (
-                          <Copy size={15} className="mr-2 text-gray-500" />
-                        )}
-                        {copied ? "Copied!" : "Copy Link"}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {/* Quick View Overlay - Appears on hover */}
+          <div className={`absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+            <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/90 px-4 py-2 rounded-full shadow-md">
+              <span className="font-poppins text-sm text-[#6B2F1A] font-medium flex items-center">
+                <Eye size={14} className="mr-1" />
+                Quick View
+              </span>
             </div>
-          </div>
-
-          {/* Action buttons overlay */}
-          <div
-            className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-2 transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Link href={`/product/${product?.id}`}>
-              <button className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md">
-                <Eye className="w-4 h-4" />
-              </button>
-            </Link>
-            {/* {inStock && (
-              <button
-                onClick={handleAddToCart}
-                className="w-8 h-8 rounded-full bg-white text-[#6B2F1A] flex items-center justify-center hover:bg-[#6B2F1A] hover:text-white transition-colors shadow-md"
-              >
-                <ShoppingCart className="w-4 h-4" />
-              </button>
-            )} */}
           </div>
         </div>
 
+        {/* Content Container */}
         <div className="flex-1 flex flex-col">
-          <div className="mb-auto">
-            <div className="flex items-center justify-between mb-2">
-              <Badge
-                className={`px-2 py-1 font-medium shadow-sm ${
-                  inStock
-                    ? "bg-[#fee3d8] text-[#6B2F1A]"
-                    : "bg-red-100 text-red-800"
-                }`}
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
-                {inStock ? "In Stock" : "Out of Stock"}
+          <div className="flex items-center justify-between mb-2">
+            {!inStock && (
+              <Badge className="px-2 py-1 font-medium shadow-sm bg-red-100 text-red-700 font-poppins">
+                Out of Stock
               </Badge>
-            </div>
+            )}
+            {inStock && (
+              <Badge className="px-2 py-1 font-medium shadow-sm bg-[#FFF5F1] text-[#6B2F1A] font-poppins">
+                In Stock
+              </Badge>
+            )}
+          </div>
 
-            <h3 
-              className="text-xl font-medium text-gray-900 mb-2 group-hover:text-[#6B2F1A] transition-colors" 
-              style={{ fontFamily: "Playfair Display, serif" }}
-            >
-              {product?.title || "Product Name"}
-            </h3>
+          <div className="mb-auto">
+            <Link href={`/product/${product?.id}`}>
+              <h3 className="font-playfair text-xl font-medium text-gray-800 mb-2 hover:text-[#6B2F1A] transition-colors">
+                {product?.title || "Product Name"}
+              </h3>
+            </Link>
             
             {product?.description && (
-              <p 
-                className="text-gray-600 line-clamp-2 mb-2" 
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
-                {truncateDescription(product.description, 120)}
+              <p className="font-poppins text-sm text-gray-600 line-clamp-2 mb-3">
+                {truncateDescription(product.description, 150)}
               </p>
             )}
           </div>
 
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-baseline gap-2">
-              <p 
-                className="text-2xl font-bold text-[#6B2F1A]" 
-                style={{ fontFamily: "Poppins, sans-serif" }}
-              >
+              <p className="font-poppins text-xl font-semibold text-[#6B2F1A]">
                 ₹{parseFloat(product?.price_rupees || 0).toLocaleString()}
               </p>
               {hasDiscount && (
-                <p 
-                  className="text-sm text-gray-500 line-through" 
-                  style={{ fontFamily: "Poppins, sans-serif" }}
-                >
+                <p className="font-poppins text-sm text-gray-500 line-through">
                   ₹{parseFloat(product?.base_price || 0).toLocaleString()}
                 </p>
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex items-center gap-3">
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                {/* Wishlist button */}
+                <button 
+                  onClick={handleAddToWishlist}
+                  className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+                >
+                  <Heart className="w-4 h-4 text-[#6B2F1A]" />
+                </button>
+                
+                {/* Share button */}
+                <div className="relative" ref={shareMenuRef}>
+                  <button
+                    onClick={handleShare}
+                    className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors"
+                  >
+                    <Share2 className="w-4 h-4 text-[#6B2F1A]" />
+                  </button>
+                  
+                  {/* Share dropdown menu */}
+                  <AnimatePresence>
+                    {showShareMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 w-48 z-50"
+                      >
+                        <div className="p-2">
+                          <div className="px-2 py-1 text-xs font-medium text-gray-500 font-poppins">
+                            Share this product
+                          </div>
+                          
+                          <button 
+                            onClick={shareToFacebook}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Facebook size={15} className="mr-2 text-blue-600" />
+                            Facebook
+                          </button>
+                          
+                          <button 
+                            onClick={shareToTwitter}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Twitter size={15} className="mr-2 text-blue-400" />
+                            Twitter
+                          </button>
+                          
+                          <button 
+                            onClick={shareToLinkedin}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            <Linkedin size={15} className="mr-2 text-blue-700" />
+                            LinkedIn
+                          </button>
+                          
+                          <button 
+                            onClick={copyLink}
+                            className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
+                          >
+                            {copied ? (
+                              <Check size={15} className="mr-2 text-green-500" />
+                            ) : (
+                              <Copy size={15} className="mr-2 text-gray-500" />
+                            )}
+                            {copied ? "Copied!" : "Copy Link"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+              
               <Link href={`/product/${product?.id}`}>
                 <button
                   type="button"
-                  className="px-6 py-2 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-lg transition-colors"
-                  style={{ fontFamily: "Poppins, sans-serif" }}
+                  className="py-2 px-4 bg-[#6B2F1A] hover:bg-[#5A2814] text-white rounded-md transition-colors font-poppins text-sm flex items-center"
                 >
+                  <ShoppingBag size={16} className="mr-2" />
                   View Details
                 </button>
               </Link>

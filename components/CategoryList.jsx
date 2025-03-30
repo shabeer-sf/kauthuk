@@ -85,9 +85,9 @@ const CategoryList = () => {
               
               <Link
                 href={`/category/${category.id}`}
-                className="whitespace-nowrap py-2 text-sm font-bold uppercase text-[#fee3d8] transition-colors relative hover:text-[#8D4425] flex items-center subcategory-item"
+                className="whitespace-nowrap py-2 text-base font-bold uppercase text-[#fee3d8] transition-colors relative hover:text-[#8D4425] flex items-center subcategory-item"
               >
-                <span className="mr-2 relative w-5 h-5">
+                <span className="mr-1 relative w-5 h-5">
                   <Image
                     src={getCategoryIcon(category.catName, index)}
                     width={20}
@@ -122,7 +122,7 @@ const CategoryList = () => {
                         <Link
                           key={subcat.id}
                           href={`/subcategory/${subcat.id}`}
-                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors category-heading"
+                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors playfair-italic"
                         >
                           <span>{subcat.subcategory}</span>
                           <ChevronRight className="h-4 w-4 opacity-70" />
