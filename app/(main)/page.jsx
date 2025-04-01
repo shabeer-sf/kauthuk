@@ -52,7 +52,7 @@ const MainPage = () => {
   const featuredCategories = categories.slice(0, 3); // Get first 3 categories for the sliders
 
   return (
-    <div className='p-3'>
+    <div className=''>
       <Hero />
       
       {/* Featured Categories Sliders - First slider */}
