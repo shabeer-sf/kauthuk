@@ -3,6 +3,7 @@
 import { getCategoriesAndSubcategories } from '@/actions/product';
 import Hero from '@/components/MainComponents/Hero';
 import ProductSlider from '@/components/MainComponents/ProductSlider';
+import FeaturedProductsSlider from '@/components/MainComponents/FeaturedProductsSlider'; // Import the new component
 import QuickContact from '@/components/MainComponents/QuickContact';
 import TestimonialSlider from '@/components/MainComponents/TestimonialSlider';
 import PromotionalBanner from '@/components/MainComponents/PromotionalBanner';
@@ -54,6 +55,16 @@ const MainPage = () => {
   return (
     <div className=''>
       <Hero />
+      
+      {/* Featured Products Slider - Always show at the top if there are featured products */}
+      <FeaturedProductsSlider 
+        title="Our Featured Collection"
+        viewAllLink="/products?featured=yes"
+        limit={8}
+        showBadge={true}
+        badgeText="Featured"
+        bgColor="#FFF5F1"
+      />
       
       {/* Featured Categories Sliders - First slider */}
       {featuredCategories.length > 0 ? (

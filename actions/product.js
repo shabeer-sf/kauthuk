@@ -15,7 +15,7 @@ const FTP_CONFIG = {
   port: 21,
   user: "u737108297.kauthuktest",
   password: "Test_kauthuk#123",
-  remoteDir: "/kauthuk_test/"
+  remoteDir: "/kauthuk_test/",
 };
 
 // Utility function to connect to FTP
@@ -64,7 +64,7 @@ export async function createProduct(data) {
         tax: data.tax ? parseFloat(data.tax) : null,
         weight: data.weight ? parseFloat(data.weight) : null,
         free_shipping: data.free_shipping || "no",
-        cod: data.cod || "yes"
+        cod: data.cod || "yes",
       },
     });
 
@@ -94,10 +94,10 @@ export async function createProduct(data) {
             Attribute: true,
             ProductAttributeValues: {
               include: {
-                AttributeValue: true
-              }
-            }
-          }
+                AttributeValue: true,
+              },
+            },
+          },
         },
         ProductVariants: {
           include: {
@@ -105,15 +105,15 @@ export async function createProduct(data) {
               include: {
                 AttributeValue: {
                   include: {
-                    Attribute: true
-                  }
-                }
-              }
+                    Attribute: true,
+                  },
+                },
+              },
             },
-            ProductImages: true
-          }
-        }
-      }
+            ProductImages: true,
+          },
+        },
+      },
     });
 
     return completeProduct;
@@ -126,7 +126,12 @@ export async function createProduct(data) {
 }
 
 // Improved helper function to handle image uploads to FTP
-async function handleProductImages(ftpClient, productId, images, variantId = null) {
+async function handleProductImages(
+  ftpClient,
+  productId,
+  images,
+  variantId = null
+) {
   try {
     // Connect to FTP server
     await connectToFTP(ftpClient);
@@ -145,7 +150,7 @@ async function handleProductImages(ftpClient, productId, images, variantId = nul
       // Upload to FTP
       const remoteFilePath = `${FTP_CONFIG.remoteDir}${newImageName}`;
       await ftpClient.uploadFrom(tempImagePath, remoteFilePath);
-      console.log(`Image ${i+1} uploaded successfully to: ${remoteFilePath}`);
+      console.log(`Image ${i + 1} uploaded successfully to: ${remoteFilePath}`);
 
       // Create product image record in database
       const createdImage = await db.productImage.create({
@@ -155,10 +160,10 @@ async function handleProductImages(ftpClient, productId, images, variantId = nul
           image_path: newImageName,
           image_type: i === 0 ? "main" : "gallery",
           display_order: i,
-          is_thumbnail: i === 0 // First image is thumbnail - matches your existing data pattern
-        }
+          is_thumbnail: i === 0, // First image is thumbnail - matches your existing data pattern
+        },
       });
-      
+
       console.log(`Created product image record:`, createdImage);
 
       // Remove temporary file
@@ -179,8 +184,8 @@ async function handleProductAttributes(productId, attributes) {
         data: {
           product_id: productId,
           attribute_id: parseInt(attr.attribute_id),
-          is_required: attr.is_required || false
-        }
+          is_required: attr.is_required || false,
+        },
       });
 
       // If attribute values are provided
@@ -190,9 +195,13 @@ async function handleProductAttributes(productId, attributes) {
             data: {
               product_attribute_id: productAttribute.id,
               attribute_value_id: parseInt(value.attribute_value_id),
-              price_adjustment_rupees: value.price_adjustment_rupees ? parseFloat(value.price_adjustment_rupees) : null,
-              price_adjustment_dollars: value.price_adjustment_dollars ? parseFloat(value.price_adjustment_dollars) : null
-            }
+              price_adjustment_rupees: value.price_adjustment_rupees
+                ? parseFloat(value.price_adjustment_rupees)
+                : null,
+              price_adjustment_dollars: value.price_adjustment_dollars
+                ? parseFloat(value.price_adjustment_dollars)
+                : null,
+            },
           });
         }
       }
@@ -217,8 +226,8 @@ async function handleProductVariants(ftpClient, productId, variants) {
           stock_count: parseInt(variant.stock_count) || 0,
           stock_status: variant.stock_status || "yes",
           weight: variant.weight ? parseFloat(variant.weight) : null,
-          is_default: variant.is_default || false
-        }
+          is_default: variant.is_default || false,
+        },
       });
 
       // Handle variant attribute values
@@ -227,15 +236,20 @@ async function handleProductVariants(ftpClient, productId, variants) {
           await db.variantAttributeValue.create({
             data: {
               variant_id: productVariant.id,
-              attribute_value_id: parseInt(attrValue.attribute_value_id)
-            }
+              attribute_value_id: parseInt(attrValue.attribute_value_id),
+            },
           });
         }
       }
 
       // Handle variant images if present
       if (variant.images && variant.images.length > 0) {
-        await handleProductImages(ftpClient, productId, variant.images, productVariant.id);
+        await handleProductImages(
+          ftpClient,
+          productId,
+          variant.images,
+          productVariant.id
+        );
       }
     }
   } catch (error) {
@@ -248,14 +262,14 @@ async function handleProductVariants(ftpClient, productId, variants) {
 export async function getOneProduct(id) {
   try {
     const productId = parseInt(id);
-    
+
     const product = await db.product.findUnique({
       where: { id: productId },
       include: {
         SubCategory: {
           include: {
-            Category: true
-          }
+            Category: true,
+          },
         },
         ProductImages: true, // Get all images without filtering
         ProductAttributes: {
@@ -263,10 +277,10 @@ export async function getOneProduct(id) {
             Attribute: true,
             ProductAttributeValues: {
               include: {
-                AttributeValue: true
-              }
-            }
-          }
+                AttributeValue: true,
+              },
+            },
+          },
         },
         ProductVariants: {
           include: {
@@ -274,15 +288,15 @@ export async function getOneProduct(id) {
               include: {
                 AttributeValue: {
                   include: {
-                    Attribute: true
-                  }
-                }
-              }
+                    Attribute: true,
+                  },
+                },
+              },
             },
-            ProductImages: true
-          }
-        }
-      }
+            ProductImages: true,
+          },
+        },
+      },
     });
 
     if (!product) {
@@ -293,7 +307,10 @@ export async function getOneProduct(id) {
     if (product.ProductImages.length === 0) {
       console.log("No images found for product ID:", productId);
     } else {
-      console.log(`Found ${product.ProductImages.length} images for product ID:`, productId);
+      console.log(
+        `Found ${product.ProductImages.length} images for product ID:`,
+        productId
+      );
     }
 
     return product;
@@ -318,7 +335,7 @@ export async function deleteProductById(id) {
 
     // First, fetch all images associated with the product (including variant images)
     const productImages = await db.productImage.findMany({
-      where: { product_id: productId }
+      where: { product_id: productId },
     });
 
     // Connect to FTP server to delete images
@@ -367,29 +384,34 @@ export async function getProducts({
   subcategory = "",
   status = "",
   sort = "latest",
+  featured = "",
 } = {}) {
   try {
     const skip = (page - 1) * limit;
 
     // Build the where clause based on filters
     let where = {};
-    
+
     if (search) {
       where.title = { contains: search };
     }
-    
+
     if (category) {
       where.cat_id = parseInt(category);
     }
-    
+
     if (subcategory) {
       where.subcat_id = parseInt(subcategory);
     }
-    
+
     if (status && (status === "active" || status === "inactive")) {
       where.status = status;
     }
-
+    // Add featured filter
+    if (featured && (featured === "yes" || featured === "no")) {
+      where.featured = featured;
+    }
+    console.log("featureds",featured)
     // Determine sort order
     let orderBy = {};
     switch (sort) {
@@ -415,10 +437,6 @@ export async function getProducts({
       case "name_desc":
         orderBy = { title: "desc" };
         break;
-      case "rating":
-        // Since you don't have actual rating, default to newest
-        orderBy = { createdAt: "desc" };
-        break;
       default:
         orderBy = { createdAt: "desc" };
     }
@@ -432,40 +450,44 @@ export async function getProducts({
       include: {
         SubCategory: {
           include: {
-            Category: true
-          }
+            Category: true,
+          },
         },
         ProductImages: {
           // Looking at your database, none of your images have is_thumbnail=true
           // So we'll get all images for each product instead of filtering
           take: 5, // Limit to 5 images per product for performance
           orderBy: {
-            display_order: 'asc' // Order by display_order to get most important first
-          }
+            display_order: "asc", // Order by display_order to get most important first
+          },
         },
         ProductVariants: {
           select: {
-            _count: true
-          }
-        }
-      }
+            _count: true,
+          },
+        },
+      },
     });
 
     // Get total count for pagination calculation
     const totalCount = await db.product.count({ where });
 
     // Filter out products with invalid SubCategory if needed for the client
-    const validProducts = products.filter(product => product.SubCategory !== null);
+    const validProducts = products.filter(
+      (product) => product.SubCategory !== null
+    );
 
     // Log image counts for debugging
     for (const product of validProducts) {
-      console.log(`Product ${product.id} (${product.title}) has ${product.ProductImages.length} images`);
+      console.log(
+        `Product ${product.id} (${product.title}) has ${product.ProductImages.length} images`
+      );
     }
 
     return {
       products: validProducts, // Send only products with valid subcategories
       totalPages: Math.ceil(totalCount / limit),
-      total: totalCount
+      total: totalCount,
     };
   } catch (error) {
     console.error("Error fetching products:", error.message);
@@ -478,17 +500,17 @@ export async function checkProductImages(productId) {
   try {
     // Get all images for the product
     const images = await db.productImage.findMany({
-      where: { product_id: parseInt(productId) }
+      where: { product_id: parseInt(productId) },
     });
 
     // Look specifically for thumbnail images
     const thumbnailImages = await db.productImage.findMany({
-      where: { 
+      where: {
         product_id: parseInt(productId),
-        is_thumbnail: true
-      }
+        is_thumbnail: true,
+      },
     });
-    
+
     // Check if we need to fix this product's images
     let fixResult = null;
     if (images.length > 0 && thumbnailImages.length === 0) {
@@ -496,23 +518,23 @@ export async function checkProductImages(productId) {
       const firstImage = images[0];
       await db.productImage.update({
         where: { id: firstImage.id },
-        data: { is_thumbnail: true }
+        data: { is_thumbnail: true },
       });
       fixResult = "Fixed: Set the first image as thumbnail";
     }
-    
+
     return {
       success: true,
       imagesCount: images.length,
       thumbnailCount: thumbnailImages.length,
       images,
-      fixResult
+      fixResult,
     };
   } catch (error) {
     console.error("Error checking product images:", error);
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -522,45 +544,45 @@ export async function fixProductImageThumbnails() {
   try {
     // Get all products
     const products = await db.product.findMany({
-      select: { id: true }
+      select: { id: true },
     });
-    
+
     let fixedCount = 0;
-    
+
     // For each product, check if it needs fixing
     for (const product of products) {
       const images = await db.productImage.findMany({
         where: { product_id: product.id },
-        orderBy: { display_order: 'asc' }
+        orderBy: { display_order: "asc" },
       });
-      
+
       const thumbnailImages = await db.productImage.findMany({
-        where: { 
+        where: {
           product_id: product.id,
-          is_thumbnail: true
-        }
+          is_thumbnail: true,
+        },
       });
-      
+
       // If we have images but no thumbnails, fix it
       if (images.length > 0 && thumbnailImages.length === 0) {
         const firstImage = images[0];
         await db.productImage.update({
           where: { id: firstImage.id },
-          data: { is_thumbnail: true }
+          data: { is_thumbnail: true },
         });
         fixedCount++;
       }
     }
-    
+
     return {
       success: true,
-      message: `Fixed ${fixedCount} products with missing thumbnails`
+      message: `Fixed ${fixedCount} products with missing thumbnails`,
     };
   } catch (error) {
     console.error("Error fixing product thumbnails:", error);
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -569,7 +591,7 @@ export async function fixProductImageThumbnails() {
 export async function updateProduct(id, data) {
   const ftpClient = new ftp.Client();
   ftpClient.ftp.verbose = true;
-  
+
   try {
     console.log("Updating product with id:", id, "Data:", data);
     const productId = parseInt(id);
@@ -581,16 +603,16 @@ export async function updateProduct(id, data) {
         ProductImages: true,
         ProductAttributes: {
           include: {
-            ProductAttributeValues: true
-          }
+            ProductAttributeValues: true,
+          },
         },
         ProductVariants: {
           include: {
             VariantAttributeValues: true,
-            ProductImages: true
-          }
-        }
-      }
+            ProductImages: true,
+          },
+        },
+      },
     });
 
     if (!existingProduct) {
@@ -618,7 +640,7 @@ export async function updateProduct(id, data) {
       tax: data.tax ? parseFloat(data.tax) : null,
       weight: data.weight ? parseFloat(data.weight) : null,
       free_shipping: data.free_shipping,
-      cod: data.cod
+      cod: data.cod,
     };
 
     // If category or subcategory changed
@@ -628,7 +650,7 @@ export async function updateProduct(id, data) {
     // 1. Update the product basic details
     const updatedProduct = await db.product.update({
       where: { id: productId },
-      data: updateData
+      data: updateData,
     });
 
     // 2. Handle product images if new ones are provided
@@ -646,15 +668,15 @@ export async function updateProduct(id, data) {
       // First remove existing product attribute values
       for (const attr of existingProduct.ProductAttributes) {
         await db.productAttributeValue.deleteMany({
-          where: { product_attribute_id: attr.id }
+          where: { product_attribute_id: attr.id },
         });
       }
-      
+
       // Then remove existing product attributes
       await db.productAttribute.deleteMany({
-        where: { product_id: productId }
+        where: { product_id: productId },
       });
-      
+
       // Add the updated attributes
       await handleProductAttributes(productId, data.updatedAttributes);
     }
@@ -666,13 +688,13 @@ export async function updateProduct(id, data) {
         for (const variantId of data.deletedVariantIds) {
           // First get variant images to delete them from FTP
           const variantImages = await db.productImage.findMany({
-            where: { product_variant_id: parseInt(variantId) }
+            where: { product_variant_id: parseInt(variantId) },
           });
-          
+
           // Delete images from FTP
           if (variantImages.length > 0) {
             await connectToFTP(ftpClient);
-            
+
             for (const image of variantImages) {
               try {
                 const remoteFilePath = `${FTP_CONFIG.remoteDir}${image.image_path}`;
@@ -682,14 +704,14 @@ export async function updateProduct(id, data) {
               }
             }
           }
-          
+
           // Delete the variant (cascade will handle related records)
           await db.productVariant.delete({
-            where: { id: parseInt(variantId) }
+            where: { id: parseInt(variantId) },
           });
         }
       }
-      
+
       // Update existing variants
       if (data.updatedVariants && data.updatedVariants.length > 0) {
         for (const variant of data.updatedVariants) {
@@ -704,28 +726,31 @@ export async function updateProduct(id, data) {
                 stock_count: parseInt(variant.stock_count),
                 stock_status: variant.stock_status,
                 weight: variant.weight ? parseFloat(variant.weight) : null,
-                is_default: variant.is_default
-              }
+                is_default: variant.is_default,
+              },
             });
-            
+
             // Handle variant attribute values if needed
-            if (variant.updated_attribute_values && variant.updated_attribute_values.length > 0) {
+            if (
+              variant.updated_attribute_values &&
+              variant.updated_attribute_values.length > 0
+            ) {
               // First delete existing attribute values
               await db.variantAttributeValue.deleteMany({
-                where: { variant_id: parseInt(variant.id) }
+                where: { variant_id: parseInt(variant.id) },
               });
-              
+
               // Add new attribute values
               for (const attrValue of variant.updated_attribute_values) {
                 await db.variantAttributeValue.create({
                   data: {
                     variant_id: parseInt(variant.id),
-                    attribute_value_id: parseInt(attrValue.attribute_value_id)
-                  }
+                    attribute_value_id: parseInt(attrValue.attribute_value_id),
+                  },
                 });
               }
             }
-            
+
             // Handle new variant images
             if (variant.newImages && variant.newImages.length > 0) {
               await handleProductImages(
@@ -738,7 +763,7 @@ export async function updateProduct(id, data) {
           }
         }
       }
-      
+
       // Add new variants
       if (data.newVariants && data.newVariants.length > 0) {
         await handleProductVariants(ftpClient, productId, data.newVariants);
@@ -746,7 +771,7 @@ export async function updateProduct(id, data) {
     } else if (existingProduct.hasVariants) {
       // Product switched from having variants to no variants - delete all variants
       await db.productVariant.deleteMany({
-        where: { product_id: productId }
+        where: { product_id: productId },
       });
     }
 
@@ -756,8 +781,8 @@ export async function updateProduct(id, data) {
       include: {
         SubCategory: {
           include: {
-            Category: true
-          }
+            Category: true,
+          },
         },
         ProductImages: true,
         ProductAttributes: {
@@ -765,10 +790,10 @@ export async function updateProduct(id, data) {
             Attribute: true,
             ProductAttributeValues: {
               include: {
-                AttributeValue: true
-              }
-            }
-          }
+                AttributeValue: true,
+              },
+            },
+          },
         },
         ProductVariants: {
           include: {
@@ -776,15 +801,15 @@ export async function updateProduct(id, data) {
               include: {
                 AttributeValue: {
                   include: {
-                    Attribute: true
-                  }
-                }
-              }
+                    Attribute: true,
+                  },
+                },
+              },
             },
-            ProductImages: true
-          }
-        }
-      }
+            ProductImages: true,
+          },
+        },
+      },
     });
 
     return completeUpdatedProduct;
@@ -803,9 +828,9 @@ async function deleteProductImages(ftpClient, imageIds) {
     const imagesToDelete = await db.productImage.findMany({
       where: {
         id: {
-          in: imageIds.map(id => parseInt(id))
-        }
-      }
+          in: imageIds.map((id) => parseInt(id)),
+        },
+      },
     });
 
     if (imagesToDelete.length === 0) {
@@ -830,7 +855,7 @@ async function deleteProductImages(ftpClient, imageIds) {
 
       // Delete from database regardless of FTP success
       await db.productImage.delete({
-        where: { id: image.id }
+        where: { id: image.id },
       });
     }
   } catch (error) {
@@ -844,17 +869,19 @@ export async function getProductAttributes() {
   try {
     const attributes = await db.attribute.findMany({
       include: {
-        AttributeValues: true
+        AttributeValues: true,
       },
       orderBy: {
-        display_order: "asc"
-      }
+        display_order: "asc",
+      },
     });
-    
+
     return attributes;
   } catch (error) {
     console.error("Error fetching product attributes:", error);
-    throw new Error("Failed to fetch product attributes. Please try again later.");
+    throw new Error(
+      "Failed to fetch product attributes. Please try again later."
+    );
   }
 }
 
@@ -863,16 +890,16 @@ export async function getCategoriesAndSubcategories() {
   try {
     const categories = await db.category.findMany({
       where: {
-        showHome: "active"
+        showHome: "active",
       },
       include: {
-        SubCategory: true
+        SubCategory: true,
       },
       orderBy: {
-        catName: "asc"
-      }
+        catName: "asc",
+      },
     });
-    
+
     return categories;
   } catch (error) {
     console.error("Error fetching categories and subcategories:", error);
@@ -886,55 +913,88 @@ export async function repairProductSubcategories() {
     // Find products with missing subcategory references
     const invalidProducts = await db.product.findMany({
       where: {
-        OR: [
-          { SubCategory: null },
-          { subcat_id: null }
-        ]
+        OR: [{ SubCategory: null }, { subcat_id: null }],
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
-    
-    console.log(`Found ${invalidProducts.length} products with invalid subcategory references`);
-    
+
+    console.log(
+      `Found ${invalidProducts.length} products with invalid subcategory references`
+    );
+
     // Get a default subcategory to assign to these products
     const defaultSubcategory = await db.subCategory.findFirst({
       orderBy: {
-        id: 'asc'
-      }
+        id: "asc",
+      },
     });
-    
+
     if (!defaultSubcategory) {
       return {
         success: false,
-        error: "No subcategory found to use as default"
+        error: "No subcategory found to use as default",
       };
     }
-    
+
     // Update the invalid products with the default subcategory
     for (const product of invalidProducts) {
       await db.product.update({
         where: {
-          id: product.id
+          id: product.id,
         },
         data: {
           subcat_id: defaultSubcategory.id,
-          cat_id: defaultSubcategory.cat_id
-        }
+          cat_id: defaultSubcategory.cat_id,
+        },
       });
     }
-    
+
     return {
       success: true,
-      message: `Repaired ${invalidProducts.length} products with invalid subcategory references`
+      message: `Repaired ${invalidProducts.length} products with invalid subcategory references`,
     };
   } catch (error) {
-    console.error("Error repairing products:", error?.message || "Unknown error");
-    
+    console.error(
+      "Error repairing products:",
+      error?.message || "Unknown error"
+    );
+
     return {
       success: false,
-      error: "Failed to repair product subcategories"
+      error: "Failed to repair product subcategories",
+    };
+  }
+}
+
+// In your product actions file (e.g., /actions/product.js)
+
+// Toggle product featured status
+export async function toggleProductFeatured(id, currentFeatured) {
+  try {
+    const productId = parseInt(id);
+    const newFeaturedStatus = currentFeatured === "yes" ? "no" : "yes";
+
+    // Update only the featured field
+    const updatedProduct = await db.product.update({
+      where: { id: productId },
+      data: {
+        featured: newFeaturedStatus
+      }
+    });
+
+    return {
+      success: true,
+      product: updatedProduct,
+      message: `Product ${updatedProduct.featured === "yes" ? "marked as featured" : "removed from featured"}`
+    };
+  } catch (error) {
+    console.error("Error toggling product featured status:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "Failed to update product featured status"
     };
   }
 }
