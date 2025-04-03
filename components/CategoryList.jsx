@@ -122,7 +122,7 @@ const CategoryList = () => {
                         <Link
                           key={subcat.id}
                           href={`/subcategory/${subcat.id}`}
-                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors playfair-italic"
+                          className="flex items-center justify-between px-4 py-2 text-sm text-black hover:bg-[#F9F4F0] hover:text-[#6B2F1A] rounded-md transition-colors playfair-italic"
                         >
                           <span>{subcat.subcategory}</span>
                           <ChevronRight className="h-4 w-4 opacity-70" />
@@ -133,9 +133,9 @@ const CategoryList = () => {
                     <div className="pt-3 mt-3 border-t border-gray-100 px-4">
                       <Link
                         href={`/category/${category.id}`}
-                        className="flex items-center justify-center w-full py-2 text-sm font-medium text-white bg-[#6B2F1A] hover:bg-[#5A2814] rounded-md transition-colors category-heading px-3"
+                        className="flex items-center justify-center w-full text-sm font-medium text-black hover:text-[#5A2814]  rounded-md transition-colors category-heading "
                       >
-                        View All {category.catName}
+                        View All
                       </Link>
                     </div>
                   </div>

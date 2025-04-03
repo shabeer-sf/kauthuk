@@ -201,6 +201,10 @@ body {
 .category-heading {
   font-family: var(--font-playfair);
 }
+.category-heading2 {
+  font-family: var(--font-playfair);
+  font-weight: bolder;
+}
 .playfair-italic {
   font-family: var(--font-playfair);
   font-style: italic;

@@ -123,18 +123,25 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={product?.title || "Product Image"}
-            fill
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(
-              shimmer(700, 475)
-            )}`}
-            className={`object-cover transition-all duration-700 ease-in-out ${
-              isHovered ? "scale-110" : "scale-100"
-            }`}
-          />
+        <Link
+            href={`/product/${product?.id}`}
+            className="block w-full h-full"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-[85%] h-[85%] relative">
+                <Image
+                  src={imageUrl}
+                  alt={product?.title || "Product Image"}
+                  fill
+                  placeholder="blur"
+                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                    shimmer(700, 475)
+                  )}`}
+                  className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+                />
+              </div>
+            </div>
+          </Link>
 
           {/* Discount badge */}
           {hasDiscount && (
@@ -174,7 +181,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         </div>
 
         <div className="p-5">
-          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors" style={{ fontFamily: "Playfair Display, serif" }}>
+          <h3 className="text-lg font-medium text-gray-900 line-clamp-1 mb-1 group-hover:text-[#6B2F1A] transition-colors">
             {product?.title || "Product Name"}
           </h3>
 
@@ -231,18 +238,25 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative w-full md:w-1/4 aspect-square md:aspect-auto overflow-hidden rounded-lg">
-          <Image
-            src={imageUrl}
-            alt={product?.title || "Product Image"}
-            fill
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(
-              shimmer(700, 475)
-            )}`}
-            className={`object-cover transition-all duration-700 ease-in-out ${
-              isHovered ? "scale-110" : "scale-100"
-            }`}
-          />
+        <Link
+            href={`/product/${product?.id}`}
+            className="block w-full h-full"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-[85%] h-[85%] relative">
+                <Image
+                  src={imageUrl}
+                  alt={product?.title || "Product Image"}
+                  fill
+                  placeholder="blur"
+                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                    shimmer(700, 475)
+                  )}`}
+                  className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+                />
+              </div>
+            </div>
+          </Link>
 
           {/* Discount badge */}
           {hasDiscount && (
@@ -269,7 +283,7 @@ const ProductCard = ({ product, layout = "grid", onAddToCart }) => {
               </Badge>
             </div>
 
-            <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:text-[#6B2F1A] transition-colors" style={{ fontFamily: "Playfair Display, serif" }}>
+            <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:text-[#6B2F1A] transition-colors" >
               {product?.title || "Product Name"}
             </h3>
 

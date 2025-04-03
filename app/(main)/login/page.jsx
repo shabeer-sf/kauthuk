@@ -1,43 +1,48 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
-import { useUserAuth } from '@/providers/UserProvider';
-import MobileLogin from '@/components/auth/MobileLogin';
-import OTPVerification from '@/components/auth/OTPVerification';
+import { useState } from "react";
+import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
+import { useUserAuth } from "@/providers/UserProvider";
+import MobileLogin from "@/components/auth/MobileLogin";
+import OTPVerification from "@/components/auth/OTPVerification";
 
 export default function LoginPage() {
   const [formErrors, setFormErrors] = useState({});
-  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'mobile'
+  const [loginMethod, setLoginMethod] = useState("email"); // 'email' or 'mobile'
   const [otpData, setOtpData] = useState(null);
   const [showCaptcha, setShowCaptcha] = useState(false);
-  const [captchaImage, setCaptchaImage] = useState('');
-  const [captchaInput, setCaptchaInput] = useState('');
+  const [captchaImage, setCaptchaImage] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
 
-  const { login, clearError, error: authError, loading: authLoading } = useUserAuth();
+  const {
+    login,
+    clearError,
+    error: authError,
+    loading: authLoading,
+  } = useUserAuth();
 
   const validateForm = (formData) => {
     const errors = {};
 
     // Email validation
-    const email = formData.get('email')?.trim() || '';
+    const email = formData.get("email")?.trim() || "";
     if (!email) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email is invalid';
+      errors.email = "Email is invalid";
     }
 
     // Password validation
-    const password = formData.get('password') || '';
+    const password = formData.get("password") || "";
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     }
 
     // Captcha validation if shown
     if (showCaptcha && !captchaInput) {
-      errors.captcha = 'Please enter the captcha';
+      errors.captcha = "Please enter the captcha";
     }
 
     setFormErrors(errors);
@@ -55,23 +60,23 @@ export default function LoginPage() {
 
       // Check if captcha is required and validate it
       if (showCaptcha) {
-        const captchaValue = formData.get('captcha');
-        
+        const captchaValue = formData.get("captcha");
+
         // In a real implementation, you would verify the captcha with a server action
         // For this example, we'll just check if it's not empty
         if (!captchaValue) {
-          setFormErrors({ captcha: 'Please enter the captcha code' });
+          setFormErrors({ captcha: "Please enter the captcha code" });
           return;
         }
-        
+
         // You would validate the captcha here
         // For example: const captchaValid = await verifyCaptcha(captchaValue);
       }
 
       // Create a copy of the FormData with trimmed values
       const processedFormData = new FormData();
-      processedFormData.append('email', formData.get('email')?.trim() || '');
-      processedFormData.append('password', formData.get('password') || '');
+      processedFormData.append("email", formData.get("email")?.trim() || "");
+      processedFormData.append("password", formData.get("password") || "");
 
       // Call login function from auth context
       const result = await login(processedFormData);
@@ -79,7 +84,7 @@ export default function LoginPage() {
       if (!result.success) {
         // If login fails multiple times, show captcha
         setShowCaptcha(true);
-        
+
         // In a real implementation, you would fetch a captcha image from your server
         // For this example, we'll use a placeholder image
         if (!captchaImage) {
@@ -87,7 +92,7 @@ export default function LoginPage() {
         }
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error("Login error:", err);
       setShowCaptcha(true);
       await refreshCaptcha();
     }
@@ -96,8 +101,8 @@ export default function LoginPage() {
   const refreshCaptcha = async () => {
     // In a real implementation, you would fetch a new captcha from your server
     // For this example, we'll just set a placeholder
-    setCaptchaImage('/api/captcha?' + new Date().getTime());
-    setCaptchaInput('');
+    setCaptchaImage("/api/captcha?" + new Date().getTime());
+    setCaptchaInput("");
   };
 
   const handleOTPSent = (data) => {
@@ -107,10 +112,10 @@ export default function LoginPage() {
   // If OTP has been sent, show the OTP verification form
   if (otpData) {
     return (
-      <OTPVerification 
-        userId={otpData.userId} 
-        mobile={otpData.mobile} 
-        otp={otpData.otp} 
+      <OTPVerification
+        userId={otpData.userId}
+        mobile={otpData.mobile}
+        otp={otpData.otp}
       />
     );
   }
@@ -118,38 +123,39 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F9F4F0] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>
+        <h2
+          className="mt-6 text-center text-3xl font-extrabold text-[#6B2F1A]"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
           Sign in to your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
-          Or{' '}
-          <Link
-            href="/register"
-            className="font-medium text-[#6B2F1A] hover:text-[#5A2814]"
-          >
-            create a new account
-          </Link>
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-[#6B2F1A]/10">
           {authError && (
-            <div className="mb-4 p-4 bg-[#fee3d8] border-l-4 border-[#6B2F1A] text-[#6B2F1A]" style={{ fontFamily: "Poppins, sans-serif" }}>
+            <div
+              className="mb-4 p-4 bg-[#fee3d8] border-l-4 border-[#6B2F1A] text-[#6B2F1A]"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
               <p>{authError}</p>
             </div>
           )}
 
-          <Tabs value={loginMethod} onValueChange={setLoginMethod} className="w-full">
+          <Tabs
+            value={loginMethod}
+            onValueChange={setLoginMethod}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2 mb-6 bg-[#fee3d8]/50">
-              <TabsTrigger 
+              <TabsTrigger
                 value="email"
                 className="data-[state=active]:bg-white data-[state=active]:text-[#6B2F1A] data-[state=active]:shadow-sm"
                 style={{ fontFamily: "Poppins, sans-serif" }}
               >
                 Email & Password
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="mobile"
                 className="data-[state=active]:bg-white data-[state=active]:text-[#6B2F1A] data-[state=active]:shadow-sm"
                 style={{ fontFamily: "Poppins, sans-serif" }}
@@ -157,7 +163,7 @@ export default function LoginPage() {
                 Mobile OTP
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="email">
               <form action={handleSubmit} className="space-y-6">
                 <div>
@@ -176,12 +182,17 @@ export default function LoginPage() {
                       autoComplete="email"
                       required
                       className={`appearance-none block w-full px-3 py-2 border ${
-                        formErrors.email ? 'border-red-300' : 'border-[#6B2F1A]/20'
+                        formErrors.email
+                          ? "border-red-300"
+                          : "border-[#6B2F1A]/20"
                       } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6B2F1A] focus:border-[#6B2F1A] sm:text-sm`}
                       style={{ fontFamily: "Poppins, sans-serif" }}
                     />
                     {formErrors.email && (
-                      <p className="mt-1 text-sm text-red-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      <p
+                        className="mt-1 text-sm text-red-600"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {formErrors.email}
                       </p>
                     )}
@@ -204,12 +215,17 @@ export default function LoginPage() {
                       autoComplete="current-password"
                       required
                       className={`appearance-none block w-full px-3 py-2 border ${
-                        formErrors.password ? 'border-red-300' : 'border-[#6B2F1A]/20'
+                        formErrors.password
+                          ? "border-red-300"
+                          : "border-[#6B2F1A]/20"
                       } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6B2F1A] focus:border-[#6B2F1A] sm:text-sm`}
                       style={{ fontFamily: "Poppins, sans-serif" }}
                     />
                     {formErrors.password && (
-                      <p className="mt-1 text-sm text-red-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      <p
+                        className="mt-1 text-sm text-red-600"
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                      >
                         {formErrors.password}
                       </p>
                     )}
@@ -228,10 +244,10 @@ export default function LoginPage() {
                     <div className="mt-1">
                       <div className="flex space-x-2 mb-2">
                         {captchaImage && (
-                          <img 
-                            src={captchaImage} 
-                            alt="CAPTCHA" 
-                            className="h-10 border border-[#6B2F1A]/20 rounded" 
+                          <img
+                            src={captchaImage}
+                            alt="CAPTCHA"
+                            className="h-10 border border-[#6B2F1A]/20 rounded"
                           />
                         )}
                         <button
@@ -251,13 +267,18 @@ export default function LoginPage() {
                         onChange={(e) => setCaptchaInput(e.target.value)}
                         required={showCaptcha}
                         className={`appearance-none block w-full px-3 py-2 border ${
-                          formErrors.captcha ? 'border-red-300' : 'border-[#6B2F1A]/20'
+                          formErrors.captcha
+                            ? "border-red-300"
+                            : "border-[#6B2F1A]/20"
                         } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6B2F1A] focus:border-[#6B2F1A] sm:text-sm`}
                         placeholder="Enter the code shown above"
                         style={{ fontFamily: "Poppins, sans-serif" }}
                       />
                       {formErrors.captcha && (
-                        <p className="mt-1 text-sm text-red-600" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        <p
+                          className="mt-1 text-sm text-red-600"
+                          style={{ fontFamily: "Poppins, sans-serif" }}
+                        >
                           {formErrors.captcha}
                         </p>
                       )}
@@ -282,7 +303,10 @@ export default function LoginPage() {
                     </label>
                   </div>
 
-                  <div className="text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  <div
+                    className="text-sm"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
                     <Link
                       href="/forgot-password"
                       className="font-medium text-[#6B2F1A] hover:text-[#5A2814]"
@@ -291,7 +315,22 @@ export default function LoginPage() {
                     </Link>
                   </div>
                 </div>
-
+                <div className="w-full">
+                  <p
+                    className="mt-2 text-center text-sm text-gray-600 flex items-center gap-1 "
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    <div className="font-medium text-[#6B2F1A] hover:text-[#5A2814]">
+                      Don't have an account?
+                    </div>
+                    <Link
+                      href="/register"
+                      className="font-medium text-[#6B2F1A] hover:text-[#5A2814]"
+                    >
+                      Signup
+                    </Link>
+                  </p>
+                </div>
                 <div>
                   <button
                     type="submit"
@@ -305,13 +344,13 @@ export default function LoginPage() {
                         Signing in...
                       </>
                     ) : (
-                      'Sign in'
+                      "Sign in"
                     )}
                   </button>
                 </div>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="mobile">
               <MobileLogin onOTPSent={handleOTPSent} />
             </TabsContent>

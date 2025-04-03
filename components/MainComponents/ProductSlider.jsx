@@ -21,7 +21,7 @@ import {
   Copy,
   Check,
   ChevronLeft,
-  ShoppingBag
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -71,14 +71,17 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
 
   // Format price to show with rupee symbol
   const formatPrice = (price) => {
-    const formattedPrice = parseFloat(price || 0).toLocaleString('en-IN');
+    const formattedPrice = parseFloat(price || 0).toLocaleString("en-IN");
     return `₹${formattedPrice}`;
   };
 
   // Close share menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+      if (
+        shareMenuRef.current &&
+        !shareMenuRef.current.contains(event.target)
+      ) {
         setShowShareMenu(false);
       }
     };
@@ -99,24 +102,30 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
   const shareToFacebook = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
-    window.open(url, '_blank', 'width=600,height=400');
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      `${window.location.origin}/product/${id}`
+    )}`;
+    window.open(url, "_blank", "width=600,height=400");
     setShowShareMenu(false);
   };
 
   const shareToTwitter = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this product: ${title}`)}&url=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
-    window.open(url, '_blank', 'width=600,height=400');
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      `Check out this product: ${title}`
+    )}&url=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
+    window.open(url, "_blank", "width=600,height=400");
     setShowShareMenu(false);
   };
 
   const shareToLinkedin = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/product/${id}`)}`;
-    window.open(url, '_blank', 'width=600,height=400');
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      `${window.location.origin}/product/${id}`
+    )}`;
+    window.open(url, "_blank", "width=600,height=400");
     setShowShareMenu(false);
   };
 
@@ -131,7 +140,7 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
   };
 
   return (
-    <div 
+    <div
       className="h-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -139,27 +148,35 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
         setShowShareMenu(false);
       }}
     >
-      <div className="relative h-full flex flex-col overflow-hidden group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="relative h-full flex flex-col bg-white shadow-sm hover:shadow-md transition-all duration-300 border-y-2 border-x-[0.1px] border-[#5A2814]">
         {/* Product Tag - New */}
         {index < 2 && (
           <div className="absolute top-3 left-3 z-10 bg-[#6B2F1A] text-white text-xs font-poppins px-2 py-1 rounded">
             New
           </div>
         )}
-        
+
         {/* Image Container */}
-        <Link href={`/product/${id}`} className="block relative aspect-square overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={title || "Product"}
-            fill
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
-            className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
-          />
-          
+        <Link href={`/product/${id}`} className="block relative aspect-square">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-[85%] h-[85%] relative">
+              <Image
+                src={imageUrl}
+                alt={title || "Product"}
+                fill
+                placeholder="blur"
+                blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                  shimmer(700, 475)
+                )}`}
+                className="object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+              />
+            </div>
+          </div>
+
           {/* Quick Shop Overlay - Appears on hover */}
-          <div className={`absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+          <div
+            className={`absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+          >
             <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/90 px-4 py-2 rounded-full shadow-md">
               <span className="font-poppins text-sm text-[#6B2F1A] font-medium flex items-center">
                 <ShoppingBag size={14} className="mr-1" />
@@ -168,30 +185,33 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
             </div>
           </div>
         </Link>
-        
+
+        {/* Content Container */}
         {/* Content Container */}
         <div className="p-4 flex flex-col flex-grow">
-          <div className="mb-2">
+          <div className="mb-2 h-12">
+            {" "}
+            {/* Added fixed height of 3rem (48px) for 2 lines */}
             <Link href={`/product/${id}`}>
-              <h3 className="font-playfair text-base font-medium text-gray-800 line-clamp-2 hover:text-[#6B2F1A] transition-colors">
+              <h3 className="playfair-italic text-base font-medium text-[#6B2F1A] line-clamp-2 hover:text-[#6B2F1A] transition-colors">
                 {title || "Product"}
               </h3>
             </Link>
           </div>
-          
+
           <div className="mt-auto">
             <div className="flex items-center justify-between">
               <p className="font-poppins text-lg font-semibold text-[#6B2F1A]">
                 {formatPrice(price_rupees)}
               </p>
-              
+
               {/* Action Buttons */}
               <div className="flex space-x-2">
                 {/* Wishlist button */}
                 <button className="w-8 h-8 rounded-full bg-[#FFF5F1] flex items-center justify-center hover:bg-[#fee3d8] transition-colors">
                   <Heart className="w-4 h-4 text-[#6B2F1A]" />
                 </button>
-                
+
                 {/* Share button */}
                 <div className="relative" ref={shareMenuRef}>
                   <button
@@ -200,7 +220,7 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
                   >
                     <Share2 className="w-4 h-4 text-[#6B2F1A]" />
                   </button>
-                  
+
                   {/* Share dropdown menu */}
                   <AnimatePresence>
                     {showShareMenu && (
@@ -208,43 +228,52 @@ const ProductCard = ({ id, title, price_rupees, images, index }) => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 w-48 z-50"
+                        className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-100 w-48 z-50"
                       >
                         <div className="p-2">
                           <div className="px-2 py-1 text-xs font-medium text-gray-500 font-poppins">
                             Share this product
                           </div>
-                          
-                          <button 
+
+                          <button
                             onClick={shareToFacebook}
                             className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
                           >
-                            <Facebook size={15} className="mr-2 text-blue-600" />
+                            <Facebook
+                              size={15}
+                              className="mr-2 text-blue-600"
+                            />
                             Facebook
                           </button>
-                          
-                          <button 
+
+                          <button
                             onClick={shareToTwitter}
                             className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
                           >
                             <Twitter size={15} className="mr-2 text-blue-400" />
                             Twitter
                           </button>
-                          
-                          <button 
+
+                          <button
                             onClick={shareToLinkedin}
                             className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
                           >
-                            <Linkedin size={15} className="mr-2 text-blue-700" />
+                            <Linkedin
+                              size={15}
+                              className="mr-2 text-blue-700"
+                            />
                             LinkedIn
                           </button>
-                          
-                          <button 
+
+                          <button
                             onClick={copyLink}
                             className="flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-[#fee3d8] rounded-md font-poppins"
                           >
                             {copied ? (
-                              <Check size={15} className="mr-2 text-green-500" />
+                              <Check
+                                size={15}
+                                className="mr-2 text-green-500"
+                              />
                             ) : (
                               <Copy size={15} className="mr-2 text-gray-500" />
                             )}
@@ -341,15 +370,18 @@ const ProductSlider = ({
   if (loading) {
     return (
       <section className="w-full py-12">
-        <div className=" mx-auto px-4">
+        <div className="mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div className="h-8 w-48 bg-gray-200 rounded-md animate-pulse"></div>
             <div className="h-6 w-24 bg-gray-200 rounded-md animate-pulse"></div>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="rounded-lg overflow-hidden bg-white shadow-sm animate-pulse">
+              <div
+                key={i}
+                className="rounded-lg bg-white shadow-sm animate-pulse"
+              >
                 <div className="aspect-square bg-gray-200"></div>
                 <div className="p-4">
                   <div className="h-4 bg-gray-200 rounded-md w-3/4 mb-4"></div>
@@ -367,8 +399,10 @@ const ProductSlider = ({
   if (error) {
     return (
       <section className="w-full py-12">
-        <div className=" mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">{title}</h2>
+        <div className="mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">
+            {title}
+          </h2>
           <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center font-poppins">
             {error}
           </div>
@@ -381,8 +415,10 @@ const ProductSlider = ({
   if (products.length === 0) {
     return (
       <section className="w-full py-12">
-        <div className=" mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">{title}</h2>
+        <div className="mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-playfair font-bold mb-6 text-gray-800">
+            {title}
+          </h2>
           <div className="bg-gray-50 text-gray-500 p-8 rounded-lg text-center font-poppins">
             No products available
           </div>
@@ -392,8 +428,8 @@ const ProductSlider = ({
   }
 
   return (
-    <section className="w-full py-12 bg-[#FFFBF9]">
-      <div className=" mx-auto px-4">
+    <section className="w-full py-12 bg-[#FFFBF9] overflow-x-hidden">
+      <div className="mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-playfair font-bold text-gray-800">
@@ -401,83 +437,98 @@ const ProductSlider = ({
             </h2>
             <div className="w-16 h-1 bg-[#6B2F1A]/30 mt-2"></div>
           </div>
-          
-          <Link 
-            href={viewAllLink} 
+
+          <Link
+            href={viewAllLink}
             className="group flex items-center font-poppins text-[#6B2F1A] font-medium text-sm hover:text-[#8B3F2A] transition-colors"
           >
             View All Products
             <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
-        
+
         <div className="relative">
           {/* Left arrow */}
-          <button 
-            ref={prevRef} 
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform -translate-x-5"
+          <button
+            ref={prevRef}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform -translate-x-5 lg:block md:hidden hidden"
             aria-label="Previous products"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          
+
           {/* Right arrow */}
-          <button 
-            ref={nextRef} 
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform translate-x-5"
+          <button
+            ref={nextRef}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-[#6B2F1A] hover:bg-[#fee3d8] transition-colors transform translate-x-5 lg:block md:hidden hidden"
             aria-label="Next products"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
-          
-          <Swiper
-            modules={[Navigation, Autoplay, Pagination, EffectCards, EffectCoverflow]}
-            spaceBetween={20}
-            slidesPerView={2}
-            navigation={{
-              prevEl: prevRef.current,
-              nextEl: nextRef.current,
-            }}
-            loop={products.length > 4}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            {...swiperEffect}
-            breakpoints={{
-              640: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-              },
-              768: {
-                slidesPerView: 3,
-                spaceBetween: 24,
-              },
-              1024: {
-                slidesPerView: 4,
-                spaceBetween: 30,
-              },
-            }}
-            onInit={(swiper) => {
-              swiper.params.navigation.prevEl = prevRef.current;
-              swiper.params.navigation.nextEl = nextRef.current;
-              swiper.navigation.init();
-              swiper.navigation.update();
-            }}
-            className="pb-10 pt-2"
-          >
-            {products.map((product, index) => (
-              <SwiperSlide key={product.id} className={cn("h-full", swiperSlideClass)}>
-                <ProductCard
-                  id={product.id}
-                  title={product.title}
-                  price_rupees={product.price_rupees}
-                  images={product.ProductImages}
-                  index={index}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+
+          <div className="px-5 lg:px-6 md:px-4 mx-auto max-w-full">
+            <Swiper
+              modules={[
+                Navigation,
+                Autoplay,
+                Pagination,
+                EffectCards,
+                EffectCoverflow,
+              ]}
+              spaceBetween={20}
+              slidesPerView={2}
+              navigation={{
+                prevEl: prevRef.current,
+                nextEl: nextRef.current,
+              }}
+              loop={products.length > 4}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+              }}
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              {...swiperEffect}
+              breakpoints={{
+                640: {
+                  slidesPerView: 2,
+                  spaceBetween: 20,
+                },
+                768: {
+                  slidesPerView: 3,
+                  spaceBetween: 24,
+                },
+                1024: {
+                  slidesPerView: 4,
+                  spaceBetween: 30,
+                },
+              }}
+              onInit={(swiper) => {
+                swiper.params.navigation.prevEl = prevRef.current;
+                swiper.params.navigation.nextEl = nextRef.current;
+                swiper.navigation.init();
+                swiper.navigation.update();
+              }}
+              className="pb-10 pt-2"
+            >
+              {products.map((product, index) => (
+                <SwiperSlide
+                  key={product.id}
+                  className={cn("h-auto", swiperSlideClass)}
+                >
+                  <ProductCard
+                    id={product.id}
+                    title={product.title}
+                    price_rupees={product.price_rupees}
+                    images={product.ProductImages}
+                    index={index}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </div>
       </div>
     </section>

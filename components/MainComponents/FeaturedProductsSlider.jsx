@@ -139,16 +139,11 @@ const FeaturedProductsSlider = ({
     <section className="w-full py-12" style={{ backgroundColor: bgColor }}>
       <div className="mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
+        <div>
             <h2 className="text-2xl md:text-3xl font-playfair font-bold text-gray-800">
               {title}
             </h2>
-            {showBadge && (
-              <span className="ml-3 bg-[#6B2F1A] text-white text-xs font-poppins px-2 py-1 rounded">
-                {badgeText}
-              </span>
-            )}
-            <div className="w-16 h-1 bg-[#6B2F1A]/30 mt-2 ml-3"></div>
+            <div className="w-16 h-1 bg-[#6B2F1A]/30 mt-2"></div>
           </div>
 
           <Link
@@ -179,6 +174,7 @@ const FeaturedProductsSlider = ({
             <ChevronRight className="w-5 h-5" />
           </button>
 
+          <div className="pl-5">
           <Swiper
             modules={[Navigation, Autoplay, Pagination]}
             spaceBetween={20}
@@ -231,6 +227,7 @@ const FeaturedProductsSlider = ({
               </SwiperSlide>
             ))}
           </Swiper>
+          </div>
         </div>
       </div>
     </section>

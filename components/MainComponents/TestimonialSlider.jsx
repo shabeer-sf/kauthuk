@@ -1,10 +1,9 @@
 "use client"
 import { getTestimonials } from '@/actions/testimonial';
-import { Quote, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Quote, Star, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 import { Autoplay, Navigation, Pagination, EffectFade } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import Image from 'next/image';
 
 // Import Swiper styles
 import "swiper/css";
@@ -13,54 +12,51 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-const TestimonialCard = ({ name, location, description, image, rating = 5, role = "Customer" }) => (
-  <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-center h-full">
-    <div className="testimonial-content flex-1 relative">
-      <div className="quote-mark absolute -top-10 left-0 opacity-10">
-        <Quote className="w-20 h-20 text-[#6B2F1A]" />
-      </div>
+const TestimonialCard = ({ name, location, description, rating = 5, role = "Customer" }) => (
+  <div className="relative bg-white rounded-xl shadow-md p-8 md:p-10 overflow-hidden transition-all duration-300 h-full flex flex-col">
+    {/* Subtle top accent line */}
+    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#6B2F1A] to-[#F0B775]"></div>
+    
+    <div className="testimonial-content flex-1 relative z-10">
+      <Quote className="w-10 h-10 text-[#6B2F1A]/10 absolute -top-1 -left-1" />
       
-      <p className="font-poppins text-xl md:text-2xl leading-relaxed text-gray-700 font-light mb-8 relative z-10">
+      <p className="font-poppins text-lg leading-relaxed text-gray-700 mb-6 mt-6 relative z-10">
         "{description}"
       </p>
       
-      <div className="flex flex-col gap-1">
-        <h4 className="playfair-italic-bold text-2xl text-[#6B2F1A]">
-          {name}
-        </h4>
-        
-        <p className="font-poppins text-gray-500">
-          {location}
-        </p>
-        
-        <div className="flex items-center gap-2 mt-3">
+      <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-1 mb-3">
           {[...Array(5)].map((_, i) => (
             <Star 
               key={i} 
-              className={`w-5 h-5 ${i < rating ? 'text-[#6B2F1A] fill-[#6B2F1A]' : 'text-gray-300'}`}
+              className={`w-4 h-4 ${i < rating ? 'text-[#F0B775] fill-[#F0B775]' : 'text-gray-200'}`}
             />
           ))}
-          <span className="font-poppins text-sm text-gray-500 ml-2">
-            {role}
-          </span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="flex-shrink-0 mr-3">
+            <div className="w-10 h-10 rounded-full bg-[#F9F4F0] flex items-center justify-center">
+              <span className="font-playfair text-[#6B2F1A] text-base font-semibold">{name.charAt(0)}</span>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="font-playfair text-base font-semibold text-[#6B2F1A]">
+              {name}
+            </h4>
+            
+            <div className="flex items-center text-gray-500 mt-0.5">
+              <MapPin className="w-3 h-3 mr-1 text-[#6B2F1A]/60" />
+              <span className="font-poppins text-xs">{location}</span>
+              <span className="mx-1.5 text-gray-300">•</span>
+              <span className="font-poppins text-xs text-[#6B2F1A]/80">
+                {role}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <div className="testimonial-image relative flex-shrink-0 w-64 h-64 md:w-80 md:h-80">
-      {image ? (
-        <Image 
-          src={image} 
-          alt={name} 
-          fill
-          className="object-cover rounded-full p-2 border-2 border-[#6B2F1A]/20"
-        />
-      ) : (
-        <div className="w-full h-full rounded-full bg-[#fee3d8] flex items-center justify-center">
-          <span className="font-playfair text-[#6B2F1A] text-6xl">{name.charAt(0)}</span>
-        </div>
-      )}
-      <div className="absolute inset-0 rounded-full border-4 border-[#6B2F1A]/10"></div>
     </div>
   </div>
 );
@@ -69,13 +65,15 @@ const TestimonialSlider = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
         const response = await getTestimonials({
-          limit: 10, // Fetch 10 testimonials
+          limit: 10,
           status: 'active',
           sort: 'rating_high'
         });
@@ -98,90 +96,119 @@ const TestimonialSlider = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-white to-[#F9F4F0] overflow-hidden">
-      <div className="max-w-5xl mx-auto relative">
-        <div className="text-center mb-16">
-          <p className="font-poppins text-sm uppercase tracking-widest text-[#6B2F1A]/70 mb-3">
-            What People Say
-          </p>
-          <h2 className="playfair-italic text-4xl md:text-5xl text-[#6B2F1A] mb-6">
-            Customer Experiences
+    <section className="py-24 px-4 bg-gradient-to-b from-white to-[#F9F4F0] overflow-hidden">
+      <div className="max-w-6xl mx-auto relative">
+        <div className="text-center mb-12">
+          <div className="inline-block bg-[#6B2F1A]/10 rounded-full px-4 py-1 mb-3">
+            <p className="font-poppins text-xs font-medium uppercase tracking-wider text-[#6B2F1A]">
+              Testimonials
+            </p>
+          </div>
+          
+          <h2 className="font-playfair text-3xl md:text-4xl font-bold text-[#6B2F1A] mb-3">
+            What Our Customers Say
           </h2>
-          <div className="w-20 h-1 bg-[#6B2F1A]/40 mx-auto mb-6"></div>
-          <p className="font-poppins text-gray-600 max-w-2xl mx-auto">
+          
+          <p className="font-poppins text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
             Discover authentic stories from our customers who have experienced the artistry and craftsmanship of our handcrafted treasures
           </p>
         </div>
-
-        {/* Progress indicators */}
-        <div className="flex justify-center gap-2 mb-10">
-          {testimonials.map((_, i) => (
-            <div 
-              key={i} 
-              className={`h-1 rounded-full transition-all duration-300 ${
-                i === activeIndex ? 'w-8 bg-[#6B2F1A]' : 'w-3 bg-[#6B2F1A]/30'
-              }`}
-            ></div>
-          ))}
-        </div>
         
-        <div className="relative">
-          {/* Custom navigation buttons */}
+        <div className="relative mx-auto">
+          {/* Multi-card layout with fade effect */}
+          <div className="md:px-10">
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay, EffectFade]}
+              spaceBetween={20}
+              slidesPerView={1}
+              effect="fade"
+              speed={600}
+              navigation={{
+                prevEl: prevRef.current,
+                nextEl: nextRef.current,
+              }}
+              breakpoints={{
+                768: {
+                  slidesPerView: 1,
+                  effect: "fade"
+                }
+              }}
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+                renderBullet: function (index, className) {
+                  return `<span class="${className} hidden"></span>`;
+                }
+              }}
+              autoplay={{
+                delay: 6000,
+                disableOnInteraction: false,
+              }}
+              onInit={(swiper) => {
+                swiper.params.navigation.prevEl = prevRef.current;
+                swiper.params.navigation.nextEl = nextRef.current;
+                swiper.navigation.init();
+                swiper.navigation.update();
+              }}
+              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+              className="testimonial-slider pb-16"
+            >
+              {testimonials.map((testimonial) => (
+                <SwiperSlide key={testimonial.id} className="py-6 px-2">
+                  <TestimonialCard 
+                    name={testimonial.name}
+                    location={testimonial.location}
+                    description={testimonial.description}
+                    rating={testimonial.rating || 5}
+                    role={testimonial.role || "Verified Customer"}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Custom navigation - now as floating absolute circles */}
           <button 
-            className="testimonial-btn prev absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white shadow-md text-[#6B2F1A] hover:bg-[#6B2F1A] hover:text-white transition-all duration-300 -left-5 md:left-0"
+            ref={prevRef}
+            className="absolute -left-1 md:-left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/90 backdrop-blur-sm shadow-lg text-[#6B2F1A] hover:bg-[#6B2F1A] hover:text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#6B2F1A]/20"
             aria-label="Previous testimonial"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
           
           <button 
-            className="testimonial-btn next absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white shadow-md text-[#6B2F1A] hover:bg-[#6B2F1A] hover:text-white transition-all duration-300 -right-5 md:right-0"
+            ref={nextRef}
+            className="absolute -right-1 md:-right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/90 backdrop-blur-sm shadow-lg text-[#6B2F1A] hover:bg-[#6B2F1A] hover:text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#6B2F1A]/20"
             aria-label="Next testimonial"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
           
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay, EffectFade]}
-            spaceBetween={0}
-            slidesPerView={1}
-            effect="fade"
-            speed={800}
-            navigation={{
-              prevEl: '.testimonial-btn.prev',
-              nextEl: '.testimonial-btn.next',
-            }}
-            autoplay={{
-              delay: 6000,
-              disableOnInteraction: false,
-            }}
-            onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-            className="testimonial-slider pb-8"
-          >
-            {testimonials.map((testimonial) => (
-              <SwiperSlide key={testimonial.id} className="py-8">
-                <TestimonialCard 
-                  name={testimonial.name}
-                  location={testimonial.location}
-                  description={testimonial.description}
-                  image={testimonial.image || null}
-                  rating={testimonial.rating || 5}
-                  role={testimonial.role || "Verified Customer"}
-                />
-              </SwiperSlide>
+          {/* Modern progress indicators */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-10 flex justify-center gap-1.5 mb-4">
+            {testimonials.map((_, i) => (
+              <button 
+                key={i}
+                onClick={() => {}} // Swiper will handle this
+                className={`h-1 rounded-full transition-all duration-300 focus:outline-none ${
+                  i === activeIndex ? 'w-8 bg-[#6B2F1A]' : 'w-2 bg-[#6B2F1A]/20'
+                }`}
+                aria-label={`Go to testimonial ${i + 1}`}
+              ></button>
             ))}
-          </Swiper>
+          </div>
         </div>
         
-        {/* Decorative elements */}
-        <div className="absolute -left-24 -bottom-24 w-48 h-48 rounded-full bg-[#6B2F1A]/5 z-0"></div>
-        <div className="absolute -right-16 top-0 w-32 h-32 rounded-full bg-[#6B2F1A]/5 z-0"></div>
+        {/* Subtle decorative elements */}
+        <div className="absolute -left-20 -bottom-20 w-40 h-40 rounded-full bg-[#6B2F1A]/5 blur-xl z-0"></div>
+        <div className="absolute -right-12 top-0 w-28 h-28 rounded-full bg-[#6B2F1A]/5 blur-xl z-0"></div>
+        <div className="absolute right-1/3 bottom-10 w-12 h-12 rounded-full bg-[#F0B775]/10 blur-md z-0"></div>
         
         {/* Add custom styles */}
         <style jsx global>{`
           .swiper-fade .swiper-slide {
             opacity: 0 !important;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.6s ease;
           }
           
           .swiper-fade .swiper-slide-active {
@@ -189,8 +216,12 @@ const TestimonialSlider = () => {
           }
           
           .testimonial-slider .swiper-button-disabled {
-            opacity: 0.4;
+            opacity: 0.3;
             cursor: not-allowed;
+          }
+          
+          .testimonial-slider .swiper-pagination {
+            display: none;
           }
         `}</style>
       </div>

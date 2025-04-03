@@ -52,11 +52,11 @@ const CustomNavButton = ({ direction, onClick }) => (
   <button
     onClick={onClick}
     className="absolute top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
-             bg-white/20 backdrop-blur-sm rounded-full text-white border border-white/30
-             hover:bg-white/30 transition-all duration-300 group
+             bg-black/20 backdrop-blur-sm rounded-full text-white border border-white/30
+             hover:bg-black/30 transition-all duration-300 group
              opacity-0 sm:opacity-80 hover:opacity-100"
     style={{ 
-      [direction === "prev" ? "left" : "right"]: "clamp(0.5rem, 5vw, 2rem)"
+      [direction === "prev" ? "left" : "right"]: "clamp(0.5rem, 3vw, 1.5rem)"
     }}
     aria-label={direction === "prev" ? "Previous slide" : "Next slide"}
   >
@@ -121,8 +121,8 @@ const Hero = () => {
           Discover our collection of beautiful handcrafted products
         </p>
         <Link href="/products">
-          <button className="px-8 py-4 bg-white text-[#6B2F1A] font-medium rounded-md hover:bg-white/90 transition-all duration-300 flex items-center gap-2 mx-auto">
-            Shop Now
+          <button className="px-8 py-4 bg-[#a99052] text-[#6B2F1A] font-medium rounded-md hover:bg-[#a99052]/90 transition-all duration-300 flex items-center gap-2 mx-auto">
+            SHOP NOW
             <ArrowRight className="w-4 h-4" />
           </button>
         </Link>
@@ -137,6 +137,17 @@ const Hero = () => {
   if (error || !sliders || sliders.length === 0) {
     return noSlidersContent;
   }
+
+  // Sample data for demonstration, matching your image
+  const sampleSlide = {
+    title: "THE HANDCRAFTED METAL MIRROR OF ARANMULA, KERALA",
+    description: "A unique metal craft, the Aranmula Kannadi (Mirror) is the product of the ancient secret art of creating a mirror out of an alloy of copper and tin which dates back to the 18th century.",
+    linkTitle: "SHOP NOW",
+    link: "/category/metal-crafts"
+  };
+
+  // Add the sample slide if needed
+  const enhancedSliders = sliders.length > 0 ? sliders : [sampleSlide];
 
   return (
     <section className="relative w-full h-[500px] sm:h-[550px] md:h-[600px] overflow-hidden">
@@ -169,10 +180,10 @@ const Hero = () => {
         modules={[Autoplay, Navigation, EffectFade, Pagination]}
         className="h-full w-full"
       >
-        {sliders.map((slide, index) => (
-          <SwiperSlide key={slide.id} className="relative w-full h-full">
-            {/* Dark overlay for better text visibility */}
-            <div className="absolute inset-0 bg-black/40 z-10" />
+        {enhancedSliders.map((slide, index) => (
+          <SwiperSlide key={index} className="relative w-full h-full">
+            {/* Dark gradient overlay for better text visibility - stronger on the right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-black/70 z-10" />
 
             {slide.image ? (
               <Image
@@ -188,43 +199,45 @@ const Hero = () => {
                 }}
               />
             ) : (
-              <div className="absolute inset-0 bg-[#6B2F1A]"></div>
+              // Fallback background - use a darker color to match your design
+              <div className="absolute inset-0 bg-[#1a1a1a]"></div>
             )}
 
-            <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-16 lg:px-24">
-              <div className="max-w-screen-xl mx-auto w-full">
-                <div className="max-w-2xl space-y-5 md:space-y-6 transform transition-all duration-700">
-                  {/* The design from the image has title first, then description */}
-                  <h1 
-                    className="text-3xl md:text-4xl lg:text-5xl font-bold text-white"
-                    style={{ fontFamily: 'Playfair Display, serif' }}
-                  >
-                    {formatText(slide.title, "title") || "Welcome"}
-                  </h1>
+            <div className="absolute inset-0 z-20 flex flex-col justify-center">
+              <div className="container mx-auto px-6 md:px-16 lg:px-24">
+                <div className="flex justify-end">
+                  <div className="w-full md:w-1/2 lg:w-5/12 space-y-5 md:space-y-6 transform transition-all duration-700">
+                    {/* Title with all caps to match design */}
+                    <h1 
+                      className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+                      style={{ fontFamily: 'Playfair Display, serif' }}
+                    >
+                      {slide.title || sampleSlide.title}
+                    </h1>
 
-                  {slide.description && (
+                    <div className="h-1 w-16 bg-[#a99052]"></div>
+
+                    {/* Description with more spacing */}
                     <p 
-                      className="text-white/90 text-base md:text-lg max-w-xl leading-relaxed"
+                      className="text-white/90 text-sm md:text-base leading-relaxed"
                       style={{ fontFamily: 'Poppins, sans-serif' }}
                     >
-                      {formatText(slide.description, "description")}
+                      {slide.description || sampleSlide.description}
                     </p>
-                  )}
 
-                  {slide.link && (
-                    <div className="pt-2 md:pt-4">
-                      <Link href={slide.link || "#"}>
+                    {/* Button styled to match the golden button in your design */}
+                    <div className="pt-4">
+                      <Link href={slide.link || sampleSlide.link || "#"}>
                         <button
-                          className="px-6 py-3 bg-[#6B2F1A] text-white font-medium rounded-md
-                                   hover:bg-[#5A2814] transition-all duration-300 group flex items-center gap-2"
+                          className="px-8 py-3 bg-[#a99052] text-[#6B2F1A] font-bold rounded-none
+                                   hover:bg-[#a99052]/90 transition-all duration-300 group"
                           style={{ fontFamily: 'Poppins, sans-serif' }}
                         >
-                          {formatText(slide.linkTitle, "button") || "SHOP NOW"}
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          {slide.linkTitle || sampleSlide.linkTitle}
                         </button>
                       </Link>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
