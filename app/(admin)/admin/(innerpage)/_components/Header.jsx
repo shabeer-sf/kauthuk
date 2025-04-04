@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { 
+import {
   Menu,
   Bell,
   Search,
@@ -15,7 +15,7 @@ import {
   Moon,
   Sun,
   MessageSquare,
-  LayoutDashboard
+  LayoutDashboard,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,11 +31,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/providers/AuthProvider";
 import { Badge } from "@/components/ui/badge";
@@ -51,12 +51,12 @@ const Header = () => {
   const getPageTitle = () => {
     const path = pathname.split("/").filter(Boolean);
     if (path.length === 1) return "Dashboard";
-    
+
     // Format the last segment for display
     const lastSegment = path[path.length - 1];
     return lastSegment
       .split("-")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
 
@@ -67,11 +67,18 @@ const Header = () => {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40"
+              >
                 <Menu size={20} />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72 border-r border-gray-400 dark:border-blue-900">
+            <SheetContent
+              side="left"
+              className="p-0 w-72 border-r border-gray-400 dark:border-blue-900"
+            >
               <Sidebar />
             </SheetContent>
           </Sheet>
@@ -97,19 +104,17 @@ const Header = () => {
 
       {/* Right side actions */}
       <div className="flex items-center gap-2">
-      
-
         {/* Theme toggle */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40"
               >
-                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -118,15 +123,12 @@ const Header = () => {
           </Tooltip>
         </TooltipProvider>
 
-
-        
-
         {/* User profile dropdown */}
         <div className="ml-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="flex items-center gap-2 h-9 pl-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40"
               >
                 <Avatar className="h-7 w-7 border-2 border-blue-200 dark:border-blue-800">
@@ -146,8 +148,13 @@ const Header = () => {
                 <ChevronDown size={14} className="ml-1 text-slate-400" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 border border-gray-400 dark:border-blue-900">
-              <DropdownMenuLabel className="text-blue-600 dark:text-blue-400">My Account</DropdownMenuLabel>
+            <DropdownMenuContent
+              align="end"
+              className="w-56 border border-gray-400 dark:border-blue-900"
+            >
+              <DropdownMenuLabel className="text-blue-600 dark:text-blue-400">
+                My Account
+              </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-blue-100 dark:bg-blue-900" />
               <DropdownMenuGroup>
                 <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
@@ -165,8 +172,8 @@ const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-blue-100 dark:bg-blue-900" />
-              <DropdownMenuItem 
-                onClick={logout} 
+              <DropdownMenuItem
+                onClick={logout}
                 className="hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
               >
                 <LogOut className="mr-2 h-4 w-4 text-red-500" />

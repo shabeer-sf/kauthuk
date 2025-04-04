@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaImage, setCaptchaImage] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
+  const [loginAttempts, setLoginAttempts] = useState(0);
 
   const {
     login,
@@ -22,6 +23,14 @@ export default function LoginPage() {
     error: authError,
     loading: authLoading,
   } = useUserAuth();
+
+  // Load captcha on initial render if needed
+  useEffect(() => {
+    // Show captcha after 2 failed attempts or if it was previously shown
+    if (loginAttempts >= 2 || showCaptcha) {
+      refreshCaptcha();
+    }
+  }, [loginAttempts, showCaptcha]);
 
   const validateForm = (formData) => {
     const errors = {};
@@ -49,7 +58,12 @@ export default function LoginPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Create FormData from the form
+    const formData = new FormData(e.target);
+    
     // Validate form
     if (!validateForm(formData)) {
       return;
@@ -60,39 +74,33 @@ export default function LoginPage() {
 
       // Check if captcha is required and validate it
       if (showCaptcha) {
-        const captchaValue = formData.get("captcha");
-
+        // Add captcha to form data
+        formData.set("captcha", captchaInput);
+        
         // In a real implementation, you would verify the captcha with a server action
         // For this example, we'll just check if it's not empty
-        if (!captchaValue) {
+        if (!captchaInput) {
           setFormErrors({ captcha: "Please enter the captcha code" });
           return;
         }
-
-        // You would validate the captcha here
-        // For example: const captchaValid = await verifyCaptcha(captchaValue);
       }
 
-      // Create a copy of the FormData with trimmed values
-      const processedFormData = new FormData();
-      processedFormData.append("email", formData.get("email")?.trim() || "");
-      processedFormData.append("password", formData.get("password") || "");
-
       // Call login function from auth context
-      const result = await login(processedFormData);
+      const result = await login(formData);
 
       if (!result.success) {
+        // Increment login attempts
+        setLoginAttempts(prev => prev + 1);
+        
         // If login fails multiple times, show captcha
-        setShowCaptcha(true);
-
-        // In a real implementation, you would fetch a captcha image from your server
-        // For this example, we'll use a placeholder image
-        if (!captchaImage) {
+        if (loginAttempts >= 1) {
+          setShowCaptcha(true);
           await refreshCaptcha();
         }
       }
     } catch (err) {
       console.error("Login error:", err);
+      setLoginAttempts(prev => prev + 1);
       setShowCaptcha(true);
       await refreshCaptcha();
     }
@@ -100,8 +108,8 @@ export default function LoginPage() {
 
   const refreshCaptcha = async () => {
     // In a real implementation, you would fetch a new captcha from your server
-    // For this example, we'll just set a placeholder
-    setCaptchaImage("/api/captcha?" + new Date().getTime());
+    const timestamp = new Date().getTime();
+    setCaptchaImage(`/api/captcha?t=${timestamp}`);
     setCaptchaInput("");
   };
 
@@ -165,7 +173,7 @@ export default function LoginPage() {
             </TabsList>
 
             <TabsContent value="email">
-              <form action={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label
                     htmlFor="email"
@@ -317,15 +325,15 @@ export default function LoginPage() {
                 </div>
                 <div className="w-full">
                   <p
-                    className="mt-2 text-center text-sm text-gray-600 flex items-center gap-1 "
+                    className="mt-2 text-center text-sm text-gray-600 flex items-center gap-1 justify-center"
                     style={{ fontFamily: "Poppins, sans-serif" }}
                   >
-                    <div className="font-medium text-[#6B2F1A] hover:text-[#5A2814]">
+                    <span className="font-medium text-[#6B2F1A] hover:text-[#5A2814]">
                       Don't have an account?
-                    </div>
+                    </span>
                     <Link
                       href="/register"
-                      className="font-medium text-[#6B2F1A] hover:text-[#5A2814]"
+                      className="font-medium text-[#6B2F1A] hover:text-[#5A2814] underline"
                     >
                       Signup
                     </Link>

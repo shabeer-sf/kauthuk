@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { loginWithMobileOTP } from '@/actions/auth';
 
@@ -19,8 +18,8 @@ export default function MobileLogin({ onOTPSent }) {
     }
     
     // Basic mobile validation
-    const mobileRegex = /^\d{10,12}$/;
-    if (!mobileRegex.test(mobile.replace(/[^0-9]/g, ""))) {
+    const cleanedMobile = mobile.replace(/[^0-9]/g, "");
+    if (cleanedMobile.length < 10 || cleanedMobile.length > 12) {
       setError('Please enter a valid mobile number');
       return;
     }
@@ -29,14 +28,21 @@ export default function MobileLogin({ onOTPSent }) {
       setLoading(true);
       setError('');
       
-      const result = await loginWithMobileOTP(mobile);
+      // Call the server action
+      const result = await loginWithMobileOTP(cleanedMobile);
       
       if (result.success) {
-        // Call the onOTPSent callback with the user data and OTP (for development)
+        // Check if the necessary data is available
+        if (!result.userId || !result.mobile) {
+          setError('Unexpected response from server. Missing user data.');
+          console.error('Missing user data in response:', result);
+          return;
+        }
+        
+        // Call the onOTPSent callback with the correct data structure
         onOTPSent({
-          userId: result.user.id,
-          mobile: result.user.mobile,
-          name: result.user.name,
+          userId: result.userId,
+          mobile: result.mobile,
           otp: result.otp // Will be undefined in production
         });
       } else {
@@ -53,14 +59,25 @@ export default function MobileLogin({ onOTPSent }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-[#6B2F1A]" style={{ fontFamily: "Playfair Display, serif" }}>Login with Mobile</h3>
-        <p className="mt-1 text-sm text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+        <h3 
+          className="text-lg font-medium text-[#6B2F1A]" 
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
+          Login with Mobile
+        </h3>
+        <p 
+          className="mt-1 text-sm text-gray-500" 
+          style={{ fontFamily: "Poppins, sans-serif" }}
+        >
           We'll send a one-time code to your phone
         </p>
       </div>
 
       {error && (
-        <div className="p-3 bg-[#fee3d8] border-l-4 border-[#6B2F1A] text-[#6B2F1A] text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
+        <div 
+          className="p-3 bg-[#fee3d8] border-l-4 border-[#6B2F1A] text-[#6B2F1A] text-sm" 
+          style={{ fontFamily: "Poppins, sans-serif" }}
+        >
           <p>{error}</p>
         </div>
       )}

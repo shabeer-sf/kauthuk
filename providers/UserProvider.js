@@ -2,42 +2,15 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { 
-  loginUser, 
-  registerUser, 
-  logoutUser, 
-  getUserProfile 
+import {
+  loginUser as loginUserAction,
+  registerUser as registerUserAction,
+  logoutUser as logoutUserAction,
+  getUserProfile,
 } from "@/actions/user";
 
-// Define a mock checkAuthStatus function if it's not available
-const checkAuthStatus = async () => {
-  try {
-    // Try to get the user profile which should contain authentication info
-    const profileResponse = await getUserProfile();
-    
-    if (profileResponse.success && profileResponse.user) {
-      return {
-        authenticated: true,
-        user: profileResponse.user
-      };
-    }
-    
-    return {
-      authenticated: false,
-      user: null
-    };
-  } catch (error) {
-    console.error("Auth check error:", error);
-    return {
-      authenticated: false,
-      user: null,
-      error: error.message || "Authentication check failed"
-    };
-  }
-};
-
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/checkout', '/my-account', '/orders', '/wishlist'];
+const PROTECTED_ROUTES = ["/checkout", "/my-account", "/orders", "/wishlist"];
 
 // Create the authentication context
 const UserAuthContext = createContext();
@@ -59,16 +32,16 @@ export const UserAuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       if (!isClient) return; // Skip on server-side rendering
-      
+
       try {
         setError(null);
-        const { authenticated, user, error } = await checkAuthStatus();
-        
-        if (authenticated && user) {
-          setUser(user);
+        const result = await getUserProfile();
+
+        if (result.success && result.user) {
+          setUser(result.user);
         } else {
           setUser(null);
-          if (error) setError(error);
+          if (result.error) setError(result.error);
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -87,8 +60,10 @@ export const UserAuthProvider = ({ children }) => {
   // Redirect to login if accessing protected routes without authentication
   useEffect(() => {
     if (!loading && !user && pathname && isClient) {
-      const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
-      
+      const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
+        pathname.startsWith(route)
+      );
+
       if (isProtectedRoute) {
         // Save the attempted URL to redirect back after login
         localStorage.setItem("redirectAfterLogin", pathname);
@@ -102,11 +77,24 @@ export const UserAuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const result = await loginUser(formData);
-      
+
+      // Create a copy of FormData to ensure values are properly sent
+      const processedFormData = new FormData();
+
+      // Ensure email and password are included and trimmed if needed
+      const email = formData.get("email")?.trim();
+      const password = formData.get("password");
+      const captcha = formData.get("captcha");
+
+      if (email) processedFormData.append("email", email);
+      if (password) processedFormData.append("password", password);
+      if (captcha) processedFormData.append("captcha", captcha);
+
+      const result = await loginUserAction(processedFormData);
+
       if (result.success) {
         setUser(result.user);
-        
+
         // Check if there's a redirect URL
         let redirectUrl = "/my-account";
         const storedRedirect = localStorage.getItem("redirectAfterLogin");
@@ -114,23 +102,23 @@ export const UserAuthProvider = ({ children }) => {
           redirectUrl = storedRedirect;
           localStorage.removeItem("redirectAfterLogin");
         }
-        
+
         router.push(redirectUrl);
         return { success: true };
       } else {
-        setError(result.error || 'Login failed');
-        return { 
-          success: false, 
-          error: result.error || 'Login failed' 
+        setError(result.error || "Login failed");
+        return {
+          success: false,
+          error: result.error || "Login failed",
         };
       }
     } catch (error) {
       console.error("Login error:", error);
-      const errorMessage = error.message || 'An unexpected error occurred';
+      const errorMessage = error.message || "An unexpected error occurred";
       setError(errorMessage);
-      return { 
-        success: false, 
-        error: errorMessage
+      return {
+        success: false,
+        error: errorMessage,
       };
     } finally {
       setLoading(false);
@@ -142,26 +130,26 @@ export const UserAuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const result = await registerUser(formData);
-      
+      const result = await registerUserAction(formData);
+
       if (result.success) {
         setUser(result.user);
         router.push("/my-account");
         return { success: true };
       } else {
-        setError(result.error || 'Registration failed');
-        return { 
-          success: false, 
-          error: result.error || 'Registration failed' 
+        setError(result.error || "Registration failed");
+        return {
+          success: false,
+          error: result.error || "Registration failed",
         };
       }
     } catch (error) {
       console.error("Registration error:", error);
-      const errorMessage = error.message || 'An unexpected error occurred';
+      const errorMessage = error.message || "An unexpected error occurred";
       setError(errorMessage);
-      return { 
-        success: false, 
-        error: errorMessage
+      return {
+        success: false,
+        error: errorMessage,
       };
     } finally {
       setLoading(false);
@@ -173,17 +161,17 @@ export const UserAuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      await logoutUser();
+      await logoutUserAction();
       setUser(null);
       router.push("/");
       return { success: true };
     } catch (error) {
       console.error("Logout error:", error);
-      const errorMessage = error.message || 'Logout failed';
+      const errorMessage = error.message || "Logout failed";
       setError(errorMessage);
-      return { 
-        success: false, 
-        error: errorMessage
+      return {
+        success: false,
+        error: errorMessage,
       };
     } finally {
       setLoading(false);
@@ -196,24 +184,24 @@ export const UserAuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const result = await getUserProfile();
-      
+
       if (result.success) {
         setUser(result.user);
         return { success: true, data: result.user };
       } else {
-        setError(result.error || 'Failed to fetch profile');
-        return { 
-          success: false, 
-          error: result.error || 'Failed to fetch profile' 
+        setError(result.error || "Failed to fetch profile");
+        return {
+          success: false,
+          error: result.error || "Failed to fetch profile",
         };
       }
     } catch (error) {
       console.error("Profile fetch error:", error);
-      const errorMessage = error.message || 'An unexpected error occurred';
+      const errorMessage = error.message || "An unexpected error occurred";
       setError(errorMessage);
-      return { 
-        success: false, 
-        error: errorMessage
+      return {
+        success: false,
+        error: errorMessage,
       };
     } finally {
       setLoading(false);
@@ -234,17 +222,17 @@ export const UserAuthProvider = ({ children }) => {
   const shouldShowLoading = isClient && loading;
 
   return (
-    <UserAuthContext.Provider 
-      value={{ 
-        user, 
-        login, 
-        logout, 
-        register, 
+    <UserAuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        register,
         getProfile,
         isAuthenticated,
         loading: shouldShowLoading,
         error,
-        clearError
+        clearError,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/providers/CartProvider';
@@ -51,8 +51,64 @@ import {
   ShoppingCart,
   ChevronLeft,
   Layers,
-  AlertCircle
+  AlertCircle,
+  Scale
 } from 'lucide-react';
+
+// Calculate shipping cost based on total weight (in grams)
+// For first 500g: ₹50
+// For each additional 500g: ₹40
+const calculateShippingCost = (cart, currency) => {
+  console.log("cart",cart)
+  // If currency is not INR, return free shipping
+  if (currency !== 'INR') {
+    return 0;
+  }
+  
+  // Check if any products have weight information
+  const hasWeightInfo = cart.some(item => item.weight || (item.variant && item.variant.weight));
+  
+  // If no weight information is available, return free shipping
+  if (!hasWeightInfo) {
+    return 0;
+  }
+  
+  // Calculate total weight
+  let totalWeightInGrams = 0;
+  
+  cart.forEach(item => {
+    const quantity = item.quantity || 1;
+    let itemWeight = 0;
+    
+    // Get weight from item or its variant
+    if (item.weight) {
+      itemWeight = parseFloat(item.weight);
+    } else if (item.variant && item.variant.weight) {
+      itemWeight = parseFloat(item.variant.weight);
+    }
+    
+    // Add to total weight (weight * quantity)
+    totalWeightInGrams += itemWeight * quantity;
+  });
+  
+  // If total weight is 0, return free shipping
+  if (totalWeightInGrams <= 0) {
+    return 0;
+  }
+  
+  // Calculate shipping cost based on weight
+  // First 500g: ₹50
+  let shippingCost = 50;
+  
+  // If weight is more than 500g, add ₹40 for each additional 500g
+  if (totalWeightInGrams > 500) {
+    // Calculate how many additional 500g blocks (rounded up)
+    const additionalBlocks = Math.ceil((totalWeightInGrams - 500) / 500);
+    shippingCost += additionalBlocks * 40;
+  }
+  
+  return shippingCost;
+};
 
 const ProductCart = () => {
   const { 
@@ -70,12 +126,31 @@ const ProductCart = () => {
   // Calculate subtotal
   const subtotal = totals[currency];
   
+  // Calculate shipping cost based on weight for INR
+  const shippingCost = useMemo(() => {
+    return calculateShippingCost(cart, currency);
+  }, [cart, currency]);
+  
   // Calculate tax (assumed 10%)
   const taxRate = 0.10;
   const tax = subtotal * taxRate;
   
-  // Calculate total
-  const total = subtotal + tax;
+  // Calculate total including shipping
+  const total = subtotal + tax + shippingCost;
+
+  // Calculate total weight for display
+  const totalWeight = useMemo(() => {
+    let weight = 0;
+    cart.forEach(item => {
+      const quantity = item.quantity || 1;
+      if (item.weight) {
+        weight += parseFloat(item.weight) * quantity;
+      } else if (item.variant && item.variant.weight) {
+        weight += parseFloat(item.variant.weight) * quantity;
+      }
+    });
+    return weight;
+  }, [cart]);
 
   if (cart.length === 0) {
     return (
@@ -210,6 +285,14 @@ const ProductCart = () => {
                             SKU: {item.variant.sku}
                           </p>
                         )}
+
+                        {/* Weight if available */}
+                        {currency === 'INR' && (item.weight || (item.variant && item.variant.weight)) && (
+                          <p className="text-gray-500 text-xs mt-1 flex items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
+                            <Scale className="h-3 w-3 mr-1"/>
+                            Weight: {item.weight || item.variant?.weight || 0}g
+                          </p>
+                        )}
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-4">
@@ -308,10 +391,33 @@ const ProductCart = () => {
                     <span>{formatPrice(subtotal)}</span>
                   </div>
                   
+                  {/* Display shipping as cost based on weight or free */}
                   <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <span className="text-gray-600">Shipping</span>
-                    <span className="text-green-600">Free</span>
+                    {currency === 'INR' && shippingCost > 0 ? (
+                      <span>{formatPrice(shippingCost)}</span>
+                    ) : (
+                      <span className="text-green-600">Free</span>
+                    )}
                   </div>
+
+                  {/* Display weight if applicable */}
+                  {currency === 'INR' && totalWeight > 0 && (
+                    <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center text-gray-600">
+                            Total Weight
+                            <Info className="h-3.5 w-3.5 ml-1 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Weight-based shipping: ₹50 for first 500g, ₹40 for each additional 500g</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <span>{totalWeight}g</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <TooltipProvider>
@@ -336,6 +442,20 @@ const ProductCart = () => {
                   </div>
                 </div>
 
+                {/* Shipping info with weight-based shipping explanation */}
+                {currency === 'INR' && totalWeight > 0 && shippingCost > 0 && (
+                  <div className="bg-[#FFF5F1] rounded-lg p-3 text-xs text-[#6B2F1A]/80" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    <div className="flex items-center gap-1 font-medium mb-1">
+                      <Truck className="h-3.5 w-3.5" />
+                      <span>Weight-based shipping:</span>
+                    </div>
+                    <p>First 500g: ₹50</p>
+                    {totalWeight > 500 && (
+                      <p>Additional {Math.ceil((totalWeight - 500) / 500)} x 500g: ₹{Math.ceil((totalWeight - 500) / 500) * 40}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Shipping & Payment info */}
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="shipping">
@@ -346,8 +466,18 @@ const ProductCart = () => {
                       <div className="text-sm space-y-2 text-gray-600" style={{ fontFamily: "Poppins, sans-serif" }}>
                         <p className="flex items-center gap-2">
                           <Truck className="h-4 w-4 text-[#6B2F1A]" />
-                          Free standard shipping (5-7 business days)
+                          {currency === 'INR' && shippingCost > 0 ? (
+                            <>Standard shipping (5-7 business days)</>
+                          ) : (
+                            <>Free standard shipping (5-7 business days)</>
+                          )}
                         </p>
+                        {currency === 'INR' && totalWeight > 0 && (
+                          <p className="flex items-center gap-2">
+                            <Scale className="h-4 w-4 text-[#6B2F1A]" />
+                            Weight-based shipping rates apply
+                          </p>
+                        )}
                         <p className="flex items-center gap-2">
                           <Shield className="h-4 w-4 text-[#6B2F1A]" />
                           All items are securely packed and insured

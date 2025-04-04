@@ -31,8 +31,8 @@ export async function verifyOTP(userId, otp) {
     }
 
     // Check if the OTP matches the one stored in the session
-    const cookieStore = await cookies();
-    const storedOTP = await cookieStore.get('user_otp')?.value;
+    const cookieStore = cookies();
+    const storedOTP = cookieStore.get('user_otp')?.value;
 
     if (!storedOTP || storedOTP !== otp) {
       return {
@@ -178,7 +178,8 @@ export async function sendOTP(mobile, userId = null) {
       success: true,
       message: "OTP sent successfully",
       otp: process.env.NODE_ENV === 'development' ? otp : undefined, // Only in development
-      userId: user.id
+      userId: user.id,
+      mobile: user.mobile
     };
   } catch (error) {
     console.error("Send OTP error:", error.message);
@@ -344,16 +345,8 @@ export async function registerWithOTP(formData) {
       }
     }
     
-    // Hash the password - using bcrypt but implementing function similar to your Laravel encrypt_password 
-    // for new users while maintaining backward compatibility
-    let hashedPassword;
-    if (process.env.PASSWORD_ENCRYPTION === 'base64') {
-      // Use the base64 encoding for backward compatibility
-      hashedPassword = await baseEncode(password);
-    } else {
-      // Use modern bcrypt hashing
-      hashedPassword = await bcrypt.hash(password, 10);
-    }
+    // Hash the password - using bcrypt for all new users
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create the user
     const newUser = await db.user.create({
@@ -454,6 +447,9 @@ export async function registerWithOTP(formData) {
 /**
  * Login with OTP via mobile number
  */
+/**
+ * Login with OTP via mobile number
+ */
 export async function loginWithMobileOTP(mobile) {
   try {
     if (!mobile) {
@@ -498,7 +494,9 @@ export async function loginWithMobileOTP(mobile) {
     return {
       success: true,
       message: "OTP sent successfully",
-      user: {
+      userId: user.id,  // Make sure to include these exact fields
+      mobile: user.mobile,
+      user: {  // Also include the user object for backward compatibility
         id: user.id,
         name: user.name,
         email: user.email,
@@ -562,14 +560,13 @@ export async function loginUser(formData) {
         error: "Your account is currently inactive. Please contact support."
       };
     }
-    const decodedStoredPassword3 = await baseDecode(user.password);
-    console.log("decodedStoredPassword3",decodedStoredPassword3)
+    
     // First try modern bcrypt verification
     let passwordMatch = false;
     try {
       passwordMatch = await bcrypt.compare(password, user.password);
     } catch (err) {
-      // If bcrypt fails, it might be a base64 encoded password
+      console.log("Bcrypt verification failed, trying legacy method", err);
       passwordMatch = false;
     }
     
@@ -581,17 +578,18 @@ export async function loginUser(formData) {
         passwordMatch = password === decodedStoredPassword;
         
         // If using base64 encoding and the login is successful, 
-        // consider upgrading to bcrypt in a production environment
-        if (passwordMatch && process.env.AUTO_UPGRADE_PASSWORDS === 'true') {
+        // upgrade to bcrypt
+        if (passwordMatch) {
           // Upgrade the password to bcrypt
           const bcryptPassword = await bcrypt.hash(password, 10);
           await db.user.update({
             where: { id: user.id },
             data: { password: bcryptPassword }
           });
+          console.log("Password upgraded from legacy format to bcrypt");
         }
       } catch (err) {
-        // If both verification methods fail, the password is incorrect
+        console.log("Legacy verification failed", err);
         passwordMatch = false;
       }
     }
@@ -606,7 +604,7 @@ export async function loginUser(formData) {
     // Generate JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "fallback_secret_only_for_development",
       { expiresIn: '30d' }
     );
     

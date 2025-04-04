@@ -54,6 +54,7 @@ import {
   ShoppingCart,
   Truck,
   Share2,
+  Weight,
 } from "lucide-react";
 
 // Server Actions
@@ -295,6 +296,7 @@ const ProductDetails = () => {
         : product.price_dollars,
       image: productImages.length > 0 ? productImages[0].image_path : null,
       quantity: quantity,
+      weight:product.weight,
       variant: selectedVariant
         ? {
             id: selectedVariant.id,

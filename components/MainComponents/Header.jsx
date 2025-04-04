@@ -9,18 +9,19 @@ import {
   User,
   Menu,
   ChevronDown,
+  LogOut
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Marquee from "react-fast-marquee";
 import { useCart } from "@/providers/CartProvider";
+import { useUserAuth } from "@/providers/UserProvider";
 import {
   getAnnouncements,
   getFeaturedCategories,
   searchProducts,
   getPopularSearchTerms,
-  getCurrentUser,
   getCategories3,
 } from "@/actions/category";
 
@@ -68,10 +69,12 @@ const Header = () => {
     toggleCurrency,
     formatPrice,
   } = useCart();
+  
   const pathname = usePathname();
-
-  const [userData, setUserData] = useState(null);
-  const isAuthenticated = !!userData;
+  const router = useRouter();
+  
+  // Use the authentication context
+  const { user, logout, isAuthenticated } = useUserAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -111,10 +114,6 @@ const Header = () => {
         // Fetch popular search terms
         const { popularTerms } = await getPopularSearchTerms();
         setPopularSearches(popularTerms);
-
-        // Get current user
-        const { user } = await getCurrentUser();
-        setUserData(user);
       } catch (error) {
         console.error("Error fetching initial data:", error);
         setCategoriesLoading(false);
@@ -152,6 +151,17 @@ const Header = () => {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
       setIsSearchOpen(false);
       setIsSearchPopoverOpen(false);
+    }
+  };
+
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Close mobile menu if open
+      setIsMobileMenuOpen(false);
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   };
 
@@ -363,24 +373,37 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                {isAuthenticated ? (
+                {isAuthenticated() ? (
                   <>
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col">
+                        <span className="font-semibold">{user?.name || 'My Account'}</span>
+                        <span className="text-xs text-muted-foreground mt-1">{user?.email}</span>
+                      </div>
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/account">Profile</Link>
+                      <Link href="/my-account" className="cursor-pointer">
+                        My Account
+                      </Link>
+                    </DropdownMenuItem>
+                    {/* <DropdownMenuItem asChild>
+                      <Link href="/my-account/orders" className="cursor-pointer">
+                        My Orders
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/account/orders">Orders</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/account/wishlist">Wishlist</Link>
-                    </DropdownMenuItem>
+                      <Link href="/wishlist" className="cursor-pointer">
+                        Wishlist
+                      </Link>
+                    </DropdownMenuItem> */}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <button className="w-full text-left cursor-pointer">
-                        Log out
-                      </button>
+                    <DropdownMenuItem 
+                      onClick={handleLogout}
+                      className="cursor-pointer text-red-600 focus:text-red-600 flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Log out</span>
                     </DropdownMenuItem>
                   </>
                 ) : (
@@ -454,6 +477,25 @@ const Header = () => {
               </Button>
             </div>
             
+            {/* User Info in Mobile Menu */}
+            {isAuthenticated() && (
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-[#6B2F1A] flex items-center justify-center text-white">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      {user?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate max-w-[200px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      {user?.email || ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Mobile Nav Menu */}
             <div className="p-4">
               <div className="mb-6">
@@ -487,22 +529,52 @@ const Header = () => {
               <div className="mb-6">
                 <div className="text-sm font-medium text-gray-500 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Account</div>
                 <div className="space-y-2">
-                  <Link 
-                    href="/login"
-                    className="block py-2 border-b border-gray-100 text-gray-800"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
-                  >
-                    Login
-                  </Link>
-                  <Link 
-                    href="/register"
-                    className="block py-2 border-b border-gray-100 text-gray-800"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
-                  >
-                    Register
-                  </Link>
+                  {isAuthenticated() ? (
+                    <>
+                      <Link 
+                        href="/my-account"
+                        className="block py-2 border-b border-gray-100 text-gray-800"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        My Account
+                      </Link>
+                      <Link 
+                        href="/my-account/orders"
+                        className="block py-2 border-b border-gray-100 text-gray-800"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        My Orders
+                      </Link>
+                      <button 
+                        onClick={handleLogout}
+                        className="block w-full text-left py-2 border-b border-gray-100 text-red-600"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        href="/login"
+                        className="block py-2 border-b border-gray-100 text-gray-800"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        Login
+                      </Link>
+                      <Link 
+                        href="/register"
+                        className="block py-2 border-b border-gray-100 text-gray-800"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        Register
+                      </Link>
+                    </>
+                  )}
                   <Link 
                     href="/cart"
                     className="block py-2 border-b border-gray-100 text-gray-800"

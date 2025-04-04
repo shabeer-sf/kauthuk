@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { verifyOTP, skipOTPAndRegister } from '@/actions/auth';
 
 export default function OTPVerification({ userId, mobile, otp = null }) {
-  const [userOtp, setUserOtp] = useState('');
+  const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const inputRefs = useRef([]);
   const router = useRouter();
 
   // Timer for resend button
@@ -25,14 +26,59 @@ export default function OTPVerification({ userId, mobile, otp = null }) {
   // Auto-fill OTP in development mode if provided
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && otp) {
-      setUserOtp(otp);
+      const otpArray = otp.split('');
+      setDigits(otpArray.concat(Array(6 - otpArray.length).fill('')));
     }
   }, [otp]);
 
+  const handleChange = (index, value) => {
+    if (value.length > 1) {
+      // If user pastes an OTP, distribute the digits
+      const pastedOTP = value.slice(0, 6).split('');
+      const newDigits = [...digits];
+      
+      pastedOTP.forEach((digit, i) => {
+        if (index + i < 6) {
+          newDigits[index + i] = digit;
+        }
+      });
+      
+      setDigits(newDigits);
+      
+      // Move focus to the appropriate input
+      const focusIndex = Math.min(index + pastedOTP.length, 5);
+      if (inputRefs.current[focusIndex]) {
+        inputRefs.current[focusIndex].focus();
+      }
+    } else {
+      // Handle single digit input
+      const newDigits = [...digits];
+      newDigits[index] = value;
+      setDigits(newDigits);
+      
+      // Auto-focus next input
+      if (value !== '' && index < 5 && inputRefs.current[index + 1]) {
+        inputRefs.current[index + 1].focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    // Handle backspace - move to previous input when deleting
+    if (e.key === 'Backspace' && index > 0 && digits[index] === '') {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
   const handleVerify = async (e) => {
     e.preventDefault();
-    if (!userOtp) {
-      setError('Please enter the OTP');
+    
+    // Combine the digits into a single OTP string
+    const userOtp = digits.join('');
+    
+    // Validate OTP
+    if (userOtp.length !== 6 || !/^\d+$/.test(userOtp)) {
+      setError('Please enter a valid 6-digit OTP');
       return;
     }
 
@@ -83,7 +129,8 @@ export default function OTPVerification({ userId, mobile, otp = null }) {
         
         // If in development and OTP is returned, auto-fill it
         if (process.env.NODE_ENV === 'development' && result.otp) {
-          setUserOtp(result.otp);
+          const otpArray = result.otp.split('');
+          setDigits(otpArray.concat(Array(6 - otpArray.length).fill('')));
         }
       } else {
         setError(result.error || 'Failed to resend OTP. Please try again.');
@@ -149,33 +196,45 @@ export default function OTPVerification({ userId, mobile, otp = null }) {
             <div>
               <label
                 htmlFor="otp"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mb-2"
                 style={{ fontFamily: "Poppins, sans-serif" }}
               >
-                Verification Code (OTP)
+                Enter verification code
               </label>
-              <div className="mt-1">
-                <input
-                  id="otp"
-                  name="otp"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  required
-                  value={userOtp}
-                  onChange={(e) => setUserOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="appearance-none block w-full px-3 py-2 border border-[#6B2F1A]/20 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6B2F1A] focus:border-[#6B2F1A] sm:text-sm"
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                  style={{ fontFamily: "Poppins, sans-serif" }}
-                />
+              
+              <div className="flex gap-2 justify-between">
+                {digits.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={el => inputRefs.current[index] = el}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={1}
+                    value={digit}
+                    onChange={e => handleChange(index, e.target.value)}
+                    onKeyDown={e => handleKeyDown(index, e)}
+                    className="block w-12 h-12 text-xl text-center border border-[#6B2F1A]/20 rounded-md shadow-sm focus:outline-none focus:ring-[#6B2F1A] focus:border-[#6B2F1A]"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  />
+                ))}
               </div>
+              
+              <p className="mt-2 text-sm text-gray-500 flex justify-between items-center" style={{ fontFamily: "Poppins, sans-serif" }}>
+                <span>
+                  {countdown > 0 ? (
+                    <>Code expires in: {countdown}s</>
+                  ) : (
+                    <>Code expired</>
+                  )}
+                </span>
+              </p>
             </div>
 
             <div>
               <button
                 type="submit"
-                disabled={loading || !userOtp || userOtp.length !== 6}
+                disabled={loading || digits.some(d => d === '')}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6B2F1A] hover:bg-[#5A2814] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6B2F1A] disabled:opacity-50"
                 style={{ fontFamily: "Poppins, sans-serif" }}
               >
@@ -185,41 +244,51 @@ export default function OTPVerification({ userId, mobile, otp = null }) {
                     Verifying...
                   </>
                 ) : (
-                  'Verify Mobile Number'
+                  'Verify'
                 )}
               </button>
             </div>
           </form>
 
           <div className="mt-6">
-            <div className="flex items-center justify-between">
-              <div className="text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
-                <button
-                  onClick={handleResendOTP}
-                  disabled={resendLoading || countdown > 0}
-                  className="font-medium text-[#6B2F1A] hover:text-[#5A2814] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resendLoading ? (
-                    <>
-                      <Loader2 className="animate-spin inline-block mr-1 h-3 w-3" />
-                      Sending...
-                    </>
-                  ) : countdown > 0 ? (
-                    `Resend OTP in ${countdown}s`
-                  ) : (
-                    'Resend OTP'
-                  )}
-                </button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
               </div>
-              <div className="text-sm" style={{ fontFamily: "Poppins, sans-serif" }}>
-                <button
-                  onClick={handleSkipVerification}
-                  disabled={loading}
-                  className="font-medium text-gray-600 hover:text-[#6B2F1A]"
-                >
-                  Skip Verification
-                </button>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  or
+                </span>
               </div>
+            </div>
+            
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                onClick={handleResendOTP}
+                disabled={resendLoading || countdown > 0}
+                className="text-sm font-medium text-[#6B2F1A] hover:text-[#5A2814] disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                {resendLoading ? (
+                  <>
+                    <Loader2 className="animate-spin inline-block mr-1 h-3 w-3" />
+                    Sending...
+                  </>
+                ) : countdown > 0 ? (
+                  `Resend OTP in ${countdown}s`
+                ) : (
+                  'Resend OTP'
+                )}
+              </button>
+              
+              <button
+                onClick={handleSkipVerification}
+                disabled={loading}
+                className="text-sm font-medium text-gray-600 hover:text-[#6B2F1A]"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
+                Skip Verification
+              </button>
             </div>
           </div>
         </div>
