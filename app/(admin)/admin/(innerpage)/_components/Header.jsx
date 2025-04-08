@@ -89,14 +89,14 @@ const Header = () => {
           <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
             <LayoutDashboard size={18} />
           </div>
-          <h1 className="md:text-xl text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
+          <h1 className="md:text-xl text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent playfair-bold">
             Kauthuk
           </h1>
         </div>
 
         {/* Page title - desktop only */}
         <div className="hidden md:block">
-          <h2 className="text-base font-medium text-slate-600 dark:text-slate-300">
+          <h2 className="text-base font-medium text-slate-600 dark:text-slate-300 poppins-medium">
             {getPageTitle()}
           </h2>
         </div>
@@ -133,15 +133,15 @@ const Header = () => {
               >
                 <Avatar className="h-7 w-7 border-2 border-blue-200 dark:border-blue-800">
                   <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <AvatarFallback className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 poppins-bold">
                     {admin?.username?.slice(0, 2).toUpperCase() || "AD"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:flex flex-col items-start text-sm">
-                  <span className="font-medium leading-none">
+                  <span className="font-medium leading-none poppins-semibold">
                     {admin?.username || "Admin"}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 leading-none mt-1">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 leading-none mt-1 poppins-regular">
                     Administrator
                   </span>
                 </div>
@@ -152,20 +152,20 @@ const Header = () => {
               align="end"
               className="w-56 border border-gray-400 dark:border-blue-900"
             >
-              <DropdownMenuLabel className="text-blue-600 dark:text-blue-400">
+              <DropdownMenuLabel className="text-blue-600 dark:text-blue-400 poppins-medium">
                 My Account
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-blue-100 dark:bg-blue-900" />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
+                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer poppins-regular">
                   <User className="mr-2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
+                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer poppins-regular">
                   <Settings className="mr-2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
+                <DropdownMenuItem className="hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer poppins-regular">
                   <Mail className="mr-2 h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <span>Messages</span>
                   <DropdownMenuShortcut>⌘M</DropdownMenuShortcut>
@@ -174,7 +174,7 @@ const Header = () => {
               <DropdownMenuSeparator className="bg-blue-100 dark:bg-blue-900" />
               <DropdownMenuItem
                 onClick={logout}
-                className="hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
+                className="hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 cursor-pointer poppins-medium"
               >
                 <LogOut className="mr-2 h-4 w-4 text-red-500" />
                 <span>Log out</span>

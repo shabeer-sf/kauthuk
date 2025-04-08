@@ -36,22 +36,27 @@ const CategoryList = () => {
     };
   }, []);
 
-  // Function to get the icon for each category
-  const getCategoryIcon = (categoryName, index) => {
-    // Using images instead of emojis
-    if (categoryName == "Paintings") {
+  // Function to get the image path for the category (now from database)
+  const getCategoryImagePath = (category) => {
+    // If the category has an image in the database, use it
+    if (category.image) {
+      return `https://greenglow.in/kauthuk_test/${category.image}`;
+    }
+
+    // Fallback to default icons based on category name
+    if (category.catName === "Paintings") {
       return `/assets/images/paintings.png`;
     }
-    if (categoryName == "Apparels & Accessories") {
+    if (category.catName === "Apparels & Accessories") {
       return `/assets/images/souvenirs.png`;
     }
-    if (categoryName == "Gifts & Souvenirs") {
+    if (category.catName === "Gifts & Souvenirs") {
       return `/assets/images/gifts.png`;
     }
-    if (categoryName == "Decor & Crafts") {
+    if (category.catName === "Decor & Crafts") {
       return `/assets/images/decor.png`;
     }
-    return `/assets/images/paintings.png`;
+    return `/assets/images/default-icon.png`;
   };
 
   if (loading) {
@@ -82,16 +87,16 @@ const CategoryList = () => {
             >
               {/* Add an invisible overlay to prevent hover gaps */}
               <div className="absolute -inset-2 z-0 pointer-events-none group-hover:pointer-events-auto"></div>
-              
+
               <Link
                 href={`/category/${category.id}`}
-                className="whitespace-nowrap py-2 text-base font-bold uppercase text-[#fee3d8] transition-colors relative hover:text-[#8D4425] flex items-center poppins-black"
+                className="whitespace-nowrap py-2 text-lg font-bold uppercase text-[#fee3d8] transition-colors relative hover:text-[#8D4425] flex items-center poppins-black"
               >
-                <span className="mr-1 relative w-5 h-5">
+                <span className="mr-2 relative w-6 h-6 flex-shrink-0">
                   <Image
-                    src={getCategoryIcon(category.catName, index)}
-                    width={20}
-                    height={20}
+                    src={getCategoryImagePath(category)}
+                    width={24}
+                    height={24}
                     alt={category.catName}
                     className="object-contain"
                     onError={(e) => {
@@ -107,9 +112,9 @@ const CategoryList = () => {
               {category.SubCategory?.length > 0 && (
                 <div
                   className="absolute left-0 top-full bg-[#fee3d8] shadow-md rounded-b-md z-50 w-[250px] py-3 mega-menu-dropdown text-[#6B2F1A] hidden group-hover:block"
-                  style={{ 
+                  style={{
                     borderTop: "2px solid #6B2F1A",
-                    marginTop: "1px" // Add a tiny margin to ensure there's no gap
+                    marginTop: "1px", // Add a tiny margin to ensure there's no gap
                   }}
                 >
                   <div className="px-2">
@@ -133,7 +138,7 @@ const CategoryList = () => {
                     <div className="pt-3 mt-3 border-t border-gray-100 px-4">
                       <Link
                         href={`/category/${category.id}`}
-                        className="flex items-center justify-center w-full text-sm font-medium text-black hover:text-[#5A2814]  rounded-md transition-colors category-heading "
+                        className="flex items-center justify-center w-full text-sm font-medium text-black hover:text-[#5A2814] rounded-md transition-colors category-heading"
                       >
                         View All
                       </Link>
