@@ -1,31 +1,23 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
 import {
-  Heart,
-  Search,
-  ShoppingCart,
-  X,
-  User,
-  Menu,
-  ChevronDown,
-  LogOut
-} from "lucide-react";
+  getAnnouncements,
+  getCategories3,
+  getPopularSearchTerms,
+  searchProducts,
+} from "@/actions/category";
+import { useCart } from "@/providers/CartProvider";
+import { useUserAuth } from "@/providers/UserProvider";
+import { LogOut, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Marquee from "react-fast-marquee";
-import { useCart } from "@/providers/CartProvider";
-import { useUserAuth } from "@/providers/UserProvider";
-import {
-  getAnnouncements,
-  getFeaturedCategories,
-  searchProducts,
-  getPopularSearchTerms,
-  getCategories3,
-} from "@/actions/category";
 
 // UI Components
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,10 +31,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Close as PopoverClose } from "@radix-ui/react-popover";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Close as PopoverClose } from "@radix-ui/react-popover";
 import dynamic from "next/dynamic";
 
 // Import the CategoryList component
@@ -61,18 +51,12 @@ const Header = () => {
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  const {
-    cart,
-    itemCount,
-    totals,
-    currency,
-    toggleCurrency,
-    formatPrice,
-  } = useCart();
-  
+  const { cart, itemCount, totals, currency, toggleCurrency, formatPrice } =
+    useCart();
+
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // Use the authentication context
   const { user, logout, isAuthenticated } = useUserAuth();
 
@@ -181,18 +165,20 @@ const Header = () => {
     }
     return `/assets/images/paintings.png`;
   };
-  
+
   // We'll generate navigation items from fetched categories
   const getNavCategories = () => {
     // Filter only active categories
-    const activeCategories = categories.filter(cat => cat.showHome === 'active');
-    
-    return activeCategories.map(category => ({
+    const activeCategories = categories.filter(
+      (cat) => cat.showHome === "active"
+    );
+
+    return activeCategories.map((category) => ({
       id: category.id,
       name: category.catName.toUpperCase(),
       href: `/category/${category.id}`,
       icon: getCategoryIcon(category.catName),
-      subcategories: category.SubCategory || []
+      subcategories: category.SubCategory || [],
     }));
   };
 
@@ -218,7 +204,12 @@ const Header = () => {
       </div>
 
       {/* Main Header Section */}
-      <div className={cn("w-full bg-[#6B2F1A] transition-all duration-300", isScrolled ? "py-2" : "py-3")}>
+      <div
+        className={cn(
+          "w-full bg-[#6B2F1A] transition-all duration-300",
+          isScrolled ? "py-2" : "py-3"
+        )}
+      >
         <div className="mx-auto px-4 flex items-center justify-between">
           {/* Mobile Menu Trigger */}
           <div className="lg:hidden">
@@ -249,7 +240,7 @@ const Header = () => {
           <div className="flex-1 max-md:hidden">
             <CategoryList />
           </div>
-          
+
           {/* Right Icons */}
           <div className="flex items-center space-x-3">
             {/* Search Icon */}
@@ -377,8 +368,12 @@ const Header = () => {
                   <>
                     <DropdownMenuLabel>
                       <div className="flex flex-col">
-                        <span className="font-semibold">{user?.name || 'My Account'}</span>
-                        <span className="text-xs text-muted-foreground mt-1">{user?.email}</span>
+                        <span className="font-semibold">
+                          {user?.name || "My Account"}
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-1">
+                          {user?.email}
+                        </span>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -398,7 +393,7 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem> */}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={handleLogout}
                       className="cursor-pointer text-red-600 focus:text-red-600 flex items-center gap-2"
                     >
@@ -412,7 +407,10 @@ const Header = () => {
                     <DropdownMenuSeparator />
                     <div className="p-2 space-y-2">
                       <Link href="/login">
-                        <Button variant="outline" className="w-full justify-start">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                        >
                           Login
                         </Button>
                       </Link>
@@ -448,11 +446,11 @@ const Header = () => {
 
       {/* Mobile Menu (Sheet) */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-50"
           onClick={() => setIsMobileMenuOpen(false)}
         >
-          <div 
+          <div
             className="absolute top-0 left-0 h-full w-[280px] bg-white overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
@@ -467,16 +465,16 @@ const Header = () => {
                   />
                 </div>
               </Link>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            
+
             {/* User Info in Mobile Menu */}
             {isAuthenticated() && (
               <div className="p-4 border-b border-gray-100">
@@ -485,34 +483,45 @@ const Header = () => {
                     <User className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      {user?.name || 'User'}
+                    <div
+                      className="font-medium text-gray-900"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
+                      {user?.name || "User"}
                     </div>
-                    <div className="text-xs text-gray-500 truncate max-w-[200px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      {user?.email || ''}
+                    <div
+                      className="text-xs text-gray-500 truncate max-w-[200px]"
+                      style={{ fontFamily: "Poppins, sans-serif" }}
+                    >
+                      {user?.email || ""}
                     </div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             {/* Mobile Nav Menu */}
             <div className="p-4">
               <div className="mb-6">
-                <div className="text-sm font-medium text-gray-500 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Categories</div>
+                <div
+                  className="text-sm font-medium text-gray-500 mb-2"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  Categories
+                </div>
                 <div className="space-y-2">
-                  {getNavCategories().map(category => (
-                    <Link 
+                  {getNavCategories().map((category) => (
+                    <Link
                       key={category.id}
                       href={category.href}
                       className="flex items-center py-2 border-b border-gray-100 text-gray-800"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <span className="mr-2 relative w-5 h-5 flex items-center justify-center">
-                        <Image 
-                          src={category.icon} 
-                          width={20} 
-                          height={20} 
+                        <Image
+                          src={category.icon}
+                          width={20}
+                          height={20}
                           alt={category.name}
                           className="object-contain"
                           onError={(e) => {
@@ -520,74 +529,81 @@ const Header = () => {
                           }}
                         />
                       </span>
-                      <span style={{ fontFamily: 'Poppins, sans-serif' }}>{category.name}</span>
+                      <span style={{ fontFamily: "Poppins, sans-serif" }}>
+                        {category.name}
+                      </span>
                     </Link>
                   ))}
                 </div>
               </div>
-              
+
               <div className="mb-6">
-                <div className="text-sm font-medium text-gray-500 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Account</div>
+                <div
+                  className="text-sm font-medium text-gray-500 mb-2"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  Account
+                </div>
                 <div className="space-y-2">
                   {isAuthenticated() ? (
                     <>
-                      <Link 
+                      <Link
                         href="/my-account"
                         className="block py-2 border-b border-gray-100 text-gray-800"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         My Account
                       </Link>
-                      <Link 
+                      <Link
                         href="/my-account/orders"
                         className="block py-2 border-b border-gray-100 text-gray-800"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         My Orders
                       </Link>
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className="block w-full text-left py-2 border-b border-gray-100 text-red-600"
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link 
+                      <Link
                         href="/login"
                         className="block py-2 border-b border-gray-100 text-gray-800"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         Login
                       </Link>
-                      <Link 
+                      <Link
                         href="/register"
                         className="block py-2 border-b border-gray-100 text-gray-800"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        style={{ fontFamily: "Poppins, sans-serif" }}
                       >
                         Register
                       </Link>
                     </>
                   )}
-                  <Link 
+                  <Link
                     href="/cart"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     Cart ({itemCount})
                   </Link>
-                  <Link 
+                  <Link
                     href="/wishlist"
                     className="block py-2 border-b border-gray-100 text-gray-800"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                    style={{ fontFamily: "Poppins, sans-serif" }}
                   >
                     Wishlist
                   </Link>

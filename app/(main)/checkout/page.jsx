@@ -217,8 +217,6 @@ const calculateShippingCost = (cart, shippingMethod, currency) => {
     return 0;
   }
 
-  console.log(`Total weight: ${totalWeightInGrams}g`);
-
   // Calculate shipping cost based on weight
   // First 500g: ₹50
   let shippingCost = 50;
@@ -614,14 +612,14 @@ const CheckoutPage = () => {
                 <ShoppingBag className="h-12 w-12 text-gray-400" />
               </div>
             </div>
-            <h1 className="playfair-italic text-3xl font-bold mb-4">
+            <h1 className="text-3xl font-bold mb-4">
               Your cart is empty
             </h1>
-            <p className="font-poppins text-gray-600 mb-8">
+            <p className="text-gray-600 mb-8">
               Please add some products to your cart before checking out.
             </p>
             <Link href="/products">
-              <Button className="px-8 py-6 text-lg bg-[#6B2F1A] hover:bg-[#5A2814] font-poppins">
+              <Button className="px-8 py-6 text-lg bg-[#6B2F1A] hover:bg-[#5A2814]">
                 <ChevronLeft className="h-5 w-5 mr-2" />
                 Browse Products
               </Button>
@@ -642,30 +640,30 @@ const CheckoutPage = () => {
               <div className="w-20 h-20 bg-[#fee3d8] rounded-full flex items-center justify-center mb-6">
                 <CheckCircle2 className="h-10 w-10 text-[#6B2F1A]" />
               </div>
-              <h1 className="playfair-italic text-3xl font-bold text-[#6B2F1A] mb-4">
+              <h1 className="text-3xl font-bold text-[#6B2F1A] mb-4">
                 Order Confirmed!
               </h1>
-              <p className="font-poppins text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6">
                 Thank you for your purchase. Your order has been placed
                 successfully.
               </p>
               <div className="w-full bg-[#FFF5F1] rounded-lg p-6 mb-6">
-                <div className="flex justify-between mb-2 font-poppins">
+                <div className="flex justify-between mb-2">
                   <span className="font-medium">Order Number:</span>
                   <span>{order?.id || "ORD123456"}</span>
                 </div>
-                <div className="flex justify-between mb-2 font-poppins">
+                <div className="flex justify-between mb-2">
                   <span className="font-medium">Order Date:</span>
                   <span>{new Date().toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-between font-poppins">
+                <div className="flex justify-between">
                   <span className="font-medium">Order Total:</span>
                   <span className="font-semibold text-[#6B2F1A]">
                     {formatPrice(total)}
                   </span>
                 </div>
               </div>
-              <p className="font-poppins text-gray-600 mb-8">
+              <p className="text-gray-600 mb-8">
                 We've sent a confirmation email to{" "}
                 <strong>{getValues("email")}</strong> with all the details of
                 your order.
@@ -674,11 +672,11 @@ const CheckoutPage = () => {
                 <Alert className="mb-8 bg-[#FFF5F1] border-[#fee3d8]">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-[#6B2F1A]" />
-                    <AlertTitle className="text-[#6B2F1A] font-playfair">
+                    <AlertTitle className="text-[#6B2F1A]">
                       Account Created
                     </AlertTitle>
                   </div>
-                  <AlertDescription className="text-[#6B2F1A]/80 mt-1 font-poppins">
+                  <AlertDescription className="text-[#6B2F1A]/80 mt-1">
                     Your account has been created successfully. You can now log in with your email and password.
                   </AlertDescription>
                 </Alert>
@@ -687,13 +685,13 @@ const CheckoutPage = () => {
                 <Link href="/my-account" className="flex-1">
                   <Button
                     variant="outline"
-                    className="w-full font-poppins border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A]"
+                    className="w-full border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A]"
                   >
                     View My Orders
                   </Button>
                 </Link>
                 <Link href="/products" className="flex-1">
-                  <Button className="w-full bg-[#6B2F1A] hover:bg-[#5A2814] font-poppins">
+                  <Button className="w-full bg-[#6B2F1A] hover:bg-[#5A2814]">
                     Continue Shopping
                   </Button>
                 </Link>
@@ -718,7 +716,7 @@ const CheckoutPage = () => {
           <div className="mb-8">
             <Link
               href="/cart"
-              className="inline-flex items-center text-sm text-[#6B2F1A] hover:text-[#5A2814] font-poppins"
+              className="inline-flex items-center text-sm text-[#6B2F1A] hover:text-[#5A2814]"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to Cart
@@ -726,7 +724,7 @@ const CheckoutPage = () => {
           </div>
 
           <div className="flex justify-between items-center mb-8">
-            <h1 className="playfair-italic text-3xl font-bold text-[#6B2F1A]">
+            <h1 className="text-3xl font-bold text-[#6B2F1A]">
               Checkout
             </h1>
             <div className="hidden sm:flex items-center space-x-4">
@@ -746,7 +744,7 @@ const CheckoutPage = () => {
                 >
                   1
                 </div>
-                <span className="font-poppins">Contact</span>
+                <span>Contact</span>
               </div>
               <div className="w-8 h-0.5 bg-gray-200"></div>
               <div
@@ -765,7 +763,7 @@ const CheckoutPage = () => {
                 >
                   2
                 </div>
-                <span className="font-poppins">Shipping</span>
+                <span>Shipping</span>
               </div>
               <div className="w-8 h-0.5 bg-gray-200"></div>
               <div
@@ -784,7 +782,7 @@ const CheckoutPage = () => {
                 >
                   3
                 </div>
-                <span className="font-poppins">Payment</span>
+                <span>Payment</span>
               </div>
             </div>
           </div>
@@ -802,11 +800,11 @@ const CheckoutPage = () => {
                         <div className="mb-6">
                           <Tabs defaultValue="guest" onValueChange={handleModeSwitch} value={checkoutMode}>
                             <TabsList className="grid w-full grid-cols-2 mb-4">
-                              <TabsTrigger value="guest" className="font-poppins">
+                              <TabsTrigger value="guest">
                                 <UserPlus className="h-4 w-4 mr-2" />
                                 Guest Checkout
                               </TabsTrigger>
-                              <TabsTrigger value="login" className="font-poppins">
+                              <TabsTrigger value="login">
                                 <LogIn className="h-4 w-4 mr-2" />
                                 Login
                               </TabsTrigger>
@@ -814,7 +812,7 @@ const CheckoutPage = () => {
                             
                             <TabsContent value="guest">
                               <div className="bg-[#FFF5F1] p-4 rounded-md mb-6">
-                                <p className="font-poppins text-sm text-[#6B2F1A]">
+                                <p className="text-sm text-[#6B2F1A]">
                                   Continue as a guest. You can create an account during checkout if you wish.
                                 </p>
                               </div>
@@ -825,21 +823,20 @@ const CheckoutPage = () => {
                                 <div>
                                   <label
                                     htmlFor="login-email"
-                                    className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
                                   >
                                     Email
                                   </label>
                                   <Input
                                     id="login-email"
                                     placeholder="Email address"
-                                    className="font-poppins"
                                     onChange={(e) => setValue("email", e.target.value)}
                                   />
                                 </div>
                                 <div>
                                   <label
                                     htmlFor="login-password"
-                                    className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
                                   >
                                     Password
                                   </label>
@@ -847,15 +844,13 @@ const CheckoutPage = () => {
                                     id="login-password"
                                     type="password"
                                     placeholder="Password"
-                                    className="font-poppins"
                                   />
                                 </div>
                                 <Button 
                                   type="button"
-                                  className="w-full bg-[#6B2F1A] hover:bg-[#5A2814] font-poppins"
+                                  className="w-full bg-[#6B2F1A] hover:bg-[#5A2814]"
                                   onClick={async () => {
                                     try {
-                                      // Note: In a real implementation, this would use an actual login function
                                       setIsProcessing(true);
                                       const email = document.getElementById('login-email').value;
                                       const password = document.getElementById('login-password').value;
@@ -866,13 +861,18 @@ const CheckoutPage = () => {
                                         return;
                                       }
 
+                                      // Prepare login data
+                                      const loginData = new FormData();
+                                      loginData.append("email", email);
+                                      loginData.append("password", password);
+
                                       // Attempt to login
-                                      const result = await login({email, password});
-                                      if (result.success) {
+                                      const result = await login(loginData);
+                                      if (result && result.success) {
                                         toast.success("Logged in successfully");
                                         setCheckoutMode("loggedIn");
                                       } else {
-                                        toast.error(result.error || "Login failed");
+                                        toast.error(result?.error || "Login failed. Please check your credentials.");
                                       }
                                     } catch (error) {
                                       toast.error("Login failed: " + (error.message || "Unknown error"));
@@ -894,18 +894,18 @@ const CheckoutPage = () => {
                                 <Button
                                   type="button"
                                   variant="link"
-                                  className="font-poppins text-[#6B2F1A] hover:text-[#5A2814]"
+                                  className="text-[#6B2F1A] hover:text-[#5A2814]"
                                   onClick={() => handleModeSwitch("guest")}
                                 >
                                   Continue as guest instead
                                 </Button>
                               </div>
-                            </TabsContent>
+                              </TabsContent>
                           </Tabs>
                         </div>
                       )}
 
-                      <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                      <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                         <User className="h-5 w-5 mr-2" />
                         Contact Information
                       </h2>
@@ -914,7 +914,7 @@ const CheckoutPage = () => {
                         <div>
                           <label
                             htmlFor="firstName"
-                            className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                            className="block text-sm font-medium text-gray-700 mb-1"
                           >
                             First Name*
                           </label>
@@ -922,14 +922,14 @@ const CheckoutPage = () => {
                             id="firstName"
                             {...register("firstName")}
                             placeholder="John"
-                            className={`font-poppins ${
+                            className={`${
                               errors.firstName
                                 ? "border-red-300"
                                 : "border-gray-300 focus:border-[#6B2F1A]"
                             }`}
                           />
                           {errors.firstName && (
-                            <p className="text-red-500 text-sm mt-1 font-poppins">
+                            <p className="text-red-500 text-sm mt-1">
                               {errors.firstName.message}
                             </p>
                           )}
@@ -937,7 +937,7 @@ const CheckoutPage = () => {
                         <div>
                           <label
                             htmlFor="lastName"
-                            className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                            className="block text-sm font-medium text-gray-700 mb-1"
                           >
                             Last Name*
                           </label>
@@ -945,14 +945,14 @@ const CheckoutPage = () => {
                             id="lastName"
                             {...register("lastName")}
                             placeholder="Doe"
-                            className={`font-poppins ${
+                            className={`${
                               errors.lastName
                                 ? "border-red-300"
                                 : "border-gray-300 focus:border-[#6B2F1A]"
                             }`}
                           />
                           {errors.lastName && (
-                            <p className="text-red-500 text-sm mt-1 font-poppins">
+                            <p className="text-red-500 text-sm mt-1">
                               {errors.lastName.message}
                             </p>
                           )}
@@ -960,7 +960,7 @@ const CheckoutPage = () => {
                         <div>
                           <label
                             htmlFor="email"
-                            className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                            className="block text-sm font-medium text-gray-700 mb-1"
                           >
                             Email Address*
                           </label>
@@ -969,14 +969,14 @@ const CheckoutPage = () => {
                             type="email"
                             {...register("email")}
                             placeholder="john.doe@example.com"
-                            className={`font-poppins ${
+                            className={`${
                               errors.email
                                 ? "border-red-300"
                                 : "border-gray-300 focus:border-[#6B2F1A]"
                             }`}
                           />
                           {errors.email && (
-                            <p className="text-red-500 text-sm mt-1 font-poppins">
+                            <p className="text-red-500 text-sm mt-1">
                               {errors.email.message}
                             </p>
                           )}
@@ -984,7 +984,7 @@ const CheckoutPage = () => {
                         <div>
                           <label
                             htmlFor="phone"
-                            className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                            className="block text-sm font-medium text-gray-700 mb-1"
                           >
                             Phone Number*
                           </label>
@@ -992,14 +992,14 @@ const CheckoutPage = () => {
                             id="phone"
                             {...register("phone")}
                             placeholder="Your phone number"
-                            className={`font-poppins ${
+                            className={`${
                               errors.phone
                                 ? "border-red-300"
                                 : "border-gray-300 focus:border-[#6B2F1A]"
                             }`}
                           />
                           {errors.phone && (
-                            <p className="text-red-500 text-sm mt-1 font-poppins">
+                            <p className="text-red-500 text-sm mt-1">
                               {errors.phone.message}
                             </p>
                           )}
@@ -1021,11 +1021,11 @@ const CheckoutPage = () => {
                             <div>
                               <label
                                 htmlFor="createAccount"
-                                className="text-sm font-medium text-gray-900 cursor-pointer font-poppins"
+                                className="text-sm font-medium text-gray-900 cursor-pointer"
                               >
                                 Create an account for faster checkout next time
                               </label>
-                              <p className="text-xs text-gray-500 font-poppins">
+                              <p className="text-xs text-gray-500">
                                 Save your details for future purchases
                               </p>
                             </div>
@@ -1035,7 +1035,7 @@ const CheckoutPage = () => {
                             <div className="mb-2">
                               <label
                                 htmlFor="password"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 Password*
                               </label>
@@ -1044,14 +1044,14 @@ const CheckoutPage = () => {
                                 type="password"
                                 {...register("password")}
                                 placeholder="Create a password (min. 6 characters)"
-                                className={`font-poppins ${
+                                className={`${
                                   errors.password
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
                                 }`}
                               />
                               {errors.password && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.password.message}
                                 </p>
                               )}
@@ -1068,7 +1068,7 @@ const CheckoutPage = () => {
                   <>
                     <Card className="mb-6 border-gray-200 shadow-sm">
                       <CardContent className="p-6">
-                        <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                        <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                           <Building className="h-5 w-5 mr-2" />
                           Billing Information
                         </h2>
@@ -1077,7 +1077,7 @@ const CheckoutPage = () => {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="billingAddress1"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               Address Line 1*
                             </label>
@@ -1085,14 +1085,14 @@ const CheckoutPage = () => {
                               id="billingAddress1"
                               {...register("billingAddress1")}
                               placeholder="Street address"
-                              className={`font-poppins ${
+                              className={`${
                                 errors.billingAddress1
                                   ? "border-red-300"
                                   : "border-gray-300 focus:border-[#6B2F1A]"
                               }`}
                             />
                             {errors.billingAddress1 && (
-                              <p className="text-red-500 text-sm mt-1 font-poppins">
+                              <p className="text-red-500 text-sm mt-1">
                                 {errors.billingAddress1.message}
                               </p>
                             )}
@@ -1100,7 +1100,7 @@ const CheckoutPage = () => {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="billingAddress2"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               Address Line 2
                             </label>
@@ -1108,13 +1108,13 @@ const CheckoutPage = () => {
                               id="billingAddress2"
                               {...register("billingAddress2")}
                               placeholder="Apartment, suite, unit, etc. (optional)"
-                              className="font-poppins border-gray-300 focus:border-[#6B2F1A]"
+                              className="border-gray-300 focus:border-[#6B2F1A]"
                             />
                           </div>
                           <div>
                             <label
                               htmlFor="billingCity"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               City*
                             </label>
@@ -1122,14 +1122,14 @@ const CheckoutPage = () => {
                               id="billingCity"
                               {...register("billingCity")}
                               placeholder="City"
-                              className={`font-poppins ${
+                              className={`${
                                 errors.billingCity
                                   ? "border-red-300"
                                   : "border-gray-300 focus:border-[#6B2F1A]"
                               }`}
                             />
                             {errors.billingCity && (
-                              <p className="text-red-500 text-sm mt-1 font-poppins">
+                              <p className="text-red-500 text-sm mt-1">
                                 {errors.billingCity.message}
                               </p>
                             )}
@@ -1137,7 +1137,7 @@ const CheckoutPage = () => {
                           <div>
                             <label
                               htmlFor="billingState"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               State/Province*
                             </label>
@@ -1145,14 +1145,14 @@ const CheckoutPage = () => {
                               id="billingState"
                               {...register("billingState")}
                               placeholder="State"
-                              className={`font-poppins ${
+                              className={`${
                                 errors.billingState
                                   ? "border-red-300"
                                   : "border-gray-300 focus:border-[#6B2F1A]"
                               }`}
                             />
                             {errors.billingState && (
-                              <p className="text-red-500 text-sm mt-1 font-poppins">
+                              <p className="text-red-500 text-sm mt-1">
                                 {errors.billingState.message}
                               </p>
                             )}
@@ -1160,7 +1160,7 @@ const CheckoutPage = () => {
                           <div>
                             <label
                               htmlFor="billingPostalCode"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               Postal Code*
                             </label>
@@ -1168,14 +1168,14 @@ const CheckoutPage = () => {
                               id="billingPostalCode"
                               {...register("billingPostalCode")}
                               placeholder="Postal code"
-                              className={`font-poppins ${
+                              className={`${
                                 errors.billingPostalCode
                                   ? "border-red-300"
                                   : "border-gray-300 focus:border-[#6B2F1A]"
                               }`}
                             />
                             {errors.billingPostalCode && (
-                              <p className="text-red-500 text-sm mt-1 font-poppins">
+                              <p className="text-red-500 text-sm mt-1">
                                 {errors.billingPostalCode.message}
                               </p>
                             )}
@@ -1183,7 +1183,7 @@ const CheckoutPage = () => {
                           <div>
                             <label
                               htmlFor="billingCountry"
-                              className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                              className="block text-sm font-medium text-gray-700 mb-1"
                             >
                               Country*
                             </label>
@@ -1194,7 +1194,7 @@ const CheckoutPage = () => {
                               }
                             >
                               <SelectTrigger
-                                className={`font-poppins ${
+                                className={`${
                                   errors.billingCountry
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
@@ -1202,7 +1202,7 @@ const CheckoutPage = () => {
                               >
                                 <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
-                              <SelectContent className="font-poppins">
+                              <SelectContent>
                                 <SelectItem value="India">India</SelectItem>
                                 <SelectItem value="United States">
                                   United States
@@ -1217,7 +1217,7 @@ const CheckoutPage = () => {
                               </SelectContent>
                             </Select>
                             {errors.billingCountry && (
-                              <p className="text-red-500 text-sm mt-1 font-poppins">
+                              <p className="text-red-500 text-sm mt-1">
                                 {errors.billingCountry.message}
                               </p>
                             )}
@@ -1235,7 +1235,7 @@ const CheckoutPage = () => {
                           />
                           <label
                             htmlFor="sameAsBilling"
-                            className="ml-2 text-sm font-medium text-gray-700 cursor-pointer font-poppins"
+                            className="ml-2 text-sm font-medium text-gray-700 cursor-pointer"
                           >
                             Same as billing address
                           </label>
@@ -1254,7 +1254,7 @@ const CheckoutPage = () => {
                             <AccordionTrigger className="text-base font-medium text-[#6B2F1A]">
                               <div className="flex items-center">
                                 <Info className="h-4 w-4 mr-2" />
-                                <span className="font-playfair">
+                                <span>
                                   Add Order Notes
                                 </span>
                               </div>
@@ -1263,7 +1263,7 @@ const CheckoutPage = () => {
                               <div className="mt-2">
                                 <label
                                   htmlFor="notes"
-                                  className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                  className="block text-sm font-medium text-gray-700 mb-1"
                                 >
                                   Order Notes
                                 </label>
@@ -1271,7 +1271,7 @@ const CheckoutPage = () => {
                                   id="notes"
                                   {...register("notes")}
                                   placeholder="Any special instructions for delivery"
-                                  className="h-24 font-poppins border-gray-300 focus:border-[#6B2F1A]"
+                                  className="h-24 border-gray-300 focus:border-[#6B2F1A]"
                                 />
                               </div>
                             </AccordionContent>
@@ -1283,7 +1283,7 @@ const CheckoutPage = () => {
                     {!watchSameAsBilling && (
                       <Card className="mt-6 border-gray-200 shadow-sm">
                         <CardContent className="p-6">
-                          <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                          <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                             <MapPin className="h-5 w-5 mr-2" />
                             Shipping Information
                           </h2>
@@ -1291,7 +1291,7 @@ const CheckoutPage = () => {
                             <div className="sm:col-span-2">
                               <label
                                 htmlFor="shippingAddress1"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 Address Line 1*
                               </label>
@@ -1299,14 +1299,14 @@ const CheckoutPage = () => {
                                 id="shippingAddress1"
                                 {...register("shippingAddress1")}
                                 placeholder="Street address"
-                                className={`font-poppins ${
+                                className={`${
                                   errors.shippingAddress1
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
                                 }`}
                               />
                               {errors.shippingAddress1 && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.shippingAddress1.message}
                                 </p>
                               )}
@@ -1314,7 +1314,7 @@ const CheckoutPage = () => {
                             <div className="sm:col-span-2">
                               <label
                                 htmlFor="shippingAddress2"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 Address Line 2
                               </label>
@@ -1322,13 +1322,13 @@ const CheckoutPage = () => {
                                 id="shippingAddress2"
                                 {...register("shippingAddress2")}
                                 placeholder="Apartment, suite, unit, etc. (optional)"
-                                className="font-poppins border-gray-300 focus:border-[#6B2F1A]"
+                                className="border-gray-300 focus:border-[#6B2F1A]"
                               />
                             </div>
                             <div>
                               <label
                                 htmlFor="shippingCity"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 City*
                               </label>
@@ -1336,14 +1336,14 @@ const CheckoutPage = () => {
                                 id="shippingCity"
                                 {...register("shippingCity")}
                                 placeholder="City"
-                                className={`font-poppins ${
+                                className={`${
                                   errors.shippingCity
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
                                 }`}
                               />
                               {errors.shippingCity && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.shippingCity.message}
                                 </p>
                               )}
@@ -1351,7 +1351,7 @@ const CheckoutPage = () => {
                             <div>
                               <label
                                 htmlFor="shippingState"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 State/Province*
                               </label>
@@ -1359,14 +1359,14 @@ const CheckoutPage = () => {
                                 id="shippingState"
                                 {...register("shippingState")}
                                 placeholder="State"
-                                className={`font-poppins ${
+                                className={`${
                                   errors.shippingState
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
                                 }`}
                               />
                               {errors.shippingState && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.shippingState.message}
                                 </p>
                               )}
@@ -1374,7 +1374,7 @@ const CheckoutPage = () => {
                             <div>
                               <label
                                 htmlFor="shippingPostalCode"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 Postal Code*
                               </label>
@@ -1382,14 +1382,14 @@ const CheckoutPage = () => {
                                 id="shippingPostalCode"
                                 {...register("shippingPostalCode")}
                                 placeholder="Postal code"
-                                className={`font-poppins ${
+                                className={`${
                                   errors.shippingPostalCode
                                     ? "border-red-300"
                                     : "border-gray-300 focus:border-[#6B2F1A]"
                                 }`}
                               />
                               {errors.shippingPostalCode && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.shippingPostalCode.message}
                                 </p>
                               )}
@@ -1397,7 +1397,7 @@ const CheckoutPage = () => {
                             <div>
                               <label
                                 htmlFor="shippingCountry"
-                                className="block text-sm font-medium text-gray-700 mb-1 font-poppins"
+                                className="block text-sm font-medium text-gray-700 mb-1"
                               >
                                 Country*
                               </label>
@@ -1408,7 +1408,7 @@ const CheckoutPage = () => {
                                 }
                               >
                                 <SelectTrigger
-                                  className={`font-poppins ${
+                                  className={`${
                                     errors.shippingCountry
                                       ? "border-red-300"
                                       : "border-gray-300 focus:border-[#6B2F1A]"
@@ -1416,7 +1416,7 @@ const CheckoutPage = () => {
                                 >
                                   <SelectValue placeholder="Select a country" />
                                 </SelectTrigger>
-                                <SelectContent className="font-poppins">
+                                <SelectContent>
                                   <SelectItem value="India">India</SelectItem>
                                   <SelectItem value="United States">
                                     United States
@@ -1431,7 +1431,7 @@ const CheckoutPage = () => {
                                 </SelectContent>
                               </Select>
                               {errors.shippingCountry && (
-                                <p className="text-red-500 text-sm mt-1 font-poppins">
+                                <p className="text-red-500 text-sm mt-1">
                                   {errors.shippingCountry.message}
                                 </p>
                               )}
@@ -1443,7 +1443,7 @@ const CheckoutPage = () => {
 
                     <Card className="mt-6 border-gray-200 shadow-sm">
                       <CardContent className="p-6">
-                        <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                        <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                           <Truck className="h-5 w-5 mr-2" />
                           Shipping Method
                         </h2>
@@ -1475,16 +1475,16 @@ const CheckoutPage = () => {
                                 <div className="ml-3">
                                   <label
                                     htmlFor="standard-shipping"
-                                    className="font-medium cursor-pointer font-poppins"
+                                    className="font-medium cursor-pointer"
                                   >
                                     Standard Shipping
                                   </label>
-                                  <p className="text-sm text-gray-500 font-poppins">
+                                  <p className="text-sm text-gray-500">
                                     Delivery in 5-7 business days
                                   </p>
                                 </div>
                               </div>
-                              <span className="font-medium font-poppins">
+                              <span className="font-medium">
                                 {currency === "INR" && shippingCost > 0 ? (
                                   formatPrice(shippingCost)
                                 ) : (
@@ -1512,16 +1512,16 @@ const CheckoutPage = () => {
                                 <div className="ml-3">
                                   <label
                                     htmlFor="express-shipping"
-                                    className="font-medium cursor-pointer font-poppins"
+                                    className="font-medium cursor-pointer"
                                   >
                                     Express Shipping
                                   </label>
-                                  <p className="text-sm text-gray-500 font-poppins">
+                                  <p className="text-sm text-gray-500">
                                     Delivery in 2-3 business days
                                   </p>
                                 </div>
                               </div>
-                              <span className="font-medium font-poppins">
+                              <span className="font-medium">
                                 {currency === "INR" ? "₹100.00" : "$10.00"}
                               </span>
                             </div>
@@ -1533,11 +1533,11 @@ const CheckoutPage = () => {
                           totalWeight > 0 &&
                           watchShippingMethod === "standard" && (
                             <div className="mt-4 bg-[#f8f9fa] p-3 rounded-md border border-gray-200">
-                              <p className="text-sm text-gray-700 font-poppins flex items-center">
+                              <p className="text-sm text-gray-700 flex items-center">
                                 <Info className="h-4 w-4 mr-2 text-[#6B2F1A]" />
                                 Weight-based shipping calculation applied
                               </p>
-                              <div className="mt-2 pl-6 text-xs text-gray-600 font-poppins space-y-1">
+                              <div className="mt-2 pl-6 text-xs text-gray-600 space-y-1">
                                 <p>Total weight: {totalWeight}g</p>
                                 <p>First 500g: ₹50.00</p>
                                 {totalWeight > 500 && (
@@ -1554,51 +1554,6 @@ const CheckoutPage = () => {
                           )}
                       </CardContent>
                     </Card>
-
-                    {/* Terms and Conditions */}
-                    <Card className="mt-6 border-gray-200 shadow-sm">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-3">
-                          <Checkbox
-                            id="termsAccepted"
-                            checked={watch("termsAccepted")}
-                            onCheckedChange={(checked) =>
-                            setValue("termsAccepted", checked === true)
-                            }
-                            className="text-[#6B2F1A] border-gray-300 focus:ring-[#6B2F1A]"
-                          />
-                          <div>
-                            <label
-                              htmlFor="termsAccepted"
-                              className="text-sm font-medium text-gray-700 cursor-pointer font-poppins"
-                            >
-                              I accept the terms and conditions
-                            </label>
-                            <p className="text-xs text-gray-500 mt-1 font-poppins">
-                              By placing your order, you agree to our{" "}
-                              <Link
-                                href="/terms"
-                                className="text-[#6B2F1A] hover:text-[#5A2814]"
-                              >
-                                Terms of Service
-                              </Link>{" "}
-                              and{" "}
-                              <Link
-                                href="/privacy"
-                                className="text-[#6B2F1A] hover:text-[#5A2814]"
-                              >
-                                Privacy Policy
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                        {errors.termsAccepted && (
-                          <p className="text-red-500 text-sm mt-2 ml-7 font-poppins">
-                            {errors.termsAccepted.message}
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
                   </>
                 )}
 
@@ -1607,7 +1562,7 @@ const CheckoutPage = () => {
                   <>
                     <Card className="mb-6 border-gray-200 shadow-sm">
                       <CardContent className="p-6">
-                        <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                        <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                           <CreditCard className="h-5 w-5 mr-2" />
                           Payment Method
                         </h2>
@@ -1637,11 +1592,11 @@ const CheckoutPage = () => {
                                 <div className="ml-3">
                                   <label
                                     htmlFor="card-payment"
-                                    className="font-medium cursor-pointer font-poppins"
+                                    className="font-medium cursor-pointer"
                                   >
                                     Credit / Debit Card
                                   </label>
-                                  <p className="text-sm text-gray-500 font-poppins">
+                                  <p className="text-sm text-gray-500">
                                     Pay securely with your card
                                   </p>
                                 </div>
@@ -1673,11 +1628,11 @@ const CheckoutPage = () => {
                                 <div className="ml-3">
                                   <label
                                     htmlFor="upi-payment"
-                                    className="font-medium cursor-pointer font-poppins"
+                                    className="font-medium cursor-pointer"
                                   >
                                     UPI / Net Banking
                                   </label>
-                                  <p className="text-sm text-gray-500 font-poppins">
+                                  <p className="text-sm text-gray-500">
                                     Pay using UPI or bank transfer
                                   </p>
                                 </div>
@@ -1709,11 +1664,11 @@ const CheckoutPage = () => {
                                 <div className="ml-3">
                                   <label
                                     htmlFor="cod-payment"
-                                    className="font-medium cursor-pointer font-poppins"
+                                    className="font-medium cursor-pointer"
                                   >
                                     Cash on Delivery
                                   </label>
-                                  <p className="text-sm text-gray-500 font-poppins">
+                                  <p className="text-sm text-gray-500">
                                     Pay when you receive your order
                                   </p>
                                 </div>
@@ -1728,10 +1683,10 @@ const CheckoutPage = () => {
                         {watchPaymentMethod === "cod" && (
                           <Alert className="mt-4 bg-[#FFF5F1] text-[#6B2F1A] border-[#fee3d8]">
                             <AlertCircle className="h-4 w-4" />
-                            <AlertTitle className="font-poppins">
+                            <AlertTitle>
                               Cash on Delivery Information
                             </AlertTitle>
-                            <AlertDescription className="font-poppins text-[#6B2F1A]/80">
+                            <AlertDescription className="text-[#6B2F1A]/80">
                               Please have the exact amount ready at the time of
                               delivery. Our delivery partner will not be able to
                               provide change.
@@ -1756,11 +1711,11 @@ const CheckoutPage = () => {
                           <div>
                             <label
                               htmlFor="termsAccepted"
-                              className="text-sm font-medium text-gray-700 cursor-pointer font-poppins"
+                              className="text-sm font-medium text-gray-700 cursor-pointer"
                             >
                               I accept the terms and conditions
                             </label>
-                            <p className="text-xs text-gray-500 mt-1 font-poppins">
+                            <p className="text-xs text-gray-500 mt-1">
                               By placing your order, you agree to our{" "}
                               <Link
                                 href="/terms"
@@ -1779,7 +1734,7 @@ const CheckoutPage = () => {
                           </div>
                         </div>
                         {errors.termsAccepted && (
-                          <p className="text-red-500 text-sm mt-2 ml-7 font-poppins">
+                          <p className="text-red-500 text-sm mt-2 ml-7">
                             {errors.termsAccepted.message}
                           </p>
                         )}
@@ -1795,7 +1750,7 @@ const CheckoutPage = () => {
                       type="button"
                       variant="outline"
                       onClick={handleBack}
-                      className="font-poppins border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
+                      className="border-[#6B2F1A]/20 text-[#6B2F1A] hover:bg-[#fee3d8] hover:text-[#6B2F1A] hover:border-[#6B2F1A]/30"
                     >
                       <ChevronLeft className="h-4 w-4 mr-2" />
                       Back
@@ -1807,7 +1762,7 @@ const CheckoutPage = () => {
                   >
                     <Button
                       type="submit"
-                      className="bg-[#6B2F1A] hover:bg-[#5A2814] font-poppins"
+                      className="bg-[#6B2F1A] hover:bg-[#5A2814]"
                       disabled={isProcessing}
                     >
                       {isProcessing ? (
@@ -1837,7 +1792,7 @@ const CheckoutPage = () => {
               <div className="sticky top-8 space-y-6">
                 <Card className="border-gray-200 shadow-sm">
                   <CardContent className="p-6">
-                    <h2 className="playfair-italic text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
+                    <h2 className="text-xl font-semibold mb-6 flex items-center text-[#6B2F1A]">
                       <ShoppingBag className="h-5 w-5 mr-2" />
                       Order Summary
                     </h2>
@@ -1869,12 +1824,12 @@ const CheckoutPage = () => {
                                 <ShoppingBag className="h-6 w-6 text-gray-400" />
                               </div>
                             )}
-                            <div className="absolute -top-1 -right-1 bg-[#6B2F1A] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-poppins">
+                            <div className="absolute -top-1 -right-1 bg-[#6B2F1A] text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
                               {item.quantity || 1}
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-playfair text-sm font-medium text-gray-900 truncate">
+                            <h3 className="text-sm font-medium text-gray-900 truncate">
                               {item.title || "Product"}
                             </h3>
                             {item.variant && (
@@ -1884,14 +1839,14 @@ const CheckoutPage = () => {
                                     <Badge
                                       key={i}
                                       variant="outline"
-                                      className="text-xs px-1 py-0 border-[#6B2F1A]/30 text-[#6B2F1A] font-poppins"
+                                      className="text-xs px-1 py-0 border-[#6B2F1A]/30 text-[#6B2F1A]"
                                     >
                                       {attr.value}
                                     </Badge>
                                   ))}
                               </div>
                             )}
-                            <div className="text-sm text-gray-600 mt-1 font-poppins">
+                            <div className="text-sm text-gray-600 mt-1">
                               {currency === "INR" ? (
                                 <>
                                   {formatPrice(item.price || 0)} ×{" "}
@@ -1908,14 +1863,14 @@ const CheckoutPage = () => {
                             {currency === "INR" &&
                               (item.weight ||
                                 (item.variant && item.variant.weight)) && (
-                                <div className="text-xs text-gray-500 mt-0.5 font-poppins">
+                                <div className="text-xs text-gray-500 mt-0.5">
                                   Weight:{" "}
                                   {item.weight || item.variant?.weight || 0}g
                                 </div>
                               )}
                           </div>
                           <div className="text-right">
-                            <span className="text-sm font-medium font-poppins text-[#6B2F1A]">
+                            <span className="text-sm font-medium text-[#6B2F1A]">
                               {currency === "INR" ? (
                                 <>
                                   {formatPrice(
@@ -1940,12 +1895,12 @@ const CheckoutPage = () => {
 
                     {/* Price Breakdown */}
                     <div className="py-4 space-y-3">
-                      <div className="flex justify-between text-sm font-poppins">
+                      <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Subtotal</span>
                         <span>{formatPrice(subtotal)}</span>
                       </div>
 
-                      <div className="flex justify-between text-sm font-poppins">
+                      <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Shipping</span>
                         {shippingCost > 0 ? (
                           <span>{formatPrice(shippingCost)}</span>
@@ -1956,7 +1911,7 @@ const CheckoutPage = () => {
 
                       {/* Display total weight if in INR mode */}
                       {currency === "INR" && totalWeight > 0 && (
-                        <div className="flex justify-between text-sm font-poppins">
+                        <div className="flex justify-between text-sm">
                           <span className="text-gray-600 flex items-center">
                             Total Weight
                             <span className="inline-flex ml-1 text-gray-400">
@@ -1967,7 +1922,7 @@ const CheckoutPage = () => {
                         </div>
                       )}
 
-                      <div className="flex justify-between text-sm font-poppins">
+                      <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Tax (10%)</span>
                         <span>{formatPrice(tax)}</span>
                       </div>
@@ -1975,8 +1930,8 @@ const CheckoutPage = () => {
                       <Separator className="bg-gray-200" />
 
                       <div className="flex justify-between font-medium">
-                        <span className="font-poppins">Total</span>
-                        <span className="text-lg font-playfair text-[#6B2F1A]">
+                        <span>Total</span>
+                        <span className="text-lg text-[#6B2F1A]">
                           {formatPrice(total)}
                         </span>
                       </div>
@@ -1987,11 +1942,11 @@ const CheckoutPage = () => {
                       totalWeight > 0 &&
                       watchShippingMethod === "standard" && (
                         <div className="mt-4 bg-[#FFF5F1] p-3 rounded-md">
-                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1 font-poppins flex items-center">
+                          <h3 className="text-sm font-medium text-[#6B2F1A] mb-1 flex items-center">
                             <Truck className="h-4 w-4 mr-1" />
                             Weight-based shipping
                           </h3>
-                          <p className="text-xs text-[#6B2F1A]/80 font-poppins">
+                          <p className="text-xs text-[#6B2F1A]/80">
                             Standard shipping cost is calculated based on total
                             product weight:
                             <br />- First 500g: ₹50
@@ -2004,14 +1959,14 @@ const CheckoutPage = () => {
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex items-start space-x-2 mb-2">
                         <Shield className="h-4 w-4 text-[#6B2F1A] mt-0.5" />
-                        <p className="text-xs text-gray-600 font-poppins">
+                        <p className="text-xs text-gray-600">
                           <span className="font-medium">Secure Checkout:</span>{" "}
                           Your information is protected using SSL encryption.
                         </p>
                       </div>
                       <div className="flex items-start space-x-2 mb-2">
                         <HeartHandshake className="h-4 w-4 text-[#6B2F1A] mt-0.5" />
-                        <p className="text-xs text-gray-600 font-poppins">
+                        <p className="text-xs text-gray-600">
                           <span className="font-medium">
                             Satisfaction Guaranteed:
                           </span>{" "}
@@ -2020,7 +1975,7 @@ const CheckoutPage = () => {
                       </div>
                       <div className="flex items-start space-x-2">
                         <Wallet className="h-4 w-4 text-[#6B2F1A] mt-0.5" />
-                        <p className="text-xs text-gray-600 font-poppins">
+                        <p className="text-xs text-gray-600">
                           <span className="font-medium">
                             Flexible Payments:
                           </span>{" "}
@@ -2035,11 +1990,11 @@ const CheckoutPage = () => {
                   <Alert className="bg-[#FFF5F1] border-[#fee3d8]">
                     <div className="flex items-center gap-2">
                       <Lock className="h-4 w-4 text-[#6B2F1A]" />
-                      <AlertTitle className="text-[#6B2F1A] font-playfair">
+                      <AlertTitle className="text-[#6B2F1A]">
                         Secure Checkout
                       </AlertTitle>
                     </div>
-                    <AlertDescription className="text-[#6B2F1A]/80 mt-2 font-poppins">
+                    <AlertDescription className="text-[#6B2F1A]/80 mt-2">
                       Your transaction is secured with 256-bit SSL encryption
                     </AlertDescription>
                   </Alert>

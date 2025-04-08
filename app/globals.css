@@ -71,8 +71,6 @@ body {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -205,9 +203,75 @@ body {
   font-family: var(--font-playfair);
   font-weight: bolder;
 }
+
+/* ======= PLAYFAIR DISPLAY FONT VARIATIONS ======= */
+
+/* Normal styles for Playfair Display */
+.playfair {
+  font-family: var(--font-playfair);
+}
+
+.playfair-thin {
+  font-family: var(--font-playfair);
+  font-weight: 100;
+}
+
+.playfair-extralight {
+  font-family: var(--font-playfair);
+  font-weight: 200;
+}
+
+.playfair-light {
+  font-family: var(--font-playfair);
+  font-weight: 300;
+}
+
+.playfair-regular {
+  font-family: var(--font-playfair);
+  font-weight: 400;
+}
+
+.playfair-medium {
+  font-family: var(--font-playfair);
+  font-weight: 500;
+}
+
+.playfair-semibold {
+  font-family: var(--font-playfair);
+  font-weight: 600;
+}
+
+.playfair-bold {
+  font-family: var(--font-playfair);
+  font-weight: 700;
+}
+
+.playfair-extrabold {
+  font-family: var(--font-playfair);
+  font-weight: 800;
+}
+
+.playfair-black {
+  font-family: var(--font-playfair);
+  font-weight: 900;
+}
+
+/* Italic styles for Playfair Display */
 .playfair-italic {
   font-family: var(--font-playfair);
   font-style: italic;
+}
+
+.playfair-italic-thin {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 100;
+}
+
+.playfair-italic-extralight {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 200;
 }
 
 .playfair-italic-light {
@@ -239,6 +303,131 @@ body {
   font-style: italic;
   font-weight: 700;
 }
+
+.playfair-italic-extrabold {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 800;
+}
+
+.playfair-italic-black {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 900;
+}
+
+/* ======= POPPINS FONT VARIATIONS ======= */
+
+/* Normal styles for Poppins */
+.poppins {
+  font-family: var(--font-poppins);
+}
+
+.poppins-thin {
+  font-family: var(--font-poppins);
+  font-weight: 100;
+}
+
+.poppins-extralight {
+  font-family: var(--font-poppins);
+  font-weight: 200;
+}
+
+.poppins-light {
+  font-family: var(--font-poppins);
+  font-weight: 300;
+}
+
+.poppins-regular {
+  font-family: var(--font-poppins);
+  font-weight: 400;
+}
+
+.poppins-medium {
+  font-family: var(--font-poppins);
+  font-weight: 500;
+}
+
+.poppins-semibold {
+  font-family: var(--font-poppins);
+  font-weight: 600;
+}
+
+.poppins-bold {
+  font-family: var(--font-poppins);
+  font-weight: 700;
+}
+
+.poppins-extrabold {
+  font-family: var(--font-poppins);
+  font-weight: 800;
+}
+
+.poppins-black {
+  font-family: var(--font-poppins);
+  font-weight: 900;
+}
+
+/* Italic styles for Poppins */
+.poppins-italic {
+  font-family: var(--font-poppins);
+  font-style: italic;
+}
+
+.poppins-italic-thin {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 100;
+}
+
+.poppins-italic-extralight {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 200;
+}
+
+.poppins-italic-light {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 300;
+}
+
+.poppins-italic-regular {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.poppins-italic-medium {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.poppins-italic-semibold {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.poppins-italic-bold {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 700;
+}
+
+.poppins-italic-extrabold {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 800;
+}
+
+.poppins-italic-black {
+  font-family: var(--font-poppins);
+  font-style: italic;
+  font-weight: 900;
+}
+
 /* Mobile menu styling enhancements */
 .mobile-menu-category {
   font-family: var(--font-playfair);
